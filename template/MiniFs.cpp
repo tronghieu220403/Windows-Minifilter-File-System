@@ -1,4 +1,4 @@
-#include "MiniFs.h"
+#include "../template/MiniFs.h"
 
 NTSTATUS
 MiniFsInstanceSetup (

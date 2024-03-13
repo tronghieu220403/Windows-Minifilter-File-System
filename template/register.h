@@ -4,7 +4,7 @@
 #include <fltKernel.h>
 
 #include "../std/vector/vector.h"
-#include "debug.h"
+#include "../template/debug.h"
 
 struct IrpMjPreFunction
 {

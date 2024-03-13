@@ -13,7 +13,6 @@
 #endif // DEBUG
 
 #include <fltKernel.h>
-#include <dontuse.h>
 
 #pragma warning( disable : 4083 4024 4047 4702 4189 4101 4100)
 
