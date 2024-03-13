@@ -1,5 +1,5 @@
 ;;;
-;;; MiniFs
+;;; FsFilter
 ;;;
 
 [Version]
@@ -11,7 +11,7 @@ Class       = "ActivityMonitor"             ;This is determined by the work this
 ClassGuid   = {b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}    ;This value is determined by the Class
 Provider    = %ManufacturerName%
 DriverVer   = 
-CatalogFile = MiniFs.cat
+CatalogFile = FsFilter.cat
 PnpLockDown=1
 
 [DestinationDirs]
@@ -74,7 +74,7 @@ HKR,"Instances\"%Instance1.Name%,"Flags",0x00010001,%Instance1.Flags%
 %DriverName%.sys
 
 [SourceDisksFiles]
-MiniFs.sys = 1,,
+FsFilter.sys = 1,,
 
 [SourceDisksNames]
 1 = %DiskId1%,,,
@@ -86,14 +86,14 @@ MiniFs.sys = 1,,
 [Strings]
 ; TODO - Add your manufacturer
 ManufacturerName        = "Template"
-ServiceDescription      = "MiniFs Mini-Filter Driver"
-ServiceName             = "MiniFs"
-DriverName              = "MiniFs"
-DiskId1                 = "MiniFs Device Installation Disk"
+ServiceDescription      = "FsFilter Mini-Filter Driver"
+ServiceName             = "FsFilter"
+DriverName              = "FsFilter"
+DiskId1                 = "FsFilter Device Installation Disk"
 
 ;Instances specific information.
-DefaultInstance         = "MiniFs Instance"
-Instance1.Name          = "MiniFs Instance"
+DefaultInstance         = "FsFilter Instance"
+Instance1.Name          = "FsFilter Instance"
 ; TODO - Change the altitude value, see https://msdn.microsoft.com/en-us/windows/hardware/drivers/ifs/load-order-groups-and-altitudes-for-minifilter-drivers
-Instance1.Altitude       = "370150"
+Instance1.Altitude       = "365000"
 Instance1.Flags         = 0x0              ; Allow all attachments

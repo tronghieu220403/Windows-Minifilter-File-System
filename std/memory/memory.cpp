@@ -20,3 +20,12 @@ void operator delete[](void* p)
     }
     krnl_std::Free(p);
 }
+
+void operator delete[](void* p, size_t n)
+{
+    if (p == nullptr)
+    {
+        return;
+    }
+    krnl_std::Free(p);
+}

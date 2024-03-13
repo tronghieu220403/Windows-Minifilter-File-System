@@ -6,17 +6,18 @@
 #include <wdm.h>
 #include <fltKernel.h>
 
-Vector<String<char>> kAntiList;
 
-namespace AntiDelete
+namespace anti_delete
 {
-	static void Register();
+	inline Vector<String<char>>* kAntiList;
 
-	static FLT_PREOP_CALLBACK_STATUS PreOperation(_Inout_ PFLT_CALLBACK_DATA Data, _In_ PCFLT_RELATED_OBJECTS FltObjects, _Flt_CompletionContext_Outptr_ PVOID* CompletionContext);
+	void Register();
 
-	static bool IsProtectedFile();
+	FLT_PREOP_CALLBACK_STATUS PreOperation(_Inout_ PFLT_CALLBACK_DATA Data, _In_ PCFLT_RELATED_OBJECTS FltObjects, _Flt_CompletionContext_Outptr_ PVOID* CompletionContext);
 
-	static bool AddFileToProtectedList();
+	bool IsProtectedFile();
+
+	bool AddFileToProtectedList();
 
 };
 
