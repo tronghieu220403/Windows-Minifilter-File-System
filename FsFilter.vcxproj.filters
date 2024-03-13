@@ -29,19 +29,55 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="comport.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ioctl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClInclude Include="template\debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="template\MiniFs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="template\register.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std\memory\memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std\memory\sharedptr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std\string\string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std\vector\vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="anti-delete\AntiDelete.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="com\comport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="com\ioctl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="comport.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ioctl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="template\MiniFs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="template\register.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="std\memory\memory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="anti-delete\AntiDelete.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="com\comport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="com\ioctl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
