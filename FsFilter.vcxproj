@@ -229,7 +229,7 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="anti-delete\AntiDelete.h" />
+    <ClInclude Include="anti-delete\anti-delete.h" />
     <ClInclude Include="com\comport.h" />
     <ClInclude Include="com\ioctl.h" />
     <ClInclude Include="std\memory\memory.h" />
@@ -241,7 +241,7 @@
     <ClInclude Include="template\register.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="anti-delete\AntiDelete.cpp" />
+    <ClCompile Include="anti-delete\anti-delete.cpp" />
     <ClCompile Include="com\comport.cpp" />
     <ClCompile Include="com\ioctl.cpp" />
     <ClCompile Include="std\memory\memory.cpp" />

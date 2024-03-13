@@ -50,7 +50,7 @@
     <ClInclude Include="std\vector\vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="anti-delete\AntiDelete.h">
+    <ClInclude Include="anti-delete\anti-delete.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="com\comport.h">
@@ -70,7 +70,7 @@
     <ClCompile Include="std\memory\memory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="anti-delete\AntiDelete.cpp">
+    <ClCompile Include="anti-delete\anti-delete.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="com\comport.cpp">

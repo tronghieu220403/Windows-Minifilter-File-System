@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Windows-Minifilter-Template/std/lib/vector/vector.h"
-#include "../Windows-Minifilter-Template/std/lib/string/string.h"
+#include "../std/vector/vector.h"
+#include "../std/string/string.h"
 
 #include <wdm.h>
 #include <fltKernel.h>

@@ -19,7 +19,7 @@ Environment:
 #include <fltKernel.h>
 
 #include "register.h"
-#include "../template/debug.h"
+#include "debug.h"
 
 #pragma prefast(disable:__WARNING_ENCODE_MEMBER_FUNCTION_POINTER, "Not valid for kernel mode drivers")
 
