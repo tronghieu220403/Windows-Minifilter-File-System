@@ -3,21 +3,18 @@
 #include <ntdef.h>
 #include <wdm.h>
 
-namespace sync
+class Mutex
 {
-	class Mutex
-	{
-	private:
-		KGUARDED_MUTEX mutex_ = { 0 };
-	public:
+private:
+	KGUARDED_MUTEX mutex_ = { 0 };
+public:
 
-		void Create();
+	void Create();
 
-		void Lock();
+	void Lock();
 		
-		void Unlock();
+	void Unlock();
 
-		bool Trylock();
+	bool Trylock();
 
-	};
-}
+};

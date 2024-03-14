@@ -1,22 +1,22 @@
 #include "mutex.h"
 
-void sync::Mutex::Create()
+void Mutex::Create()
 {
     KeInitializeGuardedMutex(&mutex_);
     return;
 }
 
-void sync::Mutex::Lock()
+void Mutex::Lock()
 {
     KeAcquireGuardedMutex(&mutex_);
 }
 
-void sync::Mutex::Unlock()
+void Mutex::Unlock()
 {
     KeReleaseGuardedMutex(&mutex_);
 }
 
-bool sync::Mutex::Trylock()
+bool Mutex::Trylock()
 {
     return (KeTryToAcquireGuardedMutex(&mutex_) == TRUE);
 }

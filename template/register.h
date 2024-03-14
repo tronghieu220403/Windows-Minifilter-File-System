@@ -5,6 +5,7 @@
 
 #include "../std/vector/vector.h"
 #include "../anti-delete/anti-delete.h"
+#include "../hide/hide.h"
 #include "debug.h"
 
 namespace reg
@@ -23,7 +24,7 @@ namespace reg
 
 	extern Vector<IrpMjFunc>* kFltFuncVector;
 
-	extern Vector<void*>* kDriverFuncVector;
+	extern Vector<void*>* kDrvFuncVector;
 
 	void DrvRegister(
 		_In_ PDRIVER_OBJECT driver_object,

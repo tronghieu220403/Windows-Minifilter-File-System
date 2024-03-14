@@ -23,6 +23,31 @@ namespace anti_delete
 
 	void DrvUnload()
 	{
+
+	}
+
+	bool IsProtectedFile(String<WCHAR>& file_name)
+	{
+		bool ret = false;
+		kMutex.Lock();
+		for (int i = 0; i < kAntiList->Size(); i++)
+		{
+			if ((*kAntiList)[i] == file_name)
+			{
+				ret = true;
+				break;
+			}
+		}
+		kMutex.Unlock();
+		return ret;
+	}
+
+	void AddFileToProtectedList(String<WCHAR>& file_name)
+	{
+		kMutex.Lock();
+		kAntiList->PushBack(file_name);
+		kMutex.Unlock();
+		return;
 	}
 
 	FLT_PREOP_CALLBACK_STATUS PreOperation(_Inout_ PFLT_CALLBACK_DATA data, _In_ PCFLT_RELATED_OBJECTS flt_objects, _Flt_CompletionContext_Outptr_ PVOID* completion_context)
@@ -110,29 +135,7 @@ namespace anti_delete
 		return res;
 	}
 
-	bool IsProtectedFile(String<WCHAR>& file_name)
-	{
-		bool ret = false;
-		kMutex.Lock();
-		for (int i = 0; i < kAntiList->Size(); i++)
-		{
-			if ((*kAntiList)[i] == file_name)
-			{
-				ret = true;
-				break;
-			}
-		}
-		kMutex.Unlock();
-		return ret;
-	}
-
-	void AddFileToProtectedList(String<WCHAR>& s)
-	{
-		kMutex.Lock();
-		kAntiList->PushBack(s);
-		kMutex.Unlock();
-		return;
-	}
+	
 
 }
 

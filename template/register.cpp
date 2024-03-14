@@ -4,7 +4,7 @@ namespace reg
 {
 	Vector<IrpMjFunc>* kFltFuncVector = nullptr;
 
-	Vector<void*>* kDriverFuncVector = nullptr;
+	Vector<void*>* kDrvFuncVector = nullptr;
 
 	void DrvRegister(
 		_In_ PDRIVER_OBJECT driver_object,
@@ -13,11 +13,11 @@ namespace reg
 	{
 		DebugMessage("DriverRegister");
 
-		kDriverFuncVector = new Vector<void*>();
+		kDrvFuncVector = new Vector<void*>();
 
 		anti_delete::DrvRegister();
-
-		// TODO
+		hide::DrvRegister();
+		return;
 	}
 
 
@@ -25,8 +25,10 @@ namespace reg
 	{
 		DebugMessage("DriverUnloadRegistered");
 
-		delete kDriverFuncVector;
+		delete kDrvFuncVector;
+		
 		anti_delete::DrvUnload();
+		hide::DrvUnload();
 		return;
 	}
 
@@ -36,15 +38,19 @@ namespace reg
 		DebugMessage("MiniFilterRegister");
 
 		kFltFuncVector = new Vector<IrpMjFunc>();
+		
 		anti_delete::FltRegister();
+		hide::FltRegister();
 
-		// TODO: register minifilter callback function here.
+		return;
 	}
 
 	void FltUnload()
 	{
 		delete kFltFuncVector;
 		anti_delete::FltUnload();
+		hide::FltUnload();
+		return;
 	}
 
 	Context* AllocCompletionContext()
