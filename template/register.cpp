@@ -1,52 +1,70 @@
 #include "register.h"
 
-Vector<IrpMjFunc>* kFltFuncVector = nullptr;
-
-Vector<void*>* kDriverFuncVector = nullptr;
-
-void DriverRegister(
-	_In_ PDRIVER_OBJECT driver_object,
-	_In_ PUNICODE_STRING registry_path
-)
+namespace reg
 {
-	DebugMessage("DriverRegister");
-	kFltFuncVector = new Vector<IrpMjFunc>();
-	kDriverFuncVector = new Vector<void*>();
+	Vector<IrpMjFunc>* kFltFuncVector = nullptr;
 
-	// TODO
-}
+	Vector<void*>* kDriverFuncVector = nullptr;
 
-void MiniFilterRegister()
-{
-	DebugMessage("MiniFilterRegister");
+	void DrvRegister(
+		_In_ PDRIVER_OBJECT driver_object,
+		_In_ PUNICODE_STRING registry_path
+	)
+	{
+		DebugMessage("DriverRegister");
 
-	anti_delete::FltRegister();
+		kDriverFuncVector = new Vector<void*>();
 
-	// TODO: register minifilter callback function here.
-}
+		anti_delete::DrvRegister();
 
-void DriverUnloadRegister(PDRIVER_OBJECT driver_object)
-{
-	DebugMessage("DriverUnloadRegistered");
-	return;
-}
+		// TODO
+	}
 
-Context* AllocCompletionContext()
-{
-	// DebugMessage("AllocCompletionContext");
 
-	Context* context = new Context();
-	context->status = new Vector<FLT_PREOP_CALLBACK_STATUS>(kFltFuncVector->Size());
+	void DrvUnloadRegister(PDRIVER_OBJECT driver_object)
+	{
+		DebugMessage("DriverUnloadRegistered");
 
-	return context;
+		delete kDriverFuncVector;
+		anti_delete::DrvUnload();
+		return;
+	}
 
-}
 
-void DeallocCompletionContext(Context *context)
-{
-	// DebugMessage("DeallocCompletionContext");
+	void FltRegister()
+	{
+		DebugMessage("MiniFilterRegister");
 
-	delete context->status;
+		kFltFuncVector = new Vector<IrpMjFunc>();
+		anti_delete::FltRegister();
 
-	delete context;
+		// TODO: register minifilter callback function here.
+	}
+
+	void FltUnload()
+	{
+		delete kFltFuncVector;
+		anti_delete::FltUnload();
+	}
+
+	Context* AllocCompletionContext()
+	{
+		// DebugMessage("AllocCompletionContext");
+
+		Context* context = new Context();
+		context->status = new Vector<FLT_PREOP_CALLBACK_STATUS>(kFltFuncVector->Size());
+
+		return context;
+
+	}
+
+	void DeallocCompletionContext(Context *context)
+	{
+		// DebugMessage("DeallocCompletionContext");
+
+		delete context->status;
+
+		delete context;
+	}
+
 }

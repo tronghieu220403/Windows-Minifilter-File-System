@@ -7,31 +7,37 @@
 #include "../anti-delete/anti-delete.h"
 #include "debug.h"
 
-struct IrpMjFunc
+namespace reg
 {
-	size_t irp_mj_function_code = 0;
-	PFLT_PRE_OPERATION_CALLBACK pre_func = nullptr;
-	PFLT_POST_OPERATION_CALLBACK post_func = nullptr;
-};
+	struct IrpMjFunc
+	{
+		size_t irp_mj_function_code = 0;
+		PFLT_PRE_OPERATION_CALLBACK pre_func = nullptr;
+		PFLT_POST_OPERATION_CALLBACK post_func = nullptr;
+	};
 
-struct Context
-{
-	Vector<FLT_PREOP_CALLBACK_STATUS>* status = nullptr;
-};
+	struct Context
+	{
+		Vector<FLT_PREOP_CALLBACK_STATUS>* status = nullptr;
+	};
 
-extern Vector<IrpMjFunc>* kFltFuncVector;
+	extern Vector<IrpMjFunc>* kFltFuncVector;
 
-extern Vector<void*>* kDriverFuncVector;
+	extern Vector<void*>* kDriverFuncVector;
 
-void DriverRegister(
-	_In_ PDRIVER_OBJECT driver_object,
-	_In_ PUNICODE_STRING registry_path
-);
+	void DrvRegister(
+		_In_ PDRIVER_OBJECT driver_object,
+		_In_ PUNICODE_STRING registry_path
+	);
 
-void MiniFilterRegister();
+	void FltRegister();
 
-void DriverUnloadRegister(PDRIVER_OBJECT driver_object);
+	void DrvUnload(PDRIVER_OBJECT driver_object);
 
-Context* AllocCompletionContext();
+	void FltUnload();
 
-void DeallocCompletionContext(Context*);
+	Context* AllocCompletionContext();
+
+	void DeallocCompletionContext(Context*);
+}
+

@@ -179,11 +179,11 @@ Return Value:
 
     UNREFERENCED_PARAMETER( registry_path );
 
-    DriverRegister(driver_object, registry_path);
+    reg::DrvRegister(driver_object, registry_path);
 
     driver_object->DriverUnload = (PDRIVER_UNLOAD)DriverUnload;
 
-    MiniFilterRegister();
+    reg::FltRegister();
 
     //
     //  Register with FltMgr to tell it our callback routines
@@ -217,7 +217,7 @@ DriverUnload(
     PDRIVER_OBJECT driver_object
 )
 {
-    DriverUnloadRegister(driver_object);
+    reg::DrvUnload(driver_object);
     return STATUS_SUCCESS;
 }
 
@@ -247,6 +247,8 @@ Return Value:
     UNREFERENCED_PARAMETER( flags );
 
     PAGED_CODE();
+
+    reg::FltUnload();
 
     FltUnregisterFilter( kFilterHandle );
 
@@ -295,16 +297,16 @@ Return Value:
     UNREFERENCED_PARAMETER( completion_context );
 
     
-    Context* p = nullptr;
+    reg::Context* p = nullptr;
     if ((*completion_context) == nullptr)
     {
-        p = AllocCompletionContext();
-        (*completion_context) = (PVOID* )AllocCompletionContext();
-        p->status->Resize(kFltFuncVector->Size());
+        p = reg::AllocCompletionContext();
+        (*completion_context) = (PVOID* )reg::AllocCompletionContext();
+        p->status->Resize(reg::kFltFuncVector->Size());
     }
     else
     {
-        p = (Context*)(*completion_context);
+        p = (reg::Context*)(*completion_context);
     }
 
     if (p == nullptr)
@@ -312,12 +314,12 @@ Return Value:
         return FLT_PREOP_SUCCESS_NO_CALLBACK;
     }
 
-    for (int i = 0; i < kFltFuncVector->Size(); i++)
+    for (int i = 0; i < reg::kFltFuncVector->Size(); i++)
     {
-        if (data->Iopb->MajorFunction == (*kFltFuncVector)[i].irp_mj_function_code &&
-            (*kFltFuncVector)[i].pre_func != nullptr)
+        if (data->Iopb->MajorFunction == (*reg::kFltFuncVector)[i].irp_mj_function_code &&
+            (*reg::kFltFuncVector)[i].pre_func != nullptr)
         {
-            FLT_PREOP_CALLBACK_STATUS status = (*kFltFuncVector)[i].pre_func(data, flt_objects, completion_context);
+            FLT_PREOP_CALLBACK_STATUS status = (*reg::kFltFuncVector)[i].pre_func(data, flt_objects, completion_context);
             (*(p->status))[i] = status;
         }
     }
@@ -371,20 +373,20 @@ Return Value:
     UNREFERENCED_PARAMETER( flags );
 
     
-    Context* p = (Context*)completion_context;
+    reg::Context* p = (reg::Context*)completion_context;
     if (p == nullptr)
     {
         return FLT_POSTOP_FINISHED_PROCESSING;
     }
 
-    for (int i = 0; i < (*kFltFuncVector).Size(); i++)
+    for (int i = 0; i < (*reg::kFltFuncVector).Size(); i++)
     {
-        if (data->Iopb->MajorFunction == (*kFltFuncVector)[i].irp_mj_function_code &&
-            (*kFltFuncVector)[i].post_func != nullptr)
+        if (data->Iopb->MajorFunction == (*reg::kFltFuncVector)[i].irp_mj_function_code &&
+            (*reg::kFltFuncVector)[i].post_func != nullptr)
         {
             if ((*(p->status))[i] != FLT_PREOP_SUCCESS_NO_CALLBACK)
             {
-                (*kFltFuncVector)[i].post_func(data, flt_objects, completion_context, flags);
+                (*reg::kFltFuncVector)[i].post_func(data, flt_objects, completion_context, flags);
             }
         }
     }

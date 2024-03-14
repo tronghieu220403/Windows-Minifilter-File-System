@@ -16,6 +16,8 @@ public:
 	String(const String&);
 	String(const T*);
 
+	String(const UNICODE_STRING&);
+
 	// Copy Assingment
 	String<T>& operator=(const String<T>&);
 
@@ -261,6 +263,26 @@ inline String<T>::String(const T* cstr)
 	for (size_t index = 0; index < cstr_size; ++index)
 		elements_[index] = cstr[index];
 }
+
+template<>
+inline String<WCHAR>::String(const UNICODE_STRING& uni_str)
+	:size_(uni_str.Length / sizeof(WCHAR)), elements_(Allocate(uni_str.MaximumLength / sizeof(WCHAR))), space_(uni_str.MaximumLength / sizeof(WCHAR))
+{
+	MemCopy(elements_, uni_str.Buffer, uni_str.Length);
+	elements_[uni_str.Length] = 0;
+}
+
+template<>
+inline String<char>::String(const UNICODE_STRING& uni_str)
+	:size_(uni_str.Length / sizeof(WCHAR)), elements_(Allocate(uni_str.MaximumLength / sizeof(WCHAR))), space_(uni_str.MaximumLength / sizeof(WCHAR))
+{
+	for (int i = 0; i < uni_str.Length; i++)
+	{
+		elements_[i] = (char)uni_str.Buffer[i];
+	}
+	elements_[uni_str.Length] = 0;
+}
+
 
 template<class T>
 inline String<T>& String<T>::operator=(const String<T>& str)

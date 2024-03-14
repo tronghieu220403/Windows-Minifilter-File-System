@@ -17,7 +17,8 @@ extern void operator delete(void*, size_t);
 
 extern void operator delete[](void*);
 
-void MemCopy(void* dst, void* src, size_t len);
+template <class T>
+void MemCopy(T* dst, T* src, size_t len);
 
 template <class T>
 void ZeroMemory(T* dst, size_t len);
@@ -30,9 +31,10 @@ namespace krnl_std
 
 }
 
-inline void MemCopy(void* dst, void* src, size_t len)
+template <class T>
+inline void MemCopy(T* dst, T* src, size_t len)
 {
-    RtlCopyMemory(dst, src, len);
+    RtlCopyMemory(dst, src, len * sizeof(T));
     return;
 }
 
