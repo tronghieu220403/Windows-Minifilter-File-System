@@ -26,6 +26,11 @@ namespace anti_delete
 			}
 		}
 
+		if (IsProtectedFile() == false)
+		{
+			return FLT_PREOP_SUCCESS_NO_CALLBACK;
+		}
+
 		// Ignore un
 
 		// https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/irp-mj-create
@@ -57,7 +62,12 @@ namespace anti_delete
 
 	}
 
-	bool IsProtectedFile()
+	String<char> GetFileName(PFLT_CALLBACK_DATA Data)
+	{
+		return String<char>();
+	}
+
+	bool IsProtectedFile(String<char>& s)
 	{
 		return false;
 	}
