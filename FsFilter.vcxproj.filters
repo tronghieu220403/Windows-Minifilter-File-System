@@ -62,6 +62,9 @@
     <ClInclude Include="std\sync\mutex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="hide\hide.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="template\MiniFs.cpp">
@@ -83,6 +86,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="std\sync\mutex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hide\hide.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -5,7 +5,7 @@ namespace anti_delete
 	void FltRegister()
 	{
 		kAntiList = new Vector<String<WCHAR>>();
-		kMutex.Create();
+		kFileMutex.Create();
 		reg::kFltFuncVector->PushBack({ IRP_MJ_CREATE, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_SET_INFORMATION, PreOperation, nullptr });
 		return;
@@ -29,7 +29,7 @@ namespace anti_delete
 	bool IsProtectedFile(String<WCHAR>& file_name)
 	{
 		bool ret = false;
-		kMutex.Lock();
+		kFileMutex.Lock();
 		for (int i = 0; i < kAntiList->Size(); i++)
 		{
 			if ((*kAntiList)[i] == file_name)
@@ -38,15 +38,15 @@ namespace anti_delete
 				break;
 			}
 		}
-		kMutex.Unlock();
+		kFileMutex.Unlock();
 		return ret;
 	}
 
 	void AddFileToProtectedList(String<WCHAR>& file_name)
 	{
-		kMutex.Lock();
+		kFileMutex.Lock();
 		kAntiList->PushBack(file_name);
-		kMutex.Unlock();
+		kFileMutex.Unlock();
 		return;
 	}
 
