@@ -9,9 +9,9 @@ namespace anti_delete
 		return;
 	}
 
-	FLT_PREOP_CALLBACK_STATUS PreOperation(_Inout_ PFLT_CALLBACK_DATA Data, _In_ PCFLT_RELATED_OBJECTS FltObjects, _Flt_CompletionContext_Outptr_ PVOID* CompletionContext)
+	FLT_PREOP_CALLBACK_STATUS PreOperation(_Inout_ PFLT_CALLBACK_DATA data, _In_ PCFLT_RELATED_OBJECTS flt_objects, _Flt_CompletionContext_Outptr_ PVOID* completion_context)
 	{
-		UNREFERENCED_PARAMETER(CompletionContext);
+		UNREFERENCED_PARAMETER(completion_context);
 
 		PAGED_CODE();
 
@@ -19,14 +19,16 @@ namespace anti_delete
 
 		// Ignore directories
 		BOOLEAN IsDir;
-		NTSTATUS status = FltIsDirectory(FltObjects->FileObject, FltObjects->Instance, &IsDir);
+		NTSTATUS status = FltIsDirectory(flt_objects->FileObject, flt_objects->Instance, &IsDir);
 		if (NT_SUCCESS(status)) {
 			if (IsDir) {
 				return FLT_PREOP_SUCCESS_NO_CALLBACK;
 			}
 		}
 
-		if (IsProtectedFile() == false)
+		String<char> file_name = GetFileName(data);
+
+		if (IsProtectedFile(file_name) == false)
 		{
 			return FLT_PREOP_SUCCESS_NO_CALLBACK;
 		}
@@ -36,15 +38,15 @@ namespace anti_delete
 		// https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/irp-mj-create
 		// When the system tries to open a handle to a file object,
 		// detect requests that have DELETE_ON_CLOSE in DesiredAccess
-		if (Data->Iopb->MajorFunction == IRP_MJ_CREATE) {
-			if (!FlagOn(Data->Iopb->Parameters.Create.Options, FILE_DELETE_ON_CLOSE)) {
+		if (data->Iopb->MajorFunction == IRP_MJ_CREATE) {
+			if (!FlagOn(data->Iopb->Parameters.Create.Options, FILE_DELETE_ON_CLOSE)) {
 				return FLT_PREOP_SUCCESS_NO_CALLBACK;
 			}
 		}
 
 		// Process requests with FileDispositionInformation, FileDispositionInformationEx  or file renames
-		if (Data->Iopb->MajorFunction == IRP_MJ_SET_INFORMATION) {
-			switch (Data->Iopb->Parameters.SetFileInformation.FileInformationClass) {
+		if (data->Iopb->MajorFunction == IRP_MJ_SET_INFORMATION) {
+			switch (data->Iopb->Parameters.SetFileInformation.FileInformationClass) {
 			case FileRenameInformation:
 			case FileRenameInformationEx:
 			case FileDispositionInformation:
@@ -62,12 +64,12 @@ namespace anti_delete
 
 	}
 
-	String<char> GetFileName(PFLT_CALLBACK_DATA Data)
+	String<char> GetFileName(PFLT_CALLBACK_DATA data)
 	{
 		return String<char>();
 	}
 
-	bool IsProtectedFile(String<char>& s)
+	bool IsProtectedFile(String<char>& file_name)
 	{
 		return false;
 	}

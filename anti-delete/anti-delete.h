@@ -17,9 +17,9 @@ namespace anti_delete
 
 	FLT_PREOP_CALLBACK_STATUS PreOperation(_Inout_ PFLT_CALLBACK_DATA Data, _In_ PCFLT_RELATED_OBJECTS FltObjects, _Flt_CompletionContext_Outptr_ PVOID* CompletionContext);
 
-	String<char> GetFileName(PFLT_CALLBACK_DATA Data);
+	String<char> GetFileName(PFLT_CALLBACK_DATA data);
 
-	bool IsProtectedFile(String<char>& s);
+	bool IsProtectedFile(String<char>& file_name);
 
 	bool AddFileToProtectedList();
 
