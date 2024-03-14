@@ -13,7 +13,9 @@
 namespace anti_delete
 {
 	inline Vector<String<WCHAR>>* kAntiList;
+	
 	inline Mutex kFileMutex;
+	
 	inline Mutex kDirMutex;
 
 	void FltRegister();

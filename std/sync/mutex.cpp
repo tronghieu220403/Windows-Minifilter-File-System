@@ -20,3 +20,5 @@ bool Mutex::Trylock()
 {
     return (KeTryToAcquireGuardedMutex(&mutex_) == TRUE);
 }
+
+

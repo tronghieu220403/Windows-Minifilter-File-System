@@ -92,6 +92,12 @@ FLT_POSTOP_CALLBACK_STATUS hide::PostDirControlOperation(PFLT_CALLBACK_DATA data
 		// TODO: create common class for info class
 		switch (info_class)
 		{
+		case FileFullDirectoryInformation:
+		case FileBothDirectoryInformation:
+		case FileDirectoryInformation:
+		case FileIdFullDirectoryInformation:
+		case FileIdBothDirectoryInformation:
+		case FileNamesInformation:
 		default:
 			break;
 		}
@@ -100,7 +106,7 @@ FLT_POSTOP_CALLBACK_STATUS hide::PostDirControlOperation(PFLT_CALLBACK_DATA data
 	{
 
 	}
-	return ;
+	return FLT_POSTOP_FINISHED_PROCESSING;
 }
 
 hide::FileInfoShort::FileInfoShort(PUCHAR base_va, PUCHAR next_entry_offset_va, PUCHAR file_name_va, PUCHAR file_name_length_offset_va, PUCHAR info_addr)

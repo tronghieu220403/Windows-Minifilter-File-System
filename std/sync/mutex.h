@@ -1,3 +1,4 @@
+#pragma once
 
 #include <ntifs.h>
 #include <ntdef.h>
@@ -12,9 +13,9 @@ public:
 	void Create();
 
 	void Lock();
-		
+
 	void Unlock();
 
 	bool Trylock();
-
 };
+

@@ -352,12 +352,12 @@ template<>
 inline String<WCHAR>& String<WCHAR>::operator=(const PUNICODE_STRING& uni_str)
 {
 	Deallocate();
-	size_ = uni_str.Length / sizeof(WCHAR);
-	elements_ = Allocate(uni_str.MaximumLength / sizeof(WCHAR)); 
-	space_ = uni_str.MaximumLength / sizeof(WCHAR);
+	size_ = uni_str->Length / sizeof(WCHAR);
+	elements_ = Allocate(uni_str->MaximumLength / sizeof(WCHAR));
+	space_ = uni_str->MaximumLength / sizeof(WCHAR);
 
-	MemCopy(elements_, uni_str.Buffer, uni_str.Length);
-	elements_[uni_str.Length] = 0;
+	MemCopy(elements_, uni_str->Buffer, uni_str->Length);
+	elements_[uni_str->Length] = 0;
 
 	return *this;
 }

@@ -15,8 +15,8 @@ namespace hide
 	inline Vector<String<WCHAR>>* kHideFileList = nullptr;
 	inline Vector<String<WCHAR>>* kHideDirList = nullptr;
 
-	Mutex kFileMutex;
-	Mutex kDirMutex;
+	inline Mutex kFileMutex;
+	inline Mutex kDirMutex;
 
 	void FltRegister();
 
