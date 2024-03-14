@@ -21,7 +21,7 @@ namespace reg
 	}
 
 
-	void DrvUnloadRegister(PDRIVER_OBJECT driver_object)
+	void DrvUnload(PDRIVER_OBJECT driver_object)
 	{
 		DebugMessage("DriverUnloadRegistered");
 

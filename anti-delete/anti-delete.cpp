@@ -5,7 +5,7 @@ namespace anti_delete
 	void FltRegister()
 	{
 		kAntiList = new Vector<String<WCHAR>>();
-
+		kMutex.Create();
 		reg::kFltFuncVector->PushBack({ IRP_MJ_CREATE, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_SET_INFORMATION, PreOperation, nullptr });
 		return;

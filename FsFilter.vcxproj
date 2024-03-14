@@ -235,6 +235,7 @@
     <ClInclude Include="std\memory\memory.h" />
     <ClInclude Include="std\memory\sharedptr.h" />
     <ClInclude Include="std\string\string.h" />
+    <ClInclude Include="std\sync\mutex.h" />
     <ClInclude Include="std\vector\vector.h" />
     <ClInclude Include="template\debug.h" />
     <ClInclude Include="template\MiniFs.h" />
@@ -245,6 +246,7 @@
     <ClCompile Include="com\comport.cpp" />
     <ClCompile Include="com\ioctl.cpp" />
     <ClCompile Include="std\memory\memory.cpp" />
+    <ClCompile Include="std\sync\mutex.cpp" />
     <ClCompile Include="template\MiniFs.cpp" />
     <ClCompile Include="template\register.cpp" />
   </ItemGroup>

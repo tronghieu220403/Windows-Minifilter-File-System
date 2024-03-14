@@ -29,7 +29,7 @@ namespace anti_delete
 
 	bool IsProtectedFile(String<WCHAR>& file_name);
 
-	void AddFileToProtectedList();
+	void AddFileToProtectedList(String<WCHAR>& s);
 
 };
 

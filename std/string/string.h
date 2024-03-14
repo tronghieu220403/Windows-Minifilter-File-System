@@ -605,6 +605,26 @@ inline bool String<T>::IsSuffixOf(const String<T>& str)
 }
 
 template<class T>
+inline bool String<T>::operator==(const String<T>& str)
+{
+	if (size_ != str.Size())
+	{
+		return false;
+	}
+
+	for (size_t index = 0; index < size_; ++index)
+	{
+		if (elements_[index] != str[index])
+		{
+			return false;
+		}
+	}
+
+	return true;
+
+}
+
+template<class T>
 inline T* String<T>::Allocate(size_t n)
 {
 	T* p = (T *)krnl_std::Alloc( (n + 1) * sizeof(T));
