@@ -2,8 +2,10 @@
 
 namespace anti_delete
 {
-	void Register()
+	void FltRegister()
 	{
+		kFltFuncVector->PushBack({ IRP_MJ_CREATE, PreOperation, nullptr });
+		kFltFuncVector->PushBack({ IRP_MJ_SET_INFORMATION, PreOperation, nullptr });
 		return;
 	}
 
@@ -20,7 +22,7 @@ namespace anti_delete
 		NTSTATUS status = FltIsDirectory(FltObjects->FileObject, FltObjects->Instance, &IsDir);
 		if (NT_SUCCESS(status)) {
 			if (IsDir) {
-				return ret;
+				return FLT_PREOP_SUCCESS_NO_CALLBACK;
 			}
 		}
 
@@ -31,7 +33,7 @@ namespace anti_delete
 		// detect requests that have DELETE_ON_CLOSE in DesiredAccess
 		if (Data->Iopb->MajorFunction == IRP_MJ_CREATE) {
 			if (!FlagOn(Data->Iopb->Parameters.Create.Options, FILE_DELETE_ON_CLOSE)) {
-				return ret;
+				return FLT_PREOP_SUCCESS_NO_CALLBACK;
 			}
 		}
 
@@ -47,11 +49,11 @@ namespace anti_delete
 				break;
 
 			default:
-				return ret;
+				return FLT_PREOP_SUCCESS_NO_CALLBACK;
 			}
 		}
 
-		return ret;
+		return FLT_PREOP_SUCCESS_NO_CALLBACK;
 
 	}
 

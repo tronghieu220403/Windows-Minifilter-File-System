@@ -217,7 +217,7 @@ DriverUnload(
     PDRIVER_OBJECT driver_object
 )
 {
-    DriverUnloadRegistered(driver_object);
+    DriverUnloadRegister(driver_object);
     return STATUS_SUCCESS;
 }
 
@@ -300,7 +300,7 @@ Return Value:
     {
         p = AllocCompletionContext();
         (*completion_context) = (PVOID* )AllocCompletionContext();
-        p->status->Resize(kPreFuncVector->Size());
+        p->status->Resize(kFltFuncVector->Size());
     }
     else
     {
@@ -312,12 +312,12 @@ Return Value:
         return FLT_PREOP_SUCCESS_NO_CALLBACK;
     }
 
-    for (int i = 0; i < kPreFuncVector->Size(); i++)
+    for (int i = 0; i < kFltFuncVector->Size(); i++)
     {
-        if (data->Iopb->MajorFunction == (*kPreFuncVector)[i].irp_mj_function_code && 
-            (*kPreFuncVector)[i].func != nullptr)
+        if (data->Iopb->MajorFunction == (*kFltFuncVector)[i].irp_mj_function_code &&
+            (*kFltFuncVector)[i].pre_func != nullptr)
         {
-            FLT_PREOP_CALLBACK_STATUS status = (*kPreFuncVector)[i].func(data, flt_objects, completion_context);
+            FLT_PREOP_CALLBACK_STATUS status = (*kFltFuncVector)[i].pre_func(data, flt_objects, completion_context);
             (*(p->status))[i] = status;
         }
     }
@@ -377,14 +377,14 @@ Return Value:
         return FLT_POSTOP_FINISHED_PROCESSING;
     }
 
-    for (int i = 0; i < (*kPostFuncVector).Size(); i++)
+    for (int i = 0; i < (*kFltFuncVector).Size(); i++)
     {
-        if (data->Iopb->MajorFunction == (*kPostFuncVector)[i].irp_mj_function_code &&
-            (*kPostFuncVector)[i].func != nullptr)
+        if (data->Iopb->MajorFunction == (*kFltFuncVector)[i].irp_mj_function_code &&
+            (*kFltFuncVector)[i].post_func != nullptr)
         {
-            if ((*(p->status))[i] == FLT_PREOP_SUCCESS_WITH_CALLBACK)
+            if ((*(p->status))[i] != FLT_PREOP_SUCCESS_NO_CALLBACK)
             {
-                (*kPostFuncVector)[i].func(data, flt_objects, completion_context, flags);
+                (*kFltFuncVector)[i].post_func(data, flt_objects, completion_context, flags);
             }
         }
     }

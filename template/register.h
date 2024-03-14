@@ -4,19 +4,14 @@
 #include <fltKernel.h>
 
 #include "../std/vector/vector.h"
+#include "../anti-delete/anti-delete.h"
 #include "debug.h"
 
-struct IrpMjPreFunction
+struct IrpMjFunc
 {
 	size_t irp_mj_function_code = 0;
-	PFLT_PRE_OPERATION_CALLBACK func = nullptr;
-};
-
-struct IrpMjPostFunction
-{
-	size_t irp_mj_function_code = 0;
-	PFLT_POST_OPERATION_CALLBACK func = nullptr;
-
+	PFLT_PRE_OPERATION_CALLBACK pre_func = nullptr;
+	PFLT_POST_OPERATION_CALLBACK post_func = nullptr;
 };
 
 struct Context
@@ -24,9 +19,7 @@ struct Context
 	Vector<FLT_PREOP_CALLBACK_STATUS>* status = nullptr;
 };
 
-extern Vector<IrpMjPreFunction>* kPreFuncVector;
-
-extern Vector<IrpMjPostFunction>* kPostFuncVector;
+extern Vector<IrpMjFunc>* kFltFuncVector;
 
 extern Vector<void*>* kDriverFuncVector;
 
@@ -37,7 +30,7 @@ void DriverRegister(
 
 void MiniFilterRegister();
 
-void DriverUnloadRegistered(PDRIVER_OBJECT driver_object);
+void DriverUnloadRegister(PDRIVER_OBJECT driver_object);
 
 Context* AllocCompletionContext();
 
