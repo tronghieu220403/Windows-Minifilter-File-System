@@ -62,7 +62,10 @@
     <ClInclude Include="std\sync\mutex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hide\hide.h">
+    <ClInclude Include="hide\hide-file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="file\file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -88,7 +91,10 @@
     <ClCompile Include="std\sync\mutex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="hide\hide.cpp">
+    <ClCompile Include="hide\hide-file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="file\file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

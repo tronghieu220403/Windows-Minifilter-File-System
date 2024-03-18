@@ -5,7 +5,7 @@
 
 #include "../std/vector/vector.h"
 #include "../anti-delete/anti-delete.h"
-#include "../hide/hide.h"
+#include "../hide/hide-file.h"
 #include "debug.h"
 
 namespace reg

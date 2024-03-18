@@ -1,11 +1,11 @@
-#include "hide.h"
+#include "hide-file.h"
 #pragma once
 
 void hide::FltRegister()
 {
     kHideFileList = new Vector<String<WCHAR>>();
     kFileMutex.Create();
-    reg::kFltFuncVector->PushBack({ IRP_MJ_DIRECTORY_CONTROL, PreDirControlOperation, PostDirControlOperation });
+    reg::kFltFuncVector->PushBack({ IRP_MJ_DIRECTORY_CONTROL, (PFLT_PRE_OPERATION_CALLBACK)PreDirControlOperation, (PFLT_POST_OPERATION_CALLBACK)PostDirControlOperation });
     return;
 }
 

@@ -232,7 +232,8 @@
     <ClInclude Include="anti-delete\anti-delete.h" />
     <ClInclude Include="com\comport.h" />
     <ClInclude Include="com\ioctl.h" />
-    <ClInclude Include="hide\hide.h" />
+    <ClInclude Include="file\file.h" />
+    <ClInclude Include="hide\hide-file.h" />
     <ClInclude Include="std\memory\memory.h" />
     <ClInclude Include="std\memory\sharedptr.h" />
     <ClInclude Include="std\string\string.h" />
@@ -246,7 +247,8 @@
     <ClCompile Include="anti-delete\anti-delete.cpp" />
     <ClCompile Include="com\comport.cpp" />
     <ClCompile Include="com\ioctl.cpp" />
-    <ClCompile Include="hide\hide.cpp" />
+    <ClCompile Include="file\file.cpp" />
+    <ClCompile Include="hide\hide-file.cpp" />
     <ClCompile Include="std\memory\memory.cpp" />
     <ClCompile Include="std\sync\mutex.cpp" />
     <ClCompile Include="template\MiniFs.cpp" />
