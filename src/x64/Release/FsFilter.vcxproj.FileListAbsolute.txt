@@ -1,0 +1,1 @@
+C:\Users\hieu\source\repos\Windows-Minifilter-File-System\x64\Release\FsFilter.sys
