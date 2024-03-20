@@ -82,7 +82,7 @@ FLT_POSTOP_CALLBACK_STATUS hide::PostDirControlOperation(PFLT_CALLBACK_DATA data
 		info_class = data->Iopb->Parameters.DirectoryControl.QueryDirectory.FileInformationClass;
 
 		directory_buffer = MmGetSystemAddressForMdlSafe(data->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress, NormalPagePriority | MdlMappingNoExecute);
-		directory_buffer_addr = &data->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress;
+		directory_buffer_addr = &directory_buffer;
 		if (directory_buffer == NULL)
 		{
 			directory_buffer = data->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer;
