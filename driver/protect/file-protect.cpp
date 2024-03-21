@@ -6,8 +6,8 @@ namespace protection
 	{
 		kProtectedFileList = new Vector<String<WCHAR>>();
 		kProtectedDirList = new Vector<String<WCHAR>>();
-		// kFileMutex.Create();
-		// kDirMutex.Create();
+		kFileMutex.Create();
+		kDirMutex.Create();
 		reg::kFltFuncVector->PushBack({ IRP_MJ_CREATE, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_SET_INFORMATION, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_QUERY_INFORMATION, PreOperation, nullptr });

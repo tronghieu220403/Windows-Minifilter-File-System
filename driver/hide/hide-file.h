@@ -47,8 +47,8 @@ namespace hide
 	extern inline Vector<String<WCHAR>>* kHideFileList = nullptr;
 	extern inline Vector<String<WCHAR>>* kHideDirList = nullptr;
 
-	extern inline Mutex kFileMutex;
-	extern inline Mutex kDirMutex;
+	extern inline Mutex kFileMutex = Mutex();
+	extern inline Mutex kDirMutex = Mutex();
 
 	void FltRegister();
 

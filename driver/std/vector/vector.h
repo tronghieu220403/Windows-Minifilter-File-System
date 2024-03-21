@@ -406,7 +406,7 @@ inline void Vector<T>::Append(const Vector<T>& v)
 template<typename T>
 inline bool Vector<T>::Swap(size_t i, size_t j)
 {
-	if (i >= size_ || j >= size)
+	if (i >= size_ || j >= size_)
 		return false;
 	T temp = elements_[i];
 	elements_[i] = elements_[j];

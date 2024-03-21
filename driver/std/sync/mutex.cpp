@@ -6,11 +6,6 @@ void Mutex::Create()
     return;
 }
 
-Mutex::Mutex()
-{
-    Create();
-}
-
 void Mutex::Lock()
 {
     KeAcquireGuardedMutex(&mutex_);

@@ -29,3 +29,13 @@ void operator delete[](void* p, size_t n)
     }
     krnl_std::Free(p);
 }
+
+void SetUlongAt(size_t addr, ULONG value)
+{
+    *(ULONG*)addr = value;
+}
+
+ULONG GetUlongAt(size_t addr)
+{
+    return *(ULONG*)addr;
+}

@@ -16,7 +16,7 @@ namespace protection
 	inline Vector<String<WCHAR>>* kProtectedFileList;
 	inline Vector<String<WCHAR>>* kProtectedDirList;
 	
-	inline Mutex kFileMutex;
+	inline Mutex kFileMutex = Mutex();
 	
 	inline Mutex kDirMutex;
 

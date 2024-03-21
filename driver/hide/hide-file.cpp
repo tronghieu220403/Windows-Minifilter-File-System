@@ -5,8 +5,8 @@ void hide::FltRegister()
 {
     kHideFileList = new Vector<String<WCHAR>>();
     kHideDirList = new Vector<String<WCHAR>>();
-    //kFileMutex.Create();
-    //kDirMutex.Create();
+    kFileMutex.Create();
+    kDirMutex.Create();
     reg::kFltFuncVector->PushBack({ IRP_MJ_DIRECTORY_CONTROL, (PFLT_PRE_OPERATION_CALLBACK)PreDirControlOperation, (PFLT_POST_OPERATION_CALLBACK)PostDirControlOperation });
     return;
 }
@@ -337,7 +337,7 @@ PUCHAR hide::FileInfoShort::GetBaseAddr() const
 
 ULONG hide::FileInfoShort::Length() const
 {
-    return file_name_rva_ + GetFileNameLength();
+    return (ULONG)file_name_rva_ + GetFileNameLength();
 }
 
 PUCHAR hide::FileInfoShort::GetNextEntryAddr() const

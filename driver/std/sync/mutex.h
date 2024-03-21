@@ -10,8 +10,6 @@ private:
 	KGUARDED_MUTEX mutex_ = { 0 };
 public:
 
-	Mutex();
-
 	void Create();
 
 	void Lock();

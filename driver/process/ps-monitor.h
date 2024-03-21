@@ -14,7 +14,7 @@ namespace process
 {
 	extern inline Vector<size_t>* kTrustedProcessList = nullptr;
 
-	extern inline Mutex kProcessMutex;
+	extern inline Mutex kProcessMutex = Mutex();
 
 	void FltRegister();
 
