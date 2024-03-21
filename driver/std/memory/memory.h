@@ -47,6 +47,17 @@ inline void ZeroMemory(T* dst, size_t len)
     }
 }
 
+
+void SetUlongAt(size_t addr, ULONG value)
+{
+    *(ULONG*)addr = value;
+}
+
+ULONG GetUlongAt(size_t addr)
+{
+    return *(ULONG*)addr;
+}
+
 namespace krnl_std
 {
     inline void* Alloc(size_t n)
