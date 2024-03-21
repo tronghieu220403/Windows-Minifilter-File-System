@@ -229,28 +229,32 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="anti-delete\anti-delete.h" />
+    <ClInclude Include="protect\file-protect.h" />
     <ClInclude Include="com\comport.h" />
     <ClInclude Include="com\ioctl.h" />
     <ClInclude Include="file\file.h" />
     <ClInclude Include="hide\hide-file.h" />
+    <ClInclude Include="process\ps-monitor.h" />
     <ClInclude Include="std\memory\memory.h" />
     <ClInclude Include="std\memory\sharedptr.h" />
     <ClInclude Include="std\string\string.h" />
     <ClInclude Include="std\sync\mutex.h" />
     <ClInclude Include="std\vector\vector.h" />
     <ClInclude Include="template\debug.h" />
+    <ClInclude Include="template\flt-ex.h" />
     <ClInclude Include="template\MiniFs.h" />
     <ClInclude Include="template\register.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="anti-delete\anti-delete.cpp" />
+    <ClCompile Include="protect\file-protect.cpp" />
     <ClCompile Include="com\comport.cpp" />
     <ClCompile Include="com\ioctl.cpp" />
     <ClCompile Include="file\file.cpp" />
     <ClCompile Include="hide\hide-file.cpp" />
+    <ClCompile Include="process\ps-monitor.cpp" />
     <ClCompile Include="std\memory\memory.cpp" />
     <ClCompile Include="std\sync\mutex.cpp" />
+    <ClCompile Include="template\flt-ex.cpp" />
     <ClCompile Include="template\MiniFs.cpp" />
     <ClCompile Include="template\register.cpp" />
   </ItemGroup>

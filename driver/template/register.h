@@ -4,8 +4,10 @@
 #include <fltKernel.h>
 
 #include "../std/vector/vector.h"
-#include "../anti-delete/anti-delete.h"
+
+#include "../protect/file-protect.h"
 #include "../hide/hide-file.h"
+#include "../process/ps-monitor.h"
 #include "debug.h"
 
 namespace reg

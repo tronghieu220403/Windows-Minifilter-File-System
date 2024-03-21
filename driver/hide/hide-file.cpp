@@ -4,7 +4,9 @@
 void hide::FltRegister()
 {
     kHideFileList = new Vector<String<WCHAR>>();
-    kFileMutex.Create();
+    kHideDirList = new Vector<String<WCHAR>>();
+    //kFileMutex.Create();
+    //kDirMutex.Create();
     reg::kFltFuncVector->PushBack({ IRP_MJ_DIRECTORY_CONTROL, (PFLT_PRE_OPERATION_CALLBACK)PreDirControlOperation, (PFLT_POST_OPERATION_CALLBACK)PostDirControlOperation });
     return;
 }
@@ -12,16 +14,15 @@ void hide::FltRegister()
 void hide::FltUnload()
 {
     delete kHideFileList;
+    delete kHideDirList;
 }
 
 void hide::DrvRegister()
 {
-
 }
 
 void hide::DrvUnload()
 {
-
 }
 
 
@@ -41,7 +42,7 @@ bool hide::IsHiddenFile(String<WCHAR>& file_name)
 	return ret;
 }
 
-void hide::AddFileToHideList(String<WCHAR> file_name)
+void hide::AddFileToHideList(String<WCHAR>& file_name)
 {
 	kFileMutex.Lock();
 	kHideFileList->PushBack(file_name);
@@ -49,13 +50,56 @@ void hide::AddFileToHideList(String<WCHAR> file_name)
 	return;
 }
 
-bool hide::IsHiddenDir(String<WCHAR>& dir_name)
+void hide::DeleteFileFromHideList(String<WCHAR>& file_name)
 {
-    return false;
+    kFileMutex.Lock();
+    for (int i = 0; i < kHideFileList->Size(); i++)
+    {
+        if ((*kHideFileList)[i] == file_name)
+        {
+			kHideFileList->EraseUnordered(i);
+			break;
+		}
+	}
+    return;
 }
 
-void hide::AddDirToHideList(String<WCHAR> dir_name)
+bool hide::IsHiddenDir(String<WCHAR>& dir_name)
 {
+    bool ret = false;
+    kDirMutex.Lock();
+    for (int i = 0; i < kHideDirList->Size(); i++)
+    {
+        if ((*kHideDirList)[i] == dir_name)
+        {
+            ret = true;
+            break;
+        }
+    }
+    kDirMutex.Unlock();
+    return ret;
+}
+
+void hide::AddDirToHideList(String<WCHAR>& dir_name)
+{
+    kDirMutex.Lock();
+    kHideFileList->PushBack(dir_name);
+    kDirMutex.Unlock();
+    return;
+}
+
+void hide::DeleteDirFromHideList(String<WCHAR>& dir_name)
+{
+    kDirMutex.Lock();
+    for (int i = 0; i < kHideDirList->Size(); i++)
+    {
+        if ((*kHideDirList)[i] == dir_name)
+        {
+			kHideDirList->EraseUnordered(i);
+			break;
+		}
+	}
+    kDirMutex.Unlock();
     return;
 }
 
@@ -71,24 +115,29 @@ FLT_POSTOP_CALLBACK_STATUS hide::PostDirControlOperation(PFLT_CALLBACK_DATA data
 {
 	PAGED_CODE();
 
-    if (data->RequestorMode == KernelMode)
+    FILE_INFORMATION_CLASS info_class;
+
+    String<WCHAR> file_name;
+    PVOID directory_buffer;
+    NTSTATUS status;
+
+
+    // assert we're not draining.
+    ASSERT(!FlagOn(flags, FLTFL_POST_OPERATION_DRAINING));
+    if (flags & FLTFL_POST_OPERATION_DRAINING)
     {
-		return FLT_POSTOP_FINISHED_PROCESSING;
-	}
+        return FLT_POSTOP_FINISHED_PROCESSING;
+    }
 
-	// assert we're not draining.
-	ASSERT(!FlagOn(flags, FLTFL_POST_OPERATION_DRAINING));
-	if (flags & FLTFL_POST_OPERATION_DRAINING)
-	{
-		return FLT_POSTOP_FINISHED_PROCESSING;
-	}
-	if (!NT_SUCCESS(data->IoStatus.Status))
-		return FLT_POSTOP_FINISHED_PROCESSING;
+    if (!NT_SUCCESS(data->IoStatus.Status))
+        return FLT_POSTOP_FINISHED_PROCESSING;
 
-	FILE_INFORMATION_CLASS info_class;
+    return FLT_POSTOP_FINISHED_PROCESSING;
 
-	String<WCHAR> file_name;
-	PVOID directory_buffer;
+    if (flt::IsTrustedRequestor(data, (size_t)PsGetCurrentProcessId()) == true)
+    {
+        return FLT_POSTOP_FINISHED_PROCESSING;
+    }
 
     if (data->Iopb->MinorFunction != IRP_MN_QUERY_DIRECTORY)
     {
@@ -113,8 +162,9 @@ FLT_POSTOP_CALLBACK_STATUS hide::PostDirControlOperation(PFLT_CALLBACK_DATA data
         PUCHAR file_name_length_offset;
         FileInfoShort file_info;
 
-		// TODO: create common class for info class
-		switch (info_class)
+        status = STATUS_SUCCESS;
+
+        switch (info_class)
 		{
 		case FileFullDirectoryInformation:
             info = (PUCHAR)directory_buffer;
@@ -122,7 +172,7 @@ FLT_POSTOP_CALLBACK_STATUS hide::PostDirControlOperation(PFLT_CALLBACK_DATA data
             file_name_offset = (PUCHAR) & (((PFILE_FULL_DIR_INFORMATION)directory_buffer)->FileName);
             file_name_length_offset = (PUCHAR) & (((PFILE_FULL_DIR_INFORMATION)directory_buffer)->FileNameLength);
             file_info = FileInfoShort(info, next_entry_offset, file_name_offset, file_name_length_offset);
-			HideFile(file_info);
+            status = HideFile(file_info);
             break;
 		case FileBothDirectoryInformation:
             info = (PUCHAR)directory_buffer;
@@ -130,7 +180,7 @@ FLT_POSTOP_CALLBACK_STATUS hide::PostDirControlOperation(PFLT_CALLBACK_DATA data
             file_name_offset = (PUCHAR) & (((PFILE_BOTH_DIR_INFORMATION)directory_buffer)->FileName);
             file_name_length_offset = (PUCHAR) & (((PFILE_BOTH_DIR_INFORMATION)directory_buffer)->FileNameLength);
             file_info = FileInfoShort(info, next_entry_offset, file_name_offset, file_name_length_offset);
-            HideFile(file_info);
+            status = HideFile(file_info);
             break;
 		case FileDirectoryInformation:
             info = (PUCHAR)directory_buffer;
@@ -138,7 +188,7 @@ FLT_POSTOP_CALLBACK_STATUS hide::PostDirControlOperation(PFLT_CALLBACK_DATA data
             file_name_offset = (PUCHAR) & (((PFILE_DIRECTORY_INFORMATION)directory_buffer)->FileName);
             file_name_length_offset = (PUCHAR) & (((PFILE_DIRECTORY_INFORMATION)directory_buffer)->FileNameLength);
             file_info = FileInfoShort(info, next_entry_offset, file_name_offset, file_name_length_offset);
-            HideFile(file_info);
+            status = HideFile(file_info);
             break;
 		case FileIdFullDirectoryInformation:
             info = (PUCHAR)directory_buffer;
@@ -146,7 +196,7 @@ FLT_POSTOP_CALLBACK_STATUS hide::PostDirControlOperation(PFLT_CALLBACK_DATA data
             file_name_offset = (PUCHAR) & (((PFILE_ID_FULL_DIR_INFORMATION)directory_buffer)->FileName);
             file_name_length_offset = (PUCHAR) & (((PFILE_ID_FULL_DIR_INFORMATION)directory_buffer)->FileNameLength);
             file_info = FileInfoShort(info, next_entry_offset, file_name_offset, file_name_length_offset);
-            HideFile(file_info);
+            status = HideFile(file_info);
             break;
 		case FileIdBothDirectoryInformation:
             info = (PUCHAR)directory_buffer;
@@ -154,7 +204,7 @@ FLT_POSTOP_CALLBACK_STATUS hide::PostDirControlOperation(PFLT_CALLBACK_DATA data
             file_name_offset = (PUCHAR) & (((PFILE_ID_FULL_DIR_INFORMATION)directory_buffer)->FileName);
             file_name_length_offset = (PUCHAR) & (((PFILE_ID_FULL_DIR_INFORMATION)directory_buffer)->FileNameLength);
             file_info = FileInfoShort(info, next_entry_offset, file_name_offset, file_name_length_offset);
-            HideFile(file_info);
+            status = HideFile(file_info);
             break;
 		case FileNamesInformation:
             info = (PUCHAR)directory_buffer;
@@ -162,11 +212,13 @@ FLT_POSTOP_CALLBACK_STATUS hide::PostDirControlOperation(PFLT_CALLBACK_DATA data
             file_name_offset = (PUCHAR) & (((PFILE_NAMES_INFORMATION)directory_buffer)->FileName);
             file_name_length_offset = (PUCHAR) & (((PFILE_NAMES_INFORMATION)directory_buffer)->FileNameLength);
             file_info = FileInfoShort(info, next_entry_offset, file_name_offset, file_name_length_offset);
-            HideFile(file_info);
+            status = HideFile(file_info);
             break;
 		default:
             break;
 		}
+
+        data->IoStatus.Status = status;
 	}
 	__finally
 	{
@@ -313,7 +365,7 @@ void hide::FileInfoShort::SetBaseAddr(const PUCHAR file_info_addr)
 	file_info_addr_ = file_info_addr;
 }
 
-bool hide::FileInfoShort::IsNull()
+bool hide::FileInfoShort::IsNull() const
 {
     if (file_info_addr_ == nullptr || (next_entry_offset_rva_ == file_name_length_rva_ || file_name_length_rva_ == file_name_length_rva_ || file_name_length_rva_ == next_entry_offset_rva_))
     {

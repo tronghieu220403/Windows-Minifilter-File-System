@@ -50,7 +50,7 @@
     <ClInclude Include="std\vector\vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="anti-delete\anti-delete.h">
+    <ClInclude Include="protect\file-protect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="com\comport.h">
@@ -68,6 +68,12 @@
     <ClInclude Include="file\file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="process\ps-monitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="template\flt-ex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="template\MiniFs.cpp">
@@ -79,7 +85,7 @@
     <ClCompile Include="std\memory\memory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="anti-delete\anti-delete.cpp">
+    <ClCompile Include="protect\file-protect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="com\comport.cpp">
@@ -95,6 +101,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="file\file.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="process\ps-monitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="template\flt-ex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

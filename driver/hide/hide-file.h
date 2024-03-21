@@ -4,7 +4,10 @@
 #include "../std/vector/vector.h"
 #include "../std/sync/mutex.h"
 
+#include "../process/ps-monitor.h"
+
 #include "../template/register.h"
+#include "../template/flt-ex.h"
 
 #include <wdm.h>
 #include <Ntstrsafe.h>
@@ -38,14 +41,14 @@ namespace hide
 		void SetFileNameLength(const ULONG);
 		void SetBaseAddr(const PUCHAR);
 
-		bool IsNull();
+		bool IsNull() const;
 	};
 
-	inline Vector<String<WCHAR>>* kHideFileList = nullptr;
-	inline Vector<String<WCHAR>>* kHideDirList = nullptr;
+	extern inline Vector<String<WCHAR>>* kHideFileList = nullptr;
+	extern inline Vector<String<WCHAR>>* kHideDirList = nullptr;
 
-	inline Mutex kFileMutex;
-	inline Mutex kDirMutex;
+	extern inline Mutex kFileMutex;
+	extern inline Mutex kDirMutex;
 
 	void FltRegister();
 
@@ -59,11 +62,12 @@ namespace hide
 	NTSTATUS HideFile(FileInfoShort& info);
 
 	bool IsHiddenFile(String<WCHAR>& file_name);
-
-	void AddFileToHideList(String<WCHAR> file_name);
+	void AddFileToHideList(String<WCHAR>& file_name);
+	void DeleteFileFromHideList(String<WCHAR>& file_name);
 
 	bool IsHiddenDir(String<WCHAR>& dir_name);
-	void AddDirToHideList(String<WCHAR> dir_name);
+	void AddDirToHideList(String<WCHAR>& dir_name);
+	void DeleteDirFromHideList(String<WCHAR>& dir_name);
 
 	FLT_PREOP_CALLBACK_STATUS PreDirControlOperation(PFLT_CALLBACK_DATA data, PCFLT_RELATED_OBJECTS flt_objects, PVOID* completion_context);
 

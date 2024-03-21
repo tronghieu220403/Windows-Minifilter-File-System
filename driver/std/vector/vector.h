@@ -95,6 +95,11 @@ public:
 	// Append a vector to the back.
 	void Append(const Vector<T>& v);
 
+	bool Swap(size_t, size_t);
+
+	bool Erase(size_t);
+	bool EraseUnordered(size_t);
+
 	// Add a vector to the back.
 	Vector<T>& operator+=(const Vector<T>&);
 
@@ -376,6 +381,16 @@ inline void Vector<T>::PushBack(const T& d)
 	++size_;
 }
 
+template<typename T>
+inline void Vector<T>::PopBack()
+{
+	if (size_ == 0)
+		return;
+
+	elements_[size_ - 1] = T();
+	--size_;
+}
+
 template<class T>
 inline void Vector<T>::Append(const Vector<T>& v)
 {
@@ -386,6 +401,56 @@ inline void Vector<T>::Append(const Vector<T>& v)
 
 	size_ += v.Size();
 
+}
+
+template<typename T>
+inline bool Vector<T>::Swap(size_t i, size_t j)
+{
+	if (i >= size_ || j >= size)
+		return false;
+	T temp = elements_[i];
+	elements_[i] = elements_[j];
+	elements_[j] = temp;
+	return true;
+}
+
+template<typename T>
+inline bool Vector<T>::Erase(size_t i)
+{
+	if (i >= size_)
+		return false;
+	if (size_ == 1)
+	{
+		elements_[0] = T();
+		--size_;
+		return true;
+	}
+	// Move all elements after i one position to the left
+	for (size_t index = i; index < size_ - 2; ++index)
+		elements_[index] = elements_[index + 1];
+	elements_[size_ - 1] = T();
+	--size_;
+	return true;
+}
+
+template<typename T>
+inline bool Vector<T>::EraseUnordered(size_t i)
+{
+	// If the index is out of bounds, return false
+	if (i >= size_)
+		return false;
+	// If the size is 1, just clear the vector
+	if (size_ == 1)
+	{
+		elements_[0] = T();
+		--size_;
+		return true;
+	}
+	// Swap the element to be removed with the last element
+	elements_[i] = elements_[size_ - 1];
+	elements_[size_ - 1] = T();
+	--size_;
+	return true;
 }
 
 template<class T>
