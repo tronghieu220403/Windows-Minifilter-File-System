@@ -124,6 +124,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <IncludePath>$(SolutionDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
@@ -229,15 +230,17 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="protect\file-protect.h" />
     <ClInclude Include="com\comport.h" />
     <ClInclude Include="com\ioctl.h" />
     <ClInclude Include="file\file.h" />
-    <ClInclude Include="hide\hide-file.h" />
+    <ClInclude Include="function\hide\hide-file.h" />
+    <ClInclude Include="function\hide\hide-proc.h" />
+    <ClInclude Include="function\protect\file-protect.h" />
+    <ClInclude Include="function\protect\proc-protect.h" />
     <ClInclude Include="process\ps-monitor.h" />
-    <ClInclude Include="protect\proc-protect.h" />
-    <ClInclude Include="std\map\map.h" />
+    <ClInclude Include="std\map\map.hpp" />
     <ClInclude Include="std\memory\memory.h" />
+    <ClInclude Include="std\memory\pair.h" />
     <ClInclude Include="std\memory\sharedptr.h" />
     <ClInclude Include="std\string\string.h" />
     <ClInclude Include="std\sync\mutex.h" />
@@ -248,13 +251,14 @@
     <ClInclude Include="template\register.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="protect\file-protect.cpp" />
     <ClCompile Include="com\comport.cpp" />
     <ClCompile Include="com\ioctl.cpp" />
     <ClCompile Include="file\file.cpp" />
-    <ClCompile Include="hide\hide-file.cpp" />
+    <ClCompile Include="function\hide\hide-proc.cpp" />
+    <ClCompile Include="function\protect\file-protect.cpp" />
+    <ClCompile Include="function\protect\proc-protect.cpp" />
+    <ClCompile Include="function\hide\hide-file.cpp" />
     <ClCompile Include="process\ps-monitor.cpp" />
-    <ClCompile Include="protect\proc-protect.cpp" />
     <ClCompile Include="std\memory\memory.cpp" />
     <ClCompile Include="std\sync\mutex.cpp" />
     <ClCompile Include="template\flt-ex.cpp" />

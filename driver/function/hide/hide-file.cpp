@@ -1,4 +1,5 @@
 #include "hide-file.h"
+#include "hide-proc.h"
 #pragma once
 
 void hide::FltRegister()
@@ -16,15 +17,6 @@ void hide::FltUnload()
     delete kHideFileList;
     delete kHideDirList;
 }
-
-void hide::DrvRegister()
-{
-}
-
-void hide::DrvUnload()
-{
-}
-
 
 bool hide::IsHiddenFile(String<WCHAR>& file_name)
 {

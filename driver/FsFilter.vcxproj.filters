@@ -38,31 +38,10 @@
     <ClInclude Include="template\register.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="std\memory\memory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="std\memory\sharedptr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="std\string\string.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="std\vector\vector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="protect\file-protect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="com\comport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="com\ioctl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="std\sync\mutex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="hide\hide-file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="file\file.h">
@@ -74,6 +53,39 @@
     <ClInclude Include="template\flt-ex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="function\protect\file-protect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="function\protect\proc-protect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std\map\map.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std\memory\memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std\memory\sharedptr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std\string\string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std\sync\mutex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std\vector\vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="function\hide\hide-proc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std\memory\pair.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="function\hide\hide-file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="template\MiniFs.cpp">
@@ -82,22 +94,13 @@
     <ClCompile Include="template\register.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="std\memory\memory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="protect\file-protect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="com\comport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="com\ioctl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="std\sync\mutex.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="hide\hide-file.cpp">
+    <ClCompile Include="function\hide\hide-file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="file\file.cpp">
@@ -107,6 +110,21 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="template\flt-ex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="function\protect\file-protect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="function\protect\proc-protect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="std\memory\memory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="std\sync\mutex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="function\hide\hide-proc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

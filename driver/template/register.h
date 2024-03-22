@@ -5,8 +5,8 @@
 
 #include "../std/vector/vector.h"
 
-#include "../protect/file-protect.h"
-#include "../hide/hide-file.h"
+#include "../function/protect/file-protect.h"
+#include "../function/hide/hide-file.h"
 #include "../process/ps-monitor.h"
 #include "debug.h"
 

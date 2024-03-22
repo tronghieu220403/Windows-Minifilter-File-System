@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../std/vector/vector.h"
-#include "../std/string/string.h"
-#include "../std/sync/mutex.h"
+#include "std/vector/vector.h"
+#include "std/string/string.h"
+#include "std/sync/mutex.h"
 
-#include "../process/ps-monitor.h"
-#include "../template/register.h"
+#include "process/ps-monitor.h"
+#include "template/register.h"
 
 #include <wdm.h>
 #include <fltKernel.h>
