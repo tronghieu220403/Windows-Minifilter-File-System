@@ -8,14 +8,13 @@ namespace protection
 		kProtectedDirList = new Vector<String<WCHAR>>();
 		kFileMutex.Create();
 		kDirMutex.Create();
-		reg::kFltFuncVector->PushBack({ IRP_MJ_CREATE, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_SET_INFORMATION, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_QUERY_INFORMATION, PreOperation, nullptr });
-		reg::kFltFuncVector->PushBack({ IRP_MJ_CLEANUP, PreOperation, nullptr });
-		reg::kFltFuncVector->PushBack({ IRP_MJ_CLOSE, PreOperation, nullptr });
+		//reg::kFltFuncVector->PushBack({ IRP_MJ_CLEANUP, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_CREATE, PreOperation, nullptr });
+		//reg::kFltFuncVector->PushBack({ IRP_MJ_CLOSE, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_WRITE, PreOperation, nullptr });
-		reg::kFltFuncVector->PushBack({ IRP_MJ_READ, PreOperation, nullptr });
+		// reg::kFltFuncVector->PushBack({ IRP_MJ_READ, PreOperation, nullptr });
 		return;
 	}
 
@@ -48,51 +47,85 @@ namespace protection
 
 		String<WCHAR> name(GetFileFullPathName(data));
 
+		if (name.Size() == 0)
+		{
+			goto return_success_no_callback;
+		}
+
 		BOOLEAN IsDir;
 		if (!NT_SUCCESS(FltIsDirectory(flt_objects->FileObject, flt_objects->Instance, &IsDir)))
 		{
-			// Not directory
-			if (!IsDir) 
-			{
-				if (IsProtectedFile(name)) {
-					goto return_access_denided;
-				}
-				goto return_success;
-			}
+			goto return_success_no_callback;
 		}
 
-		if (IsProtectedDir(name) == true)
+		// Not directory
+		if (!IsDir || IsProtectedFile(name))
 		{
-			// https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/irp-mj-create
-			// When the system tries to open a handle to a file object,
-			// detect requests that have DELETE_ON_CLOSE in DesiredAccess
-			if (data->Iopb->MajorFunction == IRP_MJ_CREATE) 
+			switch (data->Iopb->MajorFunction)
 			{
-				if (!FlagOn(data->Iopb->Parameters.Create.Options, FILE_DELETE_ON_CLOSE)) 
+			case IRP_MJ_WRITE:
+				goto return_access_denided;
+			case IRP_MJ_CREATE:
+				if (FlagOn(data->Iopb->Parameters.Create.SecurityContext->DesiredAccess, FILE_WRITE_DATA) ||
+					FlagOn(data->Iopb->Parameters.Create.SecurityContext->DesiredAccess, FILE_WRITE_ATTRIBUTES) ||
+					FlagOn(data->Iopb->Parameters.Create.SecurityContext->DesiredAccess, FILE_WRITE_EA) ||
+					FlagOn(data->Iopb->Parameters.Create.SecurityContext->DesiredAccess, FILE_APPEND_DATA) ||
+					FlagOn(data->Iopb->Parameters.Create.SecurityContext->DesiredAccess, DELETE) ||
+					FlagOn(data->Iopb->Parameters.Create.SecurityContext->DesiredAccess, WRITE_DAC) ||
+					FlagOn(data->Iopb->Parameters.Create.SecurityContext->DesiredAccess, WRITE_OWNER) ||
+					FlagOn(data->Iopb->Parameters.Create.SecurityContext->DesiredAccess, GENERIC_WRITE))
 				{
-					goto return_success;
+					ACCESS_MASK flag = data->Iopb->Parameters.Create.SecurityContext->DesiredAccess;
+					ClearFlag(flag, FILE_WRITE_DATA);
+					ClearFlag(flag, FILE_WRITE_ATTRIBUTES);
+					ClearFlag(flag, FILE_WRITE_EA);
+					ClearFlag(flag, FILE_APPEND_DATA);
+					ClearFlag(flag, DELETE);
+					ClearFlag(flag, WRITE_DAC);
+					ClearFlag(flag, WRITE_OWNER);
+					ClearFlag(flag, GENERIC_WRITE);
+					data->Iopb->Parameters.Create.SecurityContext->DesiredAccess = flag;
+					FltSetCallbackDataDirty(data);
 				}
-			}
 
-			// Process requests with FileDispositionInformation, FileDispositionInformationEx  or file renames
-			if (data->Iopb->MajorFunction == IRP_MJ_SET_INFORMATION) 
-			{
-				switch (data->Iopb->Parameters.SetFileInformation.FileInformationClass) 
-				{
-				case FileRenameInformation:
-				case FileRenameInformationEx:
-				case FileDispositionInformation:
-				case FileDispositionInformationEx:
-				case FileRenameInformationBypassAccessCheck:
-				case FileRenameInformationExBypassAccessCheck:
-					goto return_access_denided;
-				default:
-					goto return_success;
-				}
 			}
 		}
 
-	return_success:
+		if (IsDir && !IsProtectedDir(name))
+		{
+			goto return_success_no_callback;
+		}
+
+		// https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/irp-mj-create
+		// When the system tries to open a handle to a file object,
+		// detect requests that have DELETE_ON_CLOSE in DesiredAccess
+		if (data->Iopb->MajorFunction == IRP_MJ_CREATE) 
+		{
+			if (!FlagOn(data->Iopb->Parameters.Create.Options, FILE_DELETE_ON_CLOSE)) 
+			{
+				goto return_access_denided;
+			}
+			goto return_success_no_callback;
+		}
+
+		// Process requests with FileDispositionInformation, FileDispositionInformationEx or file renames
+		if (data->Iopb->MajorFunction == IRP_MJ_SET_INFORMATION)
+		{
+			switch (data->Iopb->Parameters.SetFileInformation.FileInformationClass)
+			{
+			case FileRenameInformation:
+			case FileRenameInformationEx:
+			case FileDispositionInformation:
+			case FileDispositionInformationEx:
+			case FileRenameInformationBypassAccessCheck:
+			case FileRenameInformationExBypassAccessCheck:
+				goto return_access_denided;
+			default:
+				goto return_success_no_callback;
+			}
+		}
+
+	return_success_no_callback:
 		return FLT_PREOP_SUCCESS_NO_CALLBACK;
 
 	return_access_denided:
