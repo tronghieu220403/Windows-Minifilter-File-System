@@ -235,6 +235,8 @@
     <ClInclude Include="file\file.h" />
     <ClInclude Include="hide\hide-file.h" />
     <ClInclude Include="process\ps-monitor.h" />
+    <ClInclude Include="protect\proc-protect.h" />
+    <ClInclude Include="std\map\map.h" />
     <ClInclude Include="std\memory\memory.h" />
     <ClInclude Include="std\memory\sharedptr.h" />
     <ClInclude Include="std\string\string.h" />
@@ -252,6 +254,7 @@
     <ClCompile Include="file\file.cpp" />
     <ClCompile Include="hide\hide-file.cpp" />
     <ClCompile Include="process\ps-monitor.cpp" />
+    <ClCompile Include="protect\proc-protect.cpp" />
     <ClCompile Include="std\memory\memory.cpp" />
     <ClCompile Include="std\sync\mutex.cpp" />
     <ClCompile Include="template\flt-ex.cpp" />
