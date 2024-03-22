@@ -16,9 +16,9 @@ namespace hide
 	private:
 		PEPROCESS eproc_ = nullptr;
 		String<WCHAR> name_;
-		size_t pid;
-		size_t parent_pid;
-		size_t ancestor_pid;
+		size_t pid_ = 0;
+		size_t parent_pid_ = 0;
+		size_t ancestor_pid_ = 0;
 	public:
 		ProcInfo() = default;
 
@@ -32,7 +32,7 @@ namespace hide
 		PEPROCESS GetNextProc() const;
 		PEPROCESS GetPrevProc() const;
 
-		String<WCHAR>& GetName() const;
+		String<WCHAR> GetName() const;
 		size_t GetPid() const;
 		size_t GetParentPid() const;
 		size_t GetAncestorPid() const;
@@ -46,9 +46,9 @@ namespace hide
 		void SetAncestorPid(const size_t ancestor_pid);
 	};
 
-	extern inline Vector<size_t>* kHideProcList = nullptr;
+	extern inline Vector<ProcInfo>* kHideProcList = nullptr;
 
-	extern inline Mutex kHideProcListMutex;
+	extern inline Mutex kProcMutex;
 	
 	void FltRegister();
 
@@ -64,7 +64,7 @@ namespace hide
 	void AddProcToHideList(size_t pid);
 	void DeleteProcFromHideList(size_t pid);
 
-	void ProcessNotifyCallBack(PEPROCESS Process, HANDLE ProcessId, PPS_CREATE_NOTIFY_INFO CreateInfo);
+	void ProcessNotifyCallBack(PEPROCESS, size_t, PPS_CREATE_NOTIFY_INFO);
 
 
 }

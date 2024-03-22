@@ -2,6 +2,7 @@
 
 #include "../std/vector/vector.h"
 #include "../std/sync/mutex.h"
+#include "../std/map/map.hpp"
 
 
 #include <wdm.h>
@@ -12,6 +13,8 @@
 
 namespace process
 {
+	inline Map<size_t, size_t> kProcAncestor = Map<size_t, size_t>();
+
 	extern inline Vector<size_t>* kTrustedProcessList = nullptr;
 
 	extern inline Mutex kProcessMutex = Mutex();

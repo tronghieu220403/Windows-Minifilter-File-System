@@ -53,6 +53,7 @@ void hide::DeleteFileFromHideList(String<WCHAR>& file_name)
 			break;
 		}
 	}
+    kFileMutex.Unlock();
     return;
 }
 
