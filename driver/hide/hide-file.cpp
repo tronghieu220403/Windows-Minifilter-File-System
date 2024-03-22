@@ -134,7 +134,7 @@ FLT_POSTOP_CALLBACK_STATUS hide::PostDirControlOperation(PFLT_CALLBACK_DATA data
 
     return FLT_POSTOP_FINISHED_PROCESSING;
 
-    if (flt::IsTrustedRequestor(data, (size_t)PsGetCurrentProcessId()) == true)
+    if (flt::IsTrustedRequestor(data) == true)
     {
         return FLT_POSTOP_FINISHED_PROCESSING;
     }
