@@ -237,6 +237,7 @@
     <ClInclude Include="function\hide\hide-proc.h" />
     <ClInclude Include="function\protect\file-protect.h" />
     <ClInclude Include="function\protect\proc-protect.h" />
+    <ClInclude Include="process\eprocess.h" />
     <ClInclude Include="process\ps-monitor.h" />
     <ClInclude Include="std\map\map.hpp" />
     <ClInclude Include="std\memory\memory.h" />
