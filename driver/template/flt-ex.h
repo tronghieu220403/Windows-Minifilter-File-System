@@ -4,5 +4,5 @@
 
 namespace flt
 {
-	bool IsTrustedRequestor(PFLT_CALLBACK_DATA data, size_t pid);
+	bool IsTrustedRequestor(PFLT_CALLBACK_DATA data);
 }

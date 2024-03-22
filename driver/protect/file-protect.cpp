@@ -41,7 +41,7 @@ namespace protection
 
 		PAGED_CODE();
 
-		if (flt::IsTrustedRequestor(data, (size_t)PsGetCurrentProcessId()) == true)
+		if (flt::IsTrustedRequestor(data) == true)
 		{
 			return FLT_PREOP_SUCCESS_NO_CALLBACK;
 		}

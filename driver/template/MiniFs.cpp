@@ -293,8 +293,15 @@ Return Value:
 --*/
 {
 
-    UNREFERENCED_PARAMETER( flt_objects );
     UNREFERENCED_PARAMETER( completion_context );
+
+    PAGED_CODE();
+
+    if (flt_objects->FileObject == NULL)
+    {
+		return FLT_PREOP_SUCCESS_NO_CALLBACK;
+	}
+
 
     
     reg::Context* p = nullptr;
@@ -316,18 +323,13 @@ Return Value:
 
     for (int i = 0; i < reg::kFltFuncVector->Size(); i++)
     {
+        (*(p->status))[i] = FLT_PREOP_SUCCESS_NO_CALLBACK;
         if (data->Iopb->MajorFunction == (*reg::kFltFuncVector)[i].irp_mj_function_code &&
             (*reg::kFltFuncVector)[i].pre_func != nullptr)
         {
             FLT_PREOP_CALLBACK_STATUS status = (*reg::kFltFuncVector)[i].pre_func(data, flt_objects, completion_context);
             (*(p->status))[i] = status;
         }
-    }
-
-    if (data->Iopb->MajorFunction == IRP_MJ_SHUTDOWN)
-    {
-        DeallocCompletionContext(p);
-        return FLT_PREOP_SUCCESS_NO_CALLBACK;
     }
 
     return FLT_PREOP_SUCCESS_WITH_CALLBACK;
@@ -384,7 +386,8 @@ Return Value:
         if (data->Iopb->MajorFunction == (*reg::kFltFuncVector)[i].irp_mj_function_code &&
             (*reg::kFltFuncVector)[i].post_func != nullptr)
         {
-            if ((*(p->status))[i] != FLT_PREOP_SUCCESS_NO_CALLBACK)
+            if ((*(p->status))[i] != FLT_PREOP_SUCCESS_NO_CALLBACK
+                || (*(p->status))[i] != FLT_PREOP_COMPLETE)
             {
                 (*reg::kFltFuncVector)[i].post_func(data, flt_objects, completion_context, flags);
             }

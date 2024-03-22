@@ -4,9 +4,9 @@
 
 namespace flt
 {
-	bool IsTrustedRequestor(PFLT_CALLBACK_DATA data, size_t pid)
+	bool IsTrustedRequestor(PFLT_CALLBACK_DATA data)
 	{
-		if (data->RequestorMode == KernelMode || process::IsTrustedProcess(pid) == true)
+		if (data->RequestorMode == KernelMode || process::IsTrustedProcess((size_t)PsGetCurrentProcessId()) == true)
 		{
 			return true;
 		}
