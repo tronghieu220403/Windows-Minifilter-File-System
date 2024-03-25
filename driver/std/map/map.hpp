@@ -449,7 +449,7 @@ inline M& Map<K, M>::operator[](const K& key) {
 template <typename K, typename M>
 inline size_t Map<K, M>::RandomLevel(Node<K, M>** _nodes) {
 	size_t level = 0;
-	while (level < _LEVELS && (short)rand() < RAND_MAX) {
+	while (level < _LEVELS && (short)Rand() < RAND_MAX) {
 		++level;
 	}
 	if (level > max_) {

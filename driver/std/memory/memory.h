@@ -12,6 +12,7 @@ typedef unsigned long long size_t;
 #define min(X, Y) (((X) < (Y)) ? (X) : (Y))
 
 extern void* operator new(size_t);
+extern void* operator new[](size_t);
 
 extern void operator delete(void*, size_t);
 
@@ -22,6 +23,8 @@ void MemCopy(T* dst, T* src, size_t len);
 
 template <class T>
 void ZeroMemory(T* dst, size_t len);
+
+size_t Rand();
 
 namespace krnl_std
 {

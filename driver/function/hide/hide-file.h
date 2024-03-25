@@ -13,7 +13,7 @@
 #include <Ntstrsafe.h>
 #include <fltKernel.h>
 
-namespace hide
+namespace hide_file
 {
 	class FileInfoShort
 	{
@@ -53,10 +53,6 @@ namespace hide
 	void FltRegister();
 
 	void FltUnload();
-
-	void DrvRegister();
-
-	void DrvUnload();
 
 	// NTSTATUS HideFile(PUCHAR info, PUCHAR nextEntryOffset, PUCHAR fileNameOffset, PUCHAR fileNameLengthOffset, PUCHAR info_addr);
 	NTSTATUS HideFile(FileInfoShort& info);

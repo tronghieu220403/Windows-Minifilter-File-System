@@ -259,6 +259,7 @@
     <ClCompile Include="function\protect\file-protect.cpp" />
     <ClCompile Include="function\protect\proc-protect.cpp" />
     <ClCompile Include="function\hide\hide-file.cpp" />
+    <ClCompile Include="process\eprocess.cpp" />
     <ClCompile Include="process\ps-monitor.cpp" />
     <ClCompile Include="std\memory\memory.cpp" />
     <ClCompile Include="std\sync\mutex.cpp" />

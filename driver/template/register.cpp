@@ -17,7 +17,7 @@ namespace reg
 
 		process::DrvRegister();
 		protection::DrvRegister();
-		hide::DrvRegister();
+		//hide::DrvRegister();
 		return;
 	}
 
@@ -30,7 +30,7 @@ namespace reg
 		
 		process::DrvUnload();
 		protection::DrvUnload();
-		hide::DrvUnload();
+		//hide::DrvUnload();
 		return;
 	}
 
@@ -42,7 +42,7 @@ namespace reg
 		kFltFuncVector = new Vector<IrpMjFunc>();
 		
 		protection::FltRegister();
-		hide::FltRegister();
+		hide_file::FltRegister();
 
 		return;
 	}
@@ -51,7 +51,7 @@ namespace reg
 	{
 		delete kFltFuncVector;
 		protection::FltUnload();
-		hide::FltUnload();
+		hide_file::FltUnload();
 		return;
 	}
 

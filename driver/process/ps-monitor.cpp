@@ -12,12 +12,16 @@ namespace process
 
 	void DrvRegister()
 	{
+		eprocess::DrvRegister();
 		kTrustedProcessList = new Vector<size_t>();
+		ppid = new int[300000];
+		::ZeroMemory(ppid, 300000);
 	}
 
 	void DrvUnload()
 	{
 		delete kTrustedProcessList;
+		delete[] ppid;
 	}
 
 	bool IsTrustedProcess(size_t pid)

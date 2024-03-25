@@ -3,7 +3,8 @@
 #include "../std/vector/vector.h"
 #include "../std/sync/mutex.h"
 #include "../std/map/map.hpp"
-
+#include "../std/memory/pair.h"
+#include "../process/eprocess.h"
 
 #include <wdm.h>
 #include <Ntstrsafe.h>
@@ -13,7 +14,7 @@
 
 namespace process
 {
-	inline Map<size_t, size_t> kProcAncestor = Map<size_t, size_t>();
+	extern inline int* ppid = nullptr;
 
 	extern inline Vector<size_t>* kTrustedProcessList = nullptr;
 

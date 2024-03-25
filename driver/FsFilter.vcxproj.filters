@@ -130,5 +130,8 @@
     <ClCompile Include="function\hide\hide-proc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="process\eprocess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

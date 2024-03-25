@@ -18,7 +18,7 @@ namespace protection
 	
 	inline Mutex kFileMutex = Mutex();
 	
-	inline Mutex kDirMutex;
+	inline Mutex kDirMutex = Mutex();
 
 	void FltRegister();
 
