@@ -17,7 +17,7 @@ namespace reg
 
 		process::DrvRegister();
 		protection::DrvRegister();
-		//hide::DrvRegister();
+		hide_proc::DrvRegister();
 		return;
 	}
 
@@ -30,7 +30,7 @@ namespace reg
 		
 		process::DrvUnload();
 		protection::DrvUnload();
-		//hide::DrvUnload();
+		hide_proc::DrvUnload();
 		return;
 	}
 
