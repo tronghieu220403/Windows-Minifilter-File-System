@@ -24,7 +24,7 @@ public:
 
     SharedPtr& operator=(const SharedPtr& other) {
         if (this != &other) {
-            release();
+            Release();
             ptr_ = other.ptr_;
             count_ = other.count_;
             if (count_ != nullptr) {
@@ -35,7 +35,7 @@ public:
     }
 
     ~SharedPtr() {
-        release();
+        Release();
     }
 
     T& operator*() const {
@@ -54,7 +54,7 @@ private:
     T* ptr_ = nullptr;
     int* count_ = nullptr;
 
-    void release() {
+    void Release() {
         if (count_ != nullptr) {
             (*count_)--;
             if (*count_ == 0) {

@@ -7,7 +7,7 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT DeviceObject, PIRP Irp)
 	PIO_STACK_LOCATION stackLoc = IoGetCurrentIrpStackLocation(Irp);
 	stackLoc = IoGetCurrentIrpStackLocation(Irp);
 
-	PIOCTL_CMD cmd = (PIOCTL_CMD)Irp->AssociatedIrp.SystemBuffer;
+	IOCTL_CMD* cmd = (IOCTL_CMD*)Irp->AssociatedIrp.SystemBuffer;
 
 	switch (stackLoc->Parameters.DeviceIoControl.IoControlCode)
 	{
