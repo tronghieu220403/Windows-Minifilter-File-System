@@ -230,8 +230,9 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="com\comport.h" />
-    <ClInclude Include="com\ioctl.h" />
+    <ClInclude Include="com\comport\comport.h" />
+    <ClInclude Include="com\ioctl\common.h" />
+    <ClInclude Include="com\ioctl\ioctl.h" />
     <ClInclude Include="file\file.h" />
     <ClInclude Include="function\hide\hide-file.h" />
     <ClInclude Include="function\hide\hide-proc.h" />
@@ -252,8 +253,8 @@
     <ClInclude Include="template\register.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="com\comport.cpp" />
-    <ClCompile Include="com\ioctl.cpp" />
+    <ClCompile Include="com\comport\comport.cpp" />
+    <ClCompile Include="com\ioctl\ioctl.cpp" />
     <ClCompile Include="file\file.cpp" />
     <ClCompile Include="function\hide\hide-proc.cpp" />
     <ClCompile Include="function\protect\file-protect.cpp" />

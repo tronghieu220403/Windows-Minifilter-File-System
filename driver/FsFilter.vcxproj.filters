@@ -38,10 +38,10 @@
     <ClInclude Include="template\register.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="com\comport.h">
+    <ClInclude Include="com\comport\comport.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="com\ioctl.h">
+    <ClInclude Include="com\ioctl\ioctl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="file\file.h">
@@ -89,6 +89,9 @@
     <ClInclude Include="process\eprocess.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="com\ioctl\common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="template\MiniFs.cpp">
@@ -97,10 +100,10 @@
     <ClCompile Include="template\register.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="com\comport.cpp">
+    <ClCompile Include="com\comport\comport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="com\ioctl.cpp">
+    <ClCompile Include="com\ioctl\ioctl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="function\hide\hide-file.cpp">

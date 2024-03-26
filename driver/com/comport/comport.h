@@ -3,7 +3,7 @@
 #include <fltKernel.h>
 #include <dontuse.h>
 
-#include "../std/vector/vector.h"
+#include "std/vector/vector.h"
 
 namespace com
 {
