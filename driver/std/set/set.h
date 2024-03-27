@@ -3,7 +3,6 @@
 Generate a map library like std::map but using red black tree in it implementation and do not use std::map. The new library must have these following function: delete, instert, at. It must be worked on the Windows kernel mode driver. Write full code for me.
 */
 
-// BUG: do not free memory of Node in Erase() function
 // TODO: write contain() function to check if the key exists
 // TODO: write clear() function to delete all nodes
 // TODO: write a destructor to delete all nodes
