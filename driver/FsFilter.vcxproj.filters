@@ -44,7 +44,7 @@
     <ClInclude Include="com\ioctl\ioctl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="file\file.h">
+    <ClInclude Include="std\file\file.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="process\ps-monitor.h">
@@ -112,7 +112,7 @@
     <ClCompile Include="function\hide\hide-file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="file\file.cpp">
+    <ClCompile Include="std\file\file.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="process\ps-monitor.cpp">
