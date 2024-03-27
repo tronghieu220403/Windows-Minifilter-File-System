@@ -101,7 +101,7 @@ namespace ioctl
 	struct IOCTL_CMD
 	{
 		IOCTL_CMD_CLASS cmd_class;
-		ULONG data_len;
+		size_t data_len;
 		char data[1];
 
 		IOCTL_CMD_HIDE_FILE ParseHideFile()
