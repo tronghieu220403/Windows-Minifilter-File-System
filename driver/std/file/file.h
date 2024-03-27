@@ -5,7 +5,7 @@ Write a class in Windows Kernel Driver that have the following operation on a fi
 #ifndef FILE_H
 #define FILE_H
 
-#include "std/string/string.h"
+#include "../string/string.h"
 
 #include <ntddk.h>
 
@@ -17,9 +17,11 @@ namespace file
         HANDLE file_handle_ = nullptr;
     public:
         File(const String<WCHAR>& file_name);
-        bool Read(PVOID buffer, size_t length, size_t* _Out_ bytes_read);
-        bool Append(PVOID buffer, size_t length, size_t* _Out_ bytes_appended);
+        size_t Read(PVOID buffer, size_t length);
+        size_t Append(PVOID buffer, size_t length);
         size_t Size();
+
+        String<WCHAR> GetPath() const { return file_path_; }
         ~File();
 
     protected:

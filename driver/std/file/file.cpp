@@ -7,8 +7,9 @@ namespace file
     {
         Open(file_path_.Data());
     }
-    bool File::Open(const WCHAR* file_path) {
 
+    bool File::Open(const WCHAR* file_path) 
+    {
         if (KeGetCurrentIrql() != PASSIVE_LEVEL)
         {
             return false;
@@ -25,32 +26,32 @@ namespace file
         return NT_SUCCESS(status);
     }
 
-    bool File::Read(PVOID buffer, size_t length, size_t* _Out_ bytes_read) {
+    size_t File::Read(PVOID buffer, size_t length)
+    {
         if (KeGetCurrentIrql() != PASSIVE_LEVEL)
         {
             return false;
         }
         IO_STATUS_BLOCK io_status_block;
-
-        NTSTATUS status = ZwReadFile(file_handle_, NULL, NULL, NULL, &io_status_block, buffer, (ULONG)length, NULL, NULL);
-        *bytes_read = io_status_block.Information;
-        return NT_SUCCESS(status);
+        if (!NT_SUCCESS(ZwReadFile(file_handle_, NULL, NULL, NULL, &io_status_block, buffer, (ULONG)length, NULL, NULL)))
+        {
+			return 0;
+		}
+        return io_status_block.Information;
     }
 
-    bool File::Append(PVOID buffer, size_t length, size_t* bytes_appended) {
+    size_t File::Append(PVOID buffer, size_t length) 
+    {
         if (KeGetCurrentIrql() != PASSIVE_LEVEL)
         {
             return false;
         }
         IO_STATUS_BLOCK io_status_block;
-        NTSTATUS status;
-        status = ZwWriteFile(file_handle_, NULL, NULL, NULL, &io_status_block, buffer, (ULONG)length, NULL, NULL);
-        if (!NT_SUCCESS(status)) {
-            return false;
-        };
-
-        *bytes_appended = io_status_block.Information;
-        return NT_SUCCESS(status);
+        if (!NT_SUCCESS(ZwWriteFile(file_handle_, NULL, NULL, NULL, &io_status_block, buffer, (ULONG)length, NULL, NULL)))
+        {
+            return 0;
+        }
+        return io_status_block.Information;
     }
 
     size_t File::Size()
@@ -62,8 +63,8 @@ namespace file
         IO_STATUS_BLOCK io_status_block;
         FILE_STANDARD_INFORMATION file_info;
 
-        NTSTATUS status = ZwQueryInformationFile(file_handle_, &io_status_block, &file_info, sizeof(file_info), FileStandardInformation);
-        if (!NT_SUCCESS(status)) {
+        if (!NT_SUCCESS(ZwQueryInformationFile(file_handle_, &io_status_block, &file_info, sizeof(file_info), FileStandardInformation))) 
+        {
 			return 0;
 		}
         return file_info.EndOfFile.QuadPart;
