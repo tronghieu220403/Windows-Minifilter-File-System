@@ -35,6 +35,9 @@ namespace reg
 		process::DrvUnload();
 		protection::DrvUnload();
 		hide_proc::DrvUnload();
+
+		ioctl::DrvUnload(driver_object);
+
 		return;
 	}
 

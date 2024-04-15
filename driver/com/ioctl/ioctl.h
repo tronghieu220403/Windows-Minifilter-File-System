@@ -22,6 +22,7 @@ inline UNICODE_STRING DEVICE_SYMBOLIC_NAME = RTL_CONSTANT_STRING(L"\\??\\HieuDev
 namespace ioctl
 {
 	NTSTATUS DrvRegister(PDRIVER_OBJECT driver_object, PUNICODE_STRING registry_path);
+	NTSTATUS DrvUnload(PDRIVER_OBJECT driver_object);
 
 	NTSTATUS HandleIoctl(PDEVICE_OBJECT DeviceObject, PIRP Irp);
 

@@ -66,7 +66,7 @@ int _cdecl main(void)
 int RunMiniFilter()
 {
     const string name = "FsFilter";
-    const string path = "C:\\Users\\hieu\\source\\repos\\Windows-Minifilter-Template\\driver\\x64\\Debug\\";
+    const string path = "C:\\Users\\hieu\\source\\repos\\Windows-Minifilter-File-System\\driver\\x64\\Debug";
     const int runtime = 5;
 
     string s = "sc delete " + name;
@@ -75,7 +75,8 @@ int RunMiniFilter()
 
     cout << "Delete OKE \n";
 
-    string s1 = "rundll32 syssetup,SetupInfObjectInstallAction DefaultInstall 128 " + path + name + ".inf";
+    string s1 = "rundll32 syssetup,SetupInfObjectInstallAction DefaultInstall 128 " + path + "\\" + name + ".inf";
+    cout << s1 << endl;
     system(&s1[0]);
 
     cout << "Press enter to continue " << endl;
@@ -104,37 +105,4 @@ int RunMiniFilter()
     getchar();
     return 0;
 
-}
-
-int RunDriver()
-{
-
-    const string name = "MiniFs";
-    const string path = "C:\\Users\\hieu\\source\\repos\\" + string("Windows-Minifilter-Template") + "\\x64\\Release\\";
-
-    string s = "sc delete " + name;
-    system(&s[0]);
-
-    string s1 = "sc create " + name + " binPath= " + path + name + ".sys type= kernel";
-    system(&s1[0]);
-
-    cout << "Press enter to continue " << endl;
-    getchar();
-
-    string s2 = "sc start " + name;
-    system(&s2[0]);
-
-    cout << "Service stop in:" << endl;
-    for (int i = 5; i > 0; i--)
-    {
-        cout << i << endl;
-        Sleep(1000);
-    }
-
-    string s3 = "sc stop " + name;
-    system(&s3[0]);
-
-    system(&s[0]);
-    getchar();
-    return 0;
 }

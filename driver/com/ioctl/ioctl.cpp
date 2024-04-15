@@ -33,6 +33,16 @@ NTSTATUS ioctl::DrvRegister(PDRIVER_OBJECT driver_object, PUNICODE_STRING regist
 	return STATUS_SUCCESS;
 }
 
+NTSTATUS ioctl::DrvUnload(PDRIVER_OBJECT driver_object)
+{
+	DebugMessage("DriverUnload: Unload\n");
+
+	IoDeleteDevice(driver_object->DeviceObject);
+	IoDeleteSymbolicLink(&DEVICE_SYMBOLIC_NAME);
+
+	return STATUS_SUCCESS;
+}
+
 NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 {
 	UNREFERENCED_PARAMETER(device_object);
