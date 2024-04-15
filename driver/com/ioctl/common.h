@@ -1,9 +1,9 @@
 #pragma once
 
-#include "std/memory/memory.h"
-#include "std/string/string.h"
-#include "std/vector/vector.h"
-#include "std/sync/mutex.h"
+#include "../../std/memory/memory.h"
+#include "../../std/string/string.h"
+#include "../../std/vector/vector.h"
+#include "../../std/sync/mutex.h"
 
 namespace ioctl
 {
@@ -241,7 +241,7 @@ namespace ioctl
 	*/
     
 	// User must free the returned buffer.
-	IOCTL_CMD* FlattenIOCTLCommand(IOCTL_CMD_HIDE_FILE* cmd)
+	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_HIDE_FILE* cmd)
     {
         IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + cmd->file_path.Size() * sizeof(WCHAR)];
         ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kHideFile;
@@ -251,7 +251,7 @@ namespace ioctl
     }
 
 	// User must free the returned buffer.
-	IOCTL_CMD* FlattenIOCTLCommand(IOCTL_CMD_UNHIDE_FILE* cmd)
+	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_UNHIDE_FILE* cmd)
     {
         IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + cmd->file_path.Size() * sizeof(WCHAR)];
         ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kUnhideFile;
@@ -261,7 +261,7 @@ namespace ioctl
     }
 
 	// User must free the returned buffer.
-	IOCTL_CMD* FlattenIOCTLCommand(IOCTL_CMD_HIDE_DIR* cmd)
+	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_HIDE_DIR* cmd)
     {
         IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + cmd->dir_path.Size() * sizeof(WCHAR)];
         ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kHideDir;
@@ -271,7 +271,7 @@ namespace ioctl
     }
 
 	// User must free the returned buffer.
-	IOCTL_CMD* FlattenIOCTLCommand(IOCTL_CMD_UNHIDE_DIR* cmd)
+	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_UNHIDE_DIR* cmd)
     {
         IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + cmd->dir_path.Size() * sizeof(WCHAR)];
         ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kUnhideDir;
@@ -281,7 +281,7 @@ namespace ioctl
     }
 
 	// User must free the returned buffer.
-	IOCTL_CMD* FlattenIOCTLCommand(IOCTL_CMD_HIDE_PROC* cmd)
+	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_HIDE_PROC* cmd)
     {
         IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + sizeof(ULONG)];
         ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kHideProc;
@@ -291,7 +291,7 @@ namespace ioctl
     }
 
 	// User must free the returned buffer.
-	IOCTL_CMD* FlattenIOCTLCommand(IOCTL_CMD_UNHIDE_PROC* cmd)
+	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_UNHIDE_PROC* cmd)
     {
         IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + sizeof(ULONG)];
         ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kUnhideProc;
@@ -301,7 +301,7 @@ namespace ioctl
     }
 
 	// User must free the returned buffer.
-	IOCTL_CMD* FlattenIOCTLCommand(IOCTL_CMD_HIDE_REG* cmd)
+	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_HIDE_REG* cmd)
     {
         IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + cmd->reg_path.Size() * sizeof(WCHAR)];
         ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kHideReg;
@@ -311,7 +311,7 @@ namespace ioctl
     }
 
 	// User must free the returned buffer.
-	IOCTL_CMD* FlattenIOCTLCommand(IOCTL_CMD_UNHIDE_REG* cmd)
+	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_UNHIDE_REG* cmd)
     {
         IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + cmd->reg_path.Size() * sizeof(WCHAR)];
         ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kUnhideReg;
@@ -321,7 +321,7 @@ namespace ioctl
     }
 
 	// User must free the returned buffer.
-    IOCTL_CMD* FlattenIOCTLCommand(IOCTL_CMD_PROTECT_FILE* cmd)
+    inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_PROTECT_FILE* cmd)
     {
         IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + cmd->file_path.Size() * sizeof(WCHAR)];
         ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kProctectFile;
@@ -331,7 +331,7 @@ namespace ioctl
     }
 
 	// User must free the returned buffer.
-    IOCTL_CMD* FlattenIOCTLCommand(IOCTL_CMD_UNPROTECT_FILE* cmd)
+    inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_UNPROTECT_FILE* cmd)
     {
         IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + cmd->file_path.Size() * sizeof(WCHAR)];
         ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kUnproctectFile;
@@ -341,7 +341,7 @@ namespace ioctl
     }
 
 	// User must free the returned buffer.
-	IOCTL_CMD* FlattenIOCTLCommand(IOCTL_CMD_PROTECT_DIR* cmd)
+	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_PROTECT_DIR* cmd)
     {
         IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + cmd->dir_path.Size() * sizeof(WCHAR)];
         ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kProctectDir;
@@ -350,7 +350,7 @@ namespace ioctl
         return ioctlCmd;
     }
 
-    IOCTL_CMD* FlattenIOCTLCommand(IOCTL_CMD_UNPROTECT_DIR* cmd)
+    inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_UNPROTECT_DIR* cmd)
     {
         IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + cmd->dir_path.Size() * sizeof(WCHAR)];
         ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kUnproctectDir;

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "std/string/string.h"
-#include "std/vector/vector.h"
-#include "std/sync/mutex.h"
+#include "../../std/string/string.h"
+#include "../../std/vector/vector.h"
+#include "../../std/sync/mutex.h"
 
 #pragma warning( disable : 6001)
 

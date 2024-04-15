@@ -9,6 +9,7 @@
 #include "../function/hide/hide-file.h"
 #include "../function/hide/hide-proc.h"
 #include "../process/ps-monitor.h"
+#include "../com/ioctl/ioctl.h"
 #include "debug.h"
 
 namespace reg

@@ -18,7 +18,11 @@ namespace reg
 		process::DrvRegister();
 		protection::DrvRegister();
 		hide_proc::DrvRegister();
+
+		ioctl::DrvRegister(driver_object, registry_path);
+
 		return;
+
 	}
 
 
