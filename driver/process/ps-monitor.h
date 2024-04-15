@@ -5,6 +5,7 @@
 #include "../std/map/map.hpp"
 #include "../std/memory/pair.h"
 #include "../process/eprocess.h"
+#include "../template/debug.h"
 
 #include <wdm.h>
 #include <Ntstrsafe.h>

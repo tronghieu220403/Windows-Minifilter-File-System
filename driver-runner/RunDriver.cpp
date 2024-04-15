@@ -66,7 +66,7 @@ int _cdecl main(void)
 int RunMiniFilter()
 {
     const string name = "FsFilter";
-    const string path = "C:\\Users\\hieu\\source\\repos\\Windows-Minifilter-File-System\\driver\\x64\\Debug";
+    const string path = "C:\\Users\\hieu\\source\\repos\\Windows-Minifilter-File-System\\driver\\x64\\Release";
     const int runtime = 5;
 
     string s = "sc delete " + name;

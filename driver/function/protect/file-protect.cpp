@@ -45,6 +45,8 @@ namespace protection
 			return FLT_PREOP_SUCCESS_NO_CALLBACK;
 		}
 
+		return FLT_PREOP_SUCCESS_NO_CALLBACK;
+
 		String<WCHAR> name(GetFileFullPathName(data));
 
 		if (name.Size() == 0)

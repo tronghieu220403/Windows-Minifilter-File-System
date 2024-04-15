@@ -13,6 +13,7 @@ namespace process
 	void DrvRegister()
 	{
 		eprocess::DrvRegister();
+		kProcessMutex.Create();
 		kTrustedProcessList = new Vector<size_t>();
 		ppid = new int[300000];
 		::ZeroMemory(ppid, 300000);
