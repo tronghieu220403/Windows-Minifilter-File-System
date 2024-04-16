@@ -268,16 +268,23 @@ inline String<T>::String(const T* cstr)
 
 template<>
 inline String<WCHAR>::String(const UNICODE_STRING& uni_str)
-	:size_(uni_str.Length / sizeof(WCHAR)), elements_(Allocate(uni_str.MaximumLength / sizeof(WCHAR))), space_(uni_str.MaximumLength / sizeof(WCHAR))
 {
-	MemCopy(elements_, uni_str.Buffer, uni_str.Length);
-	elements_[uni_str.Length] = 0;
+	size_ = uni_str.Length / sizeof(WCHAR);
+	elements_ = Allocate(size_);
+	space_ = size_;
+
+	MemCopy(elements_, uni_str.Buffer, size_);
+	elements_[size_] = 0;
+
 }
 
 template<>
 inline String<char>::String(const UNICODE_STRING& uni_str)
-	:size_(uni_str.Length / sizeof(WCHAR)), elements_(Allocate(uni_str.MaximumLength / sizeof(WCHAR))), space_(uni_str.MaximumLength / sizeof(WCHAR))
 {
+	size_ = uni_str.Length / sizeof(WCHAR);
+	elements_ = Allocate(size_);
+	space_ = size_;
+
 	for (int i = 0; i < uni_str.Length; i++)
 	{
 		elements_[i] = (char)uni_str.Buffer[i];
@@ -353,11 +360,11 @@ inline String<WCHAR>& String<WCHAR>::operator=(const PUNICODE_STRING& uni_str)
 {
 	Deallocate();
 	size_ = uni_str->Length / sizeof(WCHAR);
-	elements_ = Allocate(uni_str->MaximumLength / sizeof(WCHAR));
-	space_ = uni_str->MaximumLength / sizeof(WCHAR);
+	elements_ = Allocate(uni_str->MaximumLength);
+	space_ = uni_str->MaximumLength;
 
-	MemCopy(elements_, uni_str->Buffer, uni_str->Length);
-	elements_[uni_str->Length] = 0;
+	MemCopy(elements_, uni_str->Buffer, size_);
+	elements_[size_] = 0;
 
 	return *this;
 }
@@ -643,7 +650,8 @@ inline bool String<T>::operator==(const String<T>& str)
 template<class T>
 inline T* String<T>::Allocate(size_t n)
 {
-	T* p = (T *)krnl_std::Alloc( (n + 1) * sizeof(T));
+	//T* p = (T *)krnl_std::Alloc( (n + 1) * sizeof(T));
+	T* p = new T[n + 1];
 	p[n] = T();
 	return p;
 }
@@ -655,6 +663,7 @@ inline void String<T>::Deallocate()
 	{
 		return;
 	}
-	krnl_std::Free(elements_);
+	// krnl_std::Free(elements_);
+	delete elements_;
 	elements_ = 0;
 }

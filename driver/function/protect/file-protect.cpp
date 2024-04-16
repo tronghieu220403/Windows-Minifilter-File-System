@@ -45,8 +45,6 @@ namespace protection
 			return FLT_PREOP_SUCCESS_NO_CALLBACK;
 		}
 
-		return FLT_PREOP_SUCCESS_NO_CALLBACK;
-
 		String<WCHAR> name(GetFileFullPathName(data));
 
 		if (name.Size() == 0)
@@ -238,10 +236,17 @@ namespace protection
 		}
 		String<WCHAR> res;
 		PFLT_FILE_NAME_INFORMATION file_name_info;
-		FltGetFileNameInformation(data, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_ALWAYS_ALLOW_CACHE_LOOKUP, &file_name_info);
-		res = String<WCHAR>(file_name_info->Name);
-		FltReleaseFileNameInformation(file_name_info);
-		
+		NTSTATUS status = FltGetFileNameInformation(data, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_ALWAYS_ALLOW_CACHE_LOOKUP, &file_name_info);
+		if (status == STATUS_SUCCESS)
+		{
+			res = String<WCHAR>(file_name_info->Name);
+			FltReleaseFileNameInformation(file_name_info);
+		}
+		else if (status == STATUS_FLT_NAME_CACHE_MISS && FltGetFileNameInformation(data, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_FILESYSTEM_ONLY, &file_name_info) == STATUS_SUCCESS)
+		{
+			res = String<WCHAR>(file_name_info->Name);
+			FltReleaseFileNameInformation(file_name_info);
+		}
 		return res;
 	}
 

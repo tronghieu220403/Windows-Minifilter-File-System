@@ -330,7 +330,8 @@ Return Value:
         }
     }
 
-    return FLT_PREOP_SUCCESS_WITH_CALLBACK;
+    //return FLT_PREOP_SUCCESS_WITH_CALLBACK;
+    return FLT_PREOP_SUCCESS_NO_CALLBACK;
 }
 
 FLT_POSTOP_CALLBACK_STATUS
@@ -384,8 +385,7 @@ Return Value:
         if (data->Iopb->MajorFunction == (*reg::kFltFuncVector)[i].irp_mj_function_code &&
             (*reg::kFltFuncVector)[i].post_func != nullptr)
         {
-            if ((*(p->status))[i] != FLT_PREOP_SUCCESS_NO_CALLBACK
-                || (*(p->status))[i] != FLT_PREOP_COMPLETE)
+            if ((*(p->status))[i] != FLT_PREOP_SUCCESS_NO_CALLBACK && (*(p->status))[i] != FLT_PREOP_COMPLETE)
             {
                 (*reg::kFltFuncVector)[i].post_func(data, flt_objects, completion_context, flags);
             }
