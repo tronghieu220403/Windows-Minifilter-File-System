@@ -321,17 +321,20 @@ Return Value:
 
     for (int i = 0; i < reg::kFltFuncVector->Size(); i++)
     {
-        (*(p->status))[i] = FLT_PREOP_SUCCESS_NO_CALLBACK;
         if (data->Iopb->MajorFunction == (*reg::kFltFuncVector)[i].irp_mj_function_code &&
             (*reg::kFltFuncVector)[i].pre_func != nullptr)
         {
             FLT_PREOP_CALLBACK_STATUS status = (*reg::kFltFuncVector)[i].pre_func(data, flt_objects, completion_context);
             (*(p->status))[i] = status;
+            if (status == FLT_PREOP_COMPLETE)
+            {
+                DeallocCompletionContext(p);
+                return FLT_PREOP_COMPLETE;
+            }
         }
     }
 
-    //return FLT_PREOP_SUCCESS_WITH_CALLBACK;
-    return FLT_PREOP_SUCCESS_NO_CALLBACK;
+    return FLT_PREOP_SUCCESS_WITH_CALLBACK;
 }
 
 FLT_POSTOP_CALLBACK_STATUS
