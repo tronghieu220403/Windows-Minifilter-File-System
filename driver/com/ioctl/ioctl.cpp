@@ -57,46 +57,86 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 		return STATUS_UNSUCCESSFUL;
 	}
 
-	IOCTL_CMD_CLASS type = *(IOCTL_CMD_CLASS*)irp->AssociatedIrp.SystemBuffer;
+	IOCTL_CMD_CLASS type = cmd->cmd_class;
 	// TODO: Build a function to handle each type
 	String<WCHAR> str;
 	switch (type)
 	{
 	case IOCTL_CMD_CLASS::kHideFile:
-		str = cmd->ParseHideFile().file_path.Data();
-		DebugMessage("Hide file: %wZ", str.Data());
+
+		str = cmd->ParseHideFile().file_path;
+		DebugMessage("Hide file: %ws", str.Data());
 		hide_file::AddFileToHideList(str);
 		break;
+
 	case IOCTL_CMD_CLASS::kHideDir:
+
+		str = cmd->ParseHideDir().dir_path;
+		DebugMessage("Hide dir: %ws", str.Data());
 		hide_file::AddDirToHideList(str);
 		break;
+
 	case IOCTL_CMD_CLASS::kUnhideFile:
-		str = cmd->ParseHideFile().file_path.Data();
-		DebugMessage("Unhide file: %wZ", str.Data());
+
+		str = cmd->ParseUnhideFile().file_path;
+		DebugMessage("Unhide file: %ws", str.Data());
 		hide_file::DeleteFileFromHideList(str);
 		break;
+
 	case IOCTL_CMD_CLASS::kUnhideDir:
+
+		str = cmd->ParseUnhideDir().dir_path;
+		DebugMessage("Unhide dir: %ws", str.Data());
 		hide_file::DeleteDirFromHideList(str);
 		break;
+
 	case IOCTL_CMD_CLASS::kHideProc:
+
 		break;
+
 	case IOCTL_CMD_CLASS::kUnhideProc:
+
 		break;
+
 	case IOCTL_CMD_CLASS::kHideReg:
+
 		break;
+
 	case IOCTL_CMD_CLASS::kUnhideReg:
+
 		break;
+
 	case IOCTL_CMD_CLASS::kProctectFile:
+
+		str = cmd->ParseProtectFile().file_path;
+		DebugMessage("Protect file: %ws", str.Data());
+		protect_file::AddFileToProtectedList(&str);
+
 		break;
+
 	case IOCTL_CMD_CLASS::kUnproctectFile:
+
+		str = cmd->ParseUnprotectFile().file_path;
+		DebugMessage("Unprotect file: %ws", str.Data());
+		protect_file::RemoveFileFromProtectedList(&str);
+
 		break;
+
 	case IOCTL_CMD_CLASS::kProctectDir:
+
 		break;
+
 	case IOCTL_CMD_CLASS::kUnproctectDir:
+
 		break;
+
 	default:
 		break;
 	}
+
+	irp->IoStatus.Status = STATUS_SUCCESS;
+
+	IoCompleteRequest(irp, IO_NO_INCREMENT);
 
 	return STATUS_SUCCESS;
 }

@@ -1,6 +1,6 @@
 #include "file-protect.h"
 
-namespace protection
+namespace protect_file
 {
 	void FltRegister()
 	{
@@ -58,9 +58,16 @@ namespace protection
 			goto return_success_no_callback;
 		}
 
-		// Not directory
-		if (!IsDir || IsProtectedFile(name))
+		if (!IsDir && IsProtectedFile(&name))
 		{
+			goto return_success_no_callback;
+		}
+
+		// Not directory
+		if (!IsDir && IsProtectedFile(&name))
+		{
+			DebugMessage("%ws", name.Data());
+
 			switch (data->Iopb->MajorFunction)
 			{
 			case IRP_MJ_WRITE:
@@ -91,7 +98,7 @@ namespace protection
 			}
 		}
 
-		if (IsDir && !IsProtectedDir(name))
+		if (IsDir && !IsProtectedDir(&name))
 		{
 			goto return_success_no_callback;
 		}
@@ -136,13 +143,13 @@ namespace protection
 	}
 
 
-	bool IsProtectedFile(String<WCHAR>& file_name)
+	bool IsProtectedFile(const String<WCHAR>* file_name)
 	{
 		bool ret = false;
 		kFileMutex.Lock();
 		for (int i = 0; i < kProtectedFileList->Size(); i++)
 		{
-			if ((*kProtectedFileList)[i] == file_name)
+			if ((*kProtectedFileList)[i] == *file_name)
 			{
 				ret = true;
 				break;
@@ -152,20 +159,20 @@ namespace protection
 		return ret;
 	}
 
-	void AddFileToProtectedList(String<WCHAR>& file_name)
+	void AddFileToProtectedList(const String<WCHAR>* file_name)
 	{
 		kFileMutex.Lock();
-		kProtectedFileList->PushBack(file_name);
+		kProtectedFileList->PushBack(*file_name);
 		kFileMutex.Unlock();
 		return;
 	}
 
-	void RemoveFileFromProtectedList(String<WCHAR>& file_name)
+	void RemoveFileFromProtectedList(const String<WCHAR>* file_name)
 	{
 		kFileMutex.Lock();
 		for (int i = 0; i < kProtectedFileList->Size(); i++)
 		{
-			if ((*kProtectedFileList)[i] == file_name)
+			if ((*kProtectedFileList)[i] == *file_name)
 			{
 				kProtectedFileList->EraseUnordered(i);
 				break;
@@ -175,13 +182,13 @@ namespace protection
 		return;
 	}
 
-	bool IsProtectedDir(String<WCHAR>& dir_name)
+	bool IsProtectedDir(const String<WCHAR>* dir_name)
 	{
 		kDirMutex.Lock();
 		bool ret = false;
 		for (int i = 0; i < kProtectedDirList->Size(); i++)
 		{
-			if (dir_name.IsPrefixOf((*kProtectedDirList)[i]))
+			if (((String<WCHAR>*)dir_name)->IsPrefixOf((*kProtectedDirList)[i]))
 			{
 				ret = true;
 				break;
@@ -195,7 +202,7 @@ namespace protection
 		kFileMutex.Lock();
 		for (int i = 0; i < kProtectedFileList->Size(); i++)
 		{
-			if (dir_name.IsPrefixOf((*kProtectedFileList)[i]))
+			if (((String<WCHAR>*)dir_name)->IsPrefixOf((*kProtectedFileList)[i]))
 			{
 				ret = true;
 				break;
@@ -205,20 +212,20 @@ namespace protection
 		return ret;
 	}
 
-	void AddDirToProtectedList(String<WCHAR>& file_name)
+	void AddDirToProtectedList(const String<WCHAR>* file_name)
 	{
 		kDirMutex.Lock();
-		kProtectedDirList->PushBack(file_name);
+		kProtectedDirList->PushBack(*file_name);
 		kDirMutex.Unlock();
 		return;
 	}
 
-	void RemoveDirFromProtectedList(String<WCHAR>& dir_name)
+	void RemoveDirFromProtectedList(const String<WCHAR>* dir_name)
 	{
 		kDirMutex.Lock();
 		for (int i = 0; i < kProtectedDirList->Size(); i++)
 		{
-			if ((*kProtectedDirList)[i] == dir_name)
+			if ((*kProtectedDirList)[i] == *dir_name)
 			{
 				kProtectedDirList->EraseUnordered(i);
 				break;

@@ -11,7 +11,7 @@
 #include <fltKernel.h>
 
 
-namespace protection
+namespace protect_file
 {
 	inline Vector<String<WCHAR>>* kProtectedFileList;
 	inline Vector<String<WCHAR>>* kProtectedDirList;
@@ -28,13 +28,13 @@ namespace protection
 
 	void DrvUnload();
 
-	bool IsProtectedFile(String<WCHAR>& file_name);
-	void AddFileToProtectedList(String<WCHAR>& file_name);
-	void RemoveFileFromProtectedList(String<WCHAR>& file_name);
+	bool IsProtectedFile(const String<WCHAR>* file_name);
+	void AddFileToProtectedList(const String<WCHAR>* file_name);
+	void RemoveFileFromProtectedList(const String<WCHAR>* file_name);
 
-	bool IsProtectedDir(String<WCHAR>& dir_name);
-	void AddDirToProtectedList(String<WCHAR>& file_name);
-	void RemoveDirFromProtectedList(String<WCHAR>& dir_name);
+	bool IsProtectedDir(const String<WCHAR>* dir_name);
+	void AddDirToProtectedList(const String<WCHAR>* file_name);
+	void RemoveDirFromProtectedList(const String<WCHAR>* dir_name);
 
 	FLT_PREOP_CALLBACK_STATUS PreOperation(_Inout_ PFLT_CALLBACK_DATA Data, _In_ PCFLT_RELATED_OBJECTS FltObjects, _Flt_CompletionContext_Outptr_ PVOID* CompletionContext);
 
