@@ -306,17 +306,16 @@ Return Value:
     if ((*completion_context) == nullptr)
     {
         p = reg::AllocCompletionContext();
-        (*completion_context) = (PVOID* )reg::AllocCompletionContext();
+        (*completion_context) = (PVOID* )p;
+        if (p == nullptr)
+        {
+            return FLT_PREOP_SUCCESS_NO_CALLBACK;
+        }
         p->status->Resize(reg::kFltFuncVector->Size());
     }
     else
     {
         p = (reg::Context*)(*completion_context);
-    }
-
-    if (p == nullptr)
-    {
-        return FLT_PREOP_SUCCESS_NO_CALLBACK;
     }
 
     for (int i = 0; i < reg::kFltFuncVector->Size(); i++)

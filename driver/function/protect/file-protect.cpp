@@ -61,20 +61,18 @@ namespace protect_file
 		// Not directory
 		if (!IsDir && IsProtectedFile(&name))
 		{
+			DebugMessage(" ");
+			DebugMessage("%s", flt::DebugIrpFlags(data->Iopb->IrpFlags).Data());
+			flt::DebugIopbMajorFunc(data->Iopb->MajorFunction);
+
 			switch (data->Iopb->MajorFunction)
 			{
 			case IRP_MJ_WRITE:
-				DebugMessage("IRP_MJ_WRITE");
 				goto return_access_denided;
-			case IRP_MJ_FLUSH_BUFFERS:
-				DebugMessage("IRP_MJ_FLUSH_BUFFERS");
-				break;
 			case IRP_MJ_SET_INFORMATION:
-				DebugMessage("IRP_MJ_SET_INFORMATION");
-				break;
+				goto return_access_denided;
 			case IRP_MJ_CREATE:
 				flag = data->Iopb->Parameters.Create.SecurityContext->DesiredAccess;
-				DebugMessage("%x", flag);
 				ClearFlag(flag, FILE_WRITE_DATA);
 				ClearFlag(flag, FILE_WRITE_ATTRIBUTES);
 				ClearFlag(flag, FILE_WRITE_EA);
@@ -105,6 +103,8 @@ namespace protect_file
 				goto return_success_no_callback;
 			}
 
+			/* 
+			// This field is only for file deletion
 			// Process requests with FileDispositionInformation, FileDispositionInformationEx or file renames
 			if (data->Iopb->MajorFunction == IRP_MJ_SET_INFORMATION)
 			{
@@ -121,6 +121,7 @@ namespace protect_file
 					goto return_success_no_callback;
 				}
 			}
+			*/
 		}
 
 	return_success_no_callback:
