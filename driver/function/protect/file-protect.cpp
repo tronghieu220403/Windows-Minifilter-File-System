@@ -57,16 +57,23 @@ namespace protect_file
 		{
 			goto return_success_no_callback;
 		}
-
+		ACCESS_MASK flag;
 		// Not directory
 		if (!IsDir && IsProtectedFile(&name))
 		{
 			switch (data->Iopb->MajorFunction)
 			{
 			case IRP_MJ_WRITE:
+				DebugMessage("IRP_MJ_WRITE");
 				goto return_access_denided;
+			case IRP_MJ_FLUSH_BUFFERS:
+				DebugMessage("IRP_MJ_FLUSH_BUFFERS");
+				break;
+			case IRP_MJ_SET_INFORMATION:
+				DebugMessage("IRP_MJ_SET_INFORMATION");
+				break;
 			case IRP_MJ_CREATE:
-				ACCESS_MASK flag = data->Iopb->Parameters.Create.SecurityContext->DesiredAccess;
+				flag = data->Iopb->Parameters.Create.SecurityContext->DesiredAccess;
 				DebugMessage("%x", flag);
 				ClearFlag(flag, FILE_WRITE_DATA);
 				ClearFlag(flag, FILE_WRITE_ATTRIBUTES);
@@ -79,7 +86,8 @@ namespace protect_file
 				ClearFlag(flag, STANDARD_RIGHTS_WRITE);
 				data->Iopb->Parameters.Create.SecurityContext->DesiredAccess = flag;
 				FltSetCallbackDataDirty(data);
-
+			default:
+				break;
 			}
 		}
 
