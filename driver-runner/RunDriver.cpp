@@ -67,7 +67,7 @@ int RunMiniFilter()
 {
     const string name = "FsFilter";
     const string path = "C:\\Users\\hieu\\source\\repos\\Windows-Minifilter-File-System\\driver\\x64\\Release";
-    const int runtime = 60;
+    const int runtime = 30;
 
     string s = "sc delete " + name;
     system(&s[0]);

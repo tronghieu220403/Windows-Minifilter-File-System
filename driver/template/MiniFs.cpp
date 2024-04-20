@@ -375,11 +375,6 @@ Return Value:
     UNREFERENCED_PARAMETER( completion_context );
     UNREFERENCED_PARAMETER( flags );
 
-    if (!NT_SUCCESS(data->IoStatus.Status))
-    {
-        return FLT_POSTOP_FINISHED_PROCESSING;
-    }
-    
     reg::Context* p = (reg::Context*)completion_context;
     if (p == nullptr)
     {
