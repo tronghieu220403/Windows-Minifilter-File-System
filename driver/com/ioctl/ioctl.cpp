@@ -124,9 +124,18 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 
 	case IOCTL_CMD_CLASS::kProctectDir:
 
+		str = cmd->ParseProtectDir().dir_path;
+		DebugMessage("Protect dir: %ws", str.Data());
+		protect_file::AddDirToProtectedList(&str);
+
 		break;
 
 	case IOCTL_CMD_CLASS::kUnproctectDir:
+
+		str = cmd->ParseUnprotectDir().dir_path;
+		DebugMessage("Unprotect dir: %ws", str.Data());
+		protect_file::RemoveDirFromProtectedList(&str);
+
 
 		break;
 

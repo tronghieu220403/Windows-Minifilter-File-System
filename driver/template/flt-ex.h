@@ -10,8 +10,6 @@ namespace flt
 
 	String<char> DebugIrpFlags(ULONG flag);
 
-	String<char> DebugIopbMajorFunc(UCHAR mj);
-
 	String<WCHAR> GetFileFullPathName(PFLT_CALLBACK_DATA data);
 
 	class FileInfoShort

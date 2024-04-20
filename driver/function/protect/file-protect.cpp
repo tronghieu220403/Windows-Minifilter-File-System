@@ -60,8 +60,6 @@ namespace protect_file
 
 		if ((IsDir && IsProtectedDir(&name)) || (!IsDir && IsProtectedFile(&name)))
 		{
-			flt::DebugIopbMajorFunc(data->Iopb->MajorFunction);
-
 			switch (data->Iopb->MajorFunction)
 			{
 			case IRP_MJ_WRITE:
@@ -98,24 +96,6 @@ namespace protect_file
 			}
 		}
 
-		// ?????
-		if (IsDir && IsProtectedDir(&name))
-		{
-			switch (data->Iopb->MajorFunction)
-			{
-			case IRP_MJ_DIRECTORY_CONTROL:
-				// https://learn.microsoft.com/en-us/windows-hardware/drivers/ifs/irp-mj-directory-control
-				switch (data->Iopb->MinorFunction)
-				{
-				case IRP_MN_NOTIFY_CHANGE_DIRECTORY:
-				case IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX:
-					goto return_access_denided;
-				default:
-					break;
-				}
-			}
-		}
-
 	return_success_no_callback:
 		return FLT_PREOP_SUCCESS_NO_CALLBACK;
 
@@ -140,6 +120,18 @@ namespace protect_file
 			}
 		}
 		kFileMutex.Unlock();
+
+		kDirMutex.Lock();
+		for (int i = 0; i < kProtectedDirList->Size(); i++)
+		{
+			if ((*kProtectedDirList)[i].IsPrefixOf((*file_name)))
+			{
+				ret = true;
+				break;
+			}
+		}
+		kDirMutex.Unlock();
+
 		return ret;
 	}
 

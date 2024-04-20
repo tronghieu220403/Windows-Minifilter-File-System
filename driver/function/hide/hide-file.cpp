@@ -77,7 +77,7 @@ namespace hide_file
     void AddDirToHideList(const String<WCHAR>* dir_name)
     {
         kDirMutex.Lock();
-        kHideFileList->PushBack(*dir_name);
+        kHideDirList->PushBack(*dir_name);
         kDirMutex.Unlock();
         return;
     }
@@ -268,19 +268,23 @@ namespace hide_file
 
         if (!info.IsNull())
         {
+            // DebugMessage("\n");
             while (true)
             {
                 set_prev = true;
                 String<WCHAR> file_name(UNICODE_STRING{ (USHORT)info.GetFileNameLength(), (USHORT)info.GetFileNameLength(), (PWCHAR)info.GetFileName() });
 
-                String<WCHAR> fullpath = *root + file_name;
-
+                String<WCHAR> full_path = *root + file_name;
                 size_t offset = 0;
                 size_t move_length = 0;
                 
-                if ((IsHiddenFile(&file_name) == true && !FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY)) || 
-                    (IsHiddenDir(&file_name) == true && (FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY) || info.GetFileAttributes() == 0)))
+                ULONG next_entry_offs = info.GetNextEntryOffset();
+                PUCHAR next_entry_addr = info.GetNextEntryAddr();
+
+                if ((IsHiddenFile(&full_path) == true && !FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY)) ||
+                    (IsHiddenDir(&full_path) == true && (FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY) || info.GetFileAttributes() == 0)))
                 {
+                    // DebugMessage("Try to hide: %ws", full_path.Data());
                     if (!prev_info.IsNull())
                     {
                         if (info.GetNextEntryOffset() != 0)
@@ -317,7 +321,7 @@ namespace hide_file
                     }
                 }
 
-                if (info.GetNextEntryOffset() == NULL)
+                if (next_entry_offs == NULL)
                 {
                     break;
                 }
@@ -327,7 +331,7 @@ namespace hide_file
                     {
                         prev_info = info;
                     }
-                    info = flt::FileInfoShort(&info, info.GetNextEntryAddr());
+                    info = flt::FileInfoShort(&info, next_entry_addr);
                 }
             }
         }

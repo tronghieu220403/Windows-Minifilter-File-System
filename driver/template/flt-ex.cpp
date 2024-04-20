@@ -112,27 +112,6 @@ namespace flt
 		return str;
 	}
 
-	String<char> DebugIopbMajorFunc(UCHAR mj)
-	{
-		String<char> str;
-		switch (mj)
-		{
-		case IRP_MJ_WRITE:
-			DebugMessage("IRP_MJ_WRITE");
-			break;
-		case IRP_MJ_QUERY_INFORMATION:
-			DebugMessage("IRP_MJ_QUERY_INFORMATION");
-			break;
-		case IRP_MJ_SET_INFORMATION:
-			DebugMessage("IRP_MJ_SET_INFORMATION");
-			break;
-		default:
-			DebugMessage("%d", mj);
-			break;
-		}
-		return str;
-	}
-
 	String<WCHAR> GetFileFullPathName(PFLT_CALLBACK_DATA data)
 	{
 		if (data == nullptr)
