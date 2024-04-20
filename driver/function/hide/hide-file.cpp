@@ -19,13 +19,13 @@ namespace hide_file
         delete kHideDirList;
     }
 
-    bool IsHiddenFile(String<WCHAR>& file_name)
+    bool IsHiddenFile(const String<WCHAR>* file_name)
     {
 	    bool ret = false;
 	    kFileMutex.Lock();
 	    for (int i = 0; i < kHideFileList->Size(); i++)
 	    {
-		    if ((*kHideFileList)[i] == file_name)
+		    if ((*kHideFileList)[i] == *file_name)
 		    {
 			    ret = true;
 			    break;
@@ -35,20 +35,20 @@ namespace hide_file
 	    return ret;
     }
 
-    void AddFileToHideList(String<WCHAR>& file_name)
+    void AddFileToHideList(const String<WCHAR>* file_name)
     {
 	    kFileMutex.Lock();
-	    kHideFileList->PushBack(file_name);
+	    kHideFileList->PushBack(*file_name);
 	    kFileMutex.Unlock();
 	    return;
     }
 
-    void DeleteFileFromHideList(String<WCHAR>& file_name)
+    void DeleteFileFromHideList(const String<WCHAR>* file_name)
     {
         kFileMutex.Lock();
         for (int i = 0; i < kHideFileList->Size(); i++)
         {
-            if ((*kHideFileList)[i] == file_name)
+            if ((*kHideFileList)[i] == *file_name)
             {
 			    kHideFileList->EraseUnordered(i);
 			    break;
@@ -58,13 +58,13 @@ namespace hide_file
         return;
     }
 
-    bool IsHiddenDir(String<WCHAR>& dir_name)
+    bool IsHiddenDir(const String<WCHAR>* dir_name)
     {
         bool ret = false;
         kDirMutex.Lock();
         for (int i = 0; i < kHideDirList->Size(); i++)
         {
-            if ((*kHideDirList)[i] == dir_name)
+            if ((*kHideDirList)[i] == *dir_name)
             {
                 ret = true;
                 break;
@@ -74,20 +74,20 @@ namespace hide_file
         return ret;
     }
 
-    void AddDirToHideList(String<WCHAR>& dir_name)
+    void AddDirToHideList(const String<WCHAR>* dir_name)
     {
         kDirMutex.Lock();
-        kHideFileList->PushBack(dir_name);
+        kHideFileList->PushBack(*dir_name);
         kDirMutex.Unlock();
         return;
     }
 
-    void DeleteDirFromHideList(String<WCHAR>& dir_name)
+    void DeleteDirFromHideList(const String<WCHAR>* dir_name)
     {
         kDirMutex.Lock();
         for (int i = 0; i < kHideDirList->Size(); i++)
         {
-            if ((*kHideDirList)[i] == dir_name)
+            if ((*kHideDirList)[i] == *dir_name)
             {
 			    kHideDirList->EraseUnordered(i);
 			    break;
@@ -107,14 +107,18 @@ namespace hide_file
 
     FLT_POSTOP_CALLBACK_STATUS PostDirControlOperation(PFLT_CALLBACK_DATA data, PCFLT_RELATED_OBJECTS flt_objects, PVOID completion_context, FLT_POST_OPERATION_FLAGS flags)
     {
+
+        // TODO: To improve performance, precheck if the path is in the hidden list or dir so that we do not need to check in the user buffer. 
+        // To do this, you need to split file name into 2 parts: path + name.
+        // Warning: test with shortcut and symbolics link. If anyone can access the file, The TODO method is wrong.
+
 	    PAGED_CODE();
 
         FILE_INFORMATION_CLASS info_class;
 
         String<WCHAR> file_name;
-        PVOID directory_buffer;
+        PVOID bufffer;
         NTSTATUS status;
-
 
         // assert we're not draining.
         ASSERT(!FlagOn(flags, FLTFL_POST_OPERATION_DRAINING));
@@ -126,8 +130,6 @@ namespace hide_file
         if (!NT_SUCCESS(data->IoStatus.Status))
             return FLT_POSTOP_FINISHED_PROCESSING;
 
-        return FLT_POSTOP_FINISHED_PROCESSING;
-
         if (flt::IsTrustedRequestor(data) == true)
         {
             return FLT_POSTOP_FINISHED_PROCESSING;
@@ -138,74 +140,89 @@ namespace hide_file
             return FLT_POSTOP_FINISHED_PROCESSING;
         }
 
+
 	    __try
 	    {
-		    file_name = data->Iopb->Parameters.DirectoryControl.QueryDirectory.FileName;
-
+            DebugMessage("File name real: %ws", flt::GetFileFullPathName(data).Data());
+            file_name = data->Iopb->Parameters.DirectoryControl.QueryDirectory.FileName;
+            DebugMessage("File name fake: %ws", file_name.Data());
 		    info_class = data->Iopb->Parameters.DirectoryControl.QueryDirectory.FileInformationClass;
 
-		    directory_buffer = MmGetSystemAddressForMdlSafe(data->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress, NormalPagePriority | MdlMappingNoExecute);
-		    if (directory_buffer == NULL)
-		    {
-			    directory_buffer = data->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer;
-		    }
+            if (data->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress != NULL) {
+                bufffer = MmGetSystemAddressForMdlSafe(data->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress, NormalPagePriority | MdlMappingNoExecute);
+            }
+            else {
+                bufffer = data->Iopb->Parameters.DirectoryControl.QueryDirectory.DirectoryBuffer;
+            }
+            if (bufffer == NULL) {
+                __leave;
+            }
 
-            PUCHAR info;
-            PUCHAR next_entry_offset;
-            PUCHAR file_name_offset;
-            PUCHAR file_name_length_offset;
-            FileInfoShort file_info;
+            flt::FileInfoShort file_info;
 
             status = STATUS_SUCCESS;
 
             switch (info_class)
 		    {
 		    case FileFullDirectoryInformation:
-                info = (PUCHAR)directory_buffer;
-                next_entry_offset = (PUCHAR) & (((PFILE_FULL_DIR_INFORMATION)directory_buffer)->NextEntryOffset);
-                file_name_offset = (PUCHAR) & (((PFILE_FULL_DIR_INFORMATION)directory_buffer)->FileName);
-                file_name_length_offset = (PUCHAR) & (((PFILE_FULL_DIR_INFORMATION)directory_buffer)->FileNameLength);
-                file_info = FileInfoShort(info, next_entry_offset, file_name_offset, file_name_length_offset);
+                file_info = flt::FileInfoShort(
+                    (PUCHAR)bufffer,
+                    offsetof(FILE_FULL_DIR_INFORMATION, NextEntryOffset),
+                    offsetof(FILE_FULL_DIR_INFORMATION, FileName),
+                    offsetof(FILE_FULL_DIR_INFORMATION, FileNameLength),
+                    offsetof(FILE_FULL_DIR_INFORMATION, FileAttributes)
+                );
                 status = HideFile(file_info);
                 break;
 		    case FileBothDirectoryInformation:
-                info = (PUCHAR)directory_buffer;
-                next_entry_offset = (PUCHAR) & (((PFILE_BOTH_DIR_INFORMATION)directory_buffer)->NextEntryOffset);
-                file_name_offset = (PUCHAR) & (((PFILE_BOTH_DIR_INFORMATION)directory_buffer)->FileName);
-                file_name_length_offset = (PUCHAR) & (((PFILE_BOTH_DIR_INFORMATION)directory_buffer)->FileNameLength);
-                file_info = FileInfoShort(info, next_entry_offset, file_name_offset, file_name_length_offset);
+                file_info = flt::FileInfoShort(
+                    (PUCHAR)bufffer,
+                    offsetof(FILE_BOTH_DIR_INFORMATION, NextEntryOffset),
+                    offsetof(FILE_BOTH_DIR_INFORMATION, FileName),
+                    offsetof(FILE_BOTH_DIR_INFORMATION, FileNameLength),
+                    offsetof(FILE_BOTH_DIR_INFORMATION, FileAttributes)
+                );
                 status = HideFile(file_info);
                 break;
 		    case FileDirectoryInformation:
-                info = (PUCHAR)directory_buffer;
-                next_entry_offset = (PUCHAR) & (((PFILE_DIRECTORY_INFORMATION)directory_buffer)->NextEntryOffset);
-                file_name_offset = (PUCHAR) & (((PFILE_DIRECTORY_INFORMATION)directory_buffer)->FileName);
-                file_name_length_offset = (PUCHAR) & (((PFILE_DIRECTORY_INFORMATION)directory_buffer)->FileNameLength);
-                file_info = FileInfoShort(info, next_entry_offset, file_name_offset, file_name_length_offset);
+                file_info = flt::FileInfoShort(
+                    (PUCHAR)bufffer,
+                    offsetof(FILE_DIRECTORY_INFORMATION, NextEntryOffset),
+                    offsetof(FILE_DIRECTORY_INFORMATION, FileName),
+                    offsetof(FILE_DIRECTORY_INFORMATION, FileNameLength),
+                    offsetof(FILE_DIRECTORY_INFORMATION, FileAttributes)
+
+                );
                 status = HideFile(file_info);
                 break;
 		    case FileIdFullDirectoryInformation:
-                info = (PUCHAR)directory_buffer;
-                next_entry_offset = (PUCHAR) & (((PFILE_ID_FULL_DIR_INFORMATION)directory_buffer)->NextEntryOffset);
-                file_name_offset = (PUCHAR) & (((PFILE_ID_FULL_DIR_INFORMATION)directory_buffer)->FileName);
-                file_name_length_offset = (PUCHAR) & (((PFILE_ID_FULL_DIR_INFORMATION)directory_buffer)->FileNameLength);
-                file_info = FileInfoShort(info, next_entry_offset, file_name_offset, file_name_length_offset);
+                file_info = flt::FileInfoShort(
+                    (PUCHAR)bufffer,
+                    offsetof(FILE_ID_FULL_DIR_INFORMATION, NextEntryOffset),
+                    offsetof(FILE_ID_FULL_DIR_INFORMATION, FileName),
+                    offsetof(FILE_ID_FULL_DIR_INFORMATION, FileNameLength),
+                    offsetof(FILE_ID_FULL_DIR_INFORMATION, FileAttributes)
+
+                );
                 status = HideFile(file_info);
                 break;
 		    case FileIdBothDirectoryInformation:
-                info = (PUCHAR)directory_buffer;
-                next_entry_offset = (PUCHAR) & (((PFILE_ID_FULL_DIR_INFORMATION)directory_buffer)->NextEntryOffset);
-                file_name_offset = (PUCHAR) & (((PFILE_ID_FULL_DIR_INFORMATION)directory_buffer)->FileName);
-                file_name_length_offset = (PUCHAR) & (((PFILE_ID_FULL_DIR_INFORMATION)directory_buffer)->FileNameLength);
-                file_info = FileInfoShort(info, next_entry_offset, file_name_offset, file_name_length_offset);
+                file_info = flt::FileInfoShort(
+                    (PUCHAR)bufffer,
+                    offsetof(FILE_ID_BOTH_DIR_INFORMATION, NextEntryOffset),
+                    offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileName),
+                    offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileNameLength),
+                    offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileAttributes)
+                );
                 status = HideFile(file_info);
                 break;
 		    case FileNamesInformation:
-                info = (PUCHAR)directory_buffer;
-                next_entry_offset = (PUCHAR) & (((PFILE_NAMES_INFORMATION)directory_buffer)->NextEntryOffset);
-                file_name_offset = (PUCHAR) & (((PFILE_NAMES_INFORMATION)directory_buffer)->FileName);
-                file_name_length_offset = (PUCHAR) & (((PFILE_NAMES_INFORMATION)directory_buffer)->FileNameLength);
-                file_info = FileInfoShort(info, next_entry_offset, file_name_offset, file_name_length_offset);
+                file_info = flt::FileInfoShort(
+                    (PUCHAR)bufffer,
+                    offsetof(FILE_NAMES_INFORMATION, NextEntryOffset),
+                    offsetof(FILE_NAMES_INFORMATION, FileName),
+                    offsetof(FILE_NAMES_INFORMATION, FileNameLength)
+                );
                 status = HideFile(file_info);
                 break;
 		    default:
@@ -218,14 +235,14 @@ namespace hide_file
 	    {
 
 	    }
+
 	    return FLT_POSTOP_FINISHED_PROCESSING;
     }
 
-    // NTSTATUS HideFile(PUCHAR info, PUCHAR nextEntryOffset, PUCHAR fileNameOffset, PUCHAR fileNameLengthOffset, PUCHAR info_addr)
-    NTSTATUS HideFile(FileInfoShort& info)
+    NTSTATUS HideFile(flt::FileInfoShort info)
     {
-        FileInfoShort prev_info;
-        FileInfoShort next_info;
+        flt::FileInfoShort prev_info;
+        flt::FileInfoShort next_info;
 
         bool set_prev;
 
@@ -238,7 +255,8 @@ namespace hide_file
                 size_t offset = 0;
                 size_t move_length = 0;
 
-                if (IsHiddenFile(file_name_str) == true)
+                if ((IsHiddenFile(&file_name_str) == true && !FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY)) || 
+                    (IsHiddenDir(&file_name_str) == true && (FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY) || info.GetFileAttributes() == 0)))
                 {
                     if (!prev_info.IsNull())
                     {
@@ -259,15 +277,15 @@ namespace hide_file
                         set_prev = false;
                         if (info.GetNextEntryOffset() != 0)
                         {
-                            next_info = FileInfoShort(info, info.GetNextEntryAddr());
+                            next_info = flt::FileInfoShort(&info, info.GetNextEntryAddr());
                             move_length = 0;
                             while (next_info.GetNextEntryOffset() != 0)
                             {
                                 move_length += next_info.GetNextEntryOffset();
-                                next_info = FileInfoShort(info, info.GetNextEntryAddr());
+                                next_info = flt::FileInfoShort(&info, info.GetNextEntryAddr());
                             }
                             move_length += next_info.Length();
-                            RtlMoveMemory(info.GetBaseAddr(), info.GetNextEntryAddr(), move_length);//continue
+                            RtlMoveMemory(info.GetBaseAddr(), info.GetNextEntryAddr(), move_length);
                         }
                         else
                         {
@@ -286,7 +304,7 @@ namespace hide_file
                     {
                         prev_info = info;
                     }
-                    info = FileInfoShort(info, info.GetNextEntryAddr());
+                    info = flt::FileInfoShort(&info, info.GetNextEntryAddr());
                 }
             }
         }
@@ -295,77 +313,6 @@ namespace hide_file
     }
 
 
-    FileInfoShort::FileInfoShort(PUCHAR base_va, PUCHAR next_entry_offset_va, PUCHAR file_name_va, PUCHAR file_name_length_offset_va)
-	    :file_info_addr_(base_va), next_entry_offset_rva_(next_entry_offset_va - base_va), file_name_rva_(file_name_va - base_va), file_name_length_rva_(file_name_length_offset_va - base_va)
-    {
-	
-    }
-
-    FileInfoShort::FileInfoShort(const FileInfoShort& file_info, const PUCHAR file_info_addr)
-    {
-        file_info_addr_ = file_info_addr;
-	    next_entry_offset_rva_ = file_info.next_entry_offset_rva_;
-	    file_name_rva_ = file_info.file_name_rva_;
-	    file_name_length_rva_ = file_info.file_name_length_rva_;
-    }
-
-    ULONG FileInfoShort::GetNextEntryOffset() const
-    {
-	    return *(ULONG*)((PUCHAR)file_info_addr_ + next_entry_offset_rva_);
-    }
-
-    PWCHAR FileInfoShort::GetFileName() const
-    {
-	    return (PWCHAR)((PUCHAR)file_info_addr_ + file_name_rva_);
-    }
-
-    ULONG FileInfoShort::GetFileNameLength() const
-    {
-	    return *(ULONG*)((PUCHAR)file_info_addr_ + file_name_length_rva_);
-    }
-
-    PUCHAR FileInfoShort::GetBaseAddr() const
-    {
-        return file_info_addr_;
-    }
-
-    ULONG FileInfoShort::Length() const
-    {
-        return (ULONG)file_name_rva_ + GetFileNameLength();
-    }
-
-    PUCHAR FileInfoShort::GetNextEntryAddr() const
-    {
-        return GetBaseAddr() + GetNextEntryOffset();
-    }
-
-    void FileInfoShort::SetNextEntryOffset(const ULONG next_entry_val)
-    {
-        *(ULONG*)((PUCHAR)file_info_addr_ + next_entry_offset_rva_) = next_entry_val;
-    }
-
-    void FileInfoShort::SetFileName(PWCHAR file_name)
-    {
-        *(PWCHAR*)((PUCHAR)file_info_addr_ + file_name_length_rva_) = file_name;
-    }
-
-    void FileInfoShort::SetFileNameLength(ULONG length)
-    {
-        *(ULONG*)((PUCHAR)file_info_addr_ + file_name_length_rva_) = length;
-    }
-
-    void FileInfoShort::SetBaseAddr(const PUCHAR file_info_addr)
-    {
-	    file_info_addr_ = file_info_addr;
-    }
-
-    bool FileInfoShort::IsNull() const
-    {
-        if (file_info_addr_ == nullptr || (next_entry_offset_rva_ == file_name_length_rva_ || file_name_length_rva_ == file_name_length_rva_ || file_name_length_rva_ == next_entry_offset_rva_))
-        {
-            return true;
-        }
-        return false;
-    }
+    
 
 }

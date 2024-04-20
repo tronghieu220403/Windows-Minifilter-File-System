@@ -49,7 +49,8 @@ namespace reg
 		kFltFuncVector = new Vector<IrpMjFunc>();
 		
 		protect_file::FltRegister();
-		//hide_file::FltRegister();
+
+		hide_file::FltRegister();
 
 		return;
 	}
@@ -57,8 +58,11 @@ namespace reg
 	void FltUnload()
 	{
 		delete kFltFuncVector;
+
 		protect_file::FltUnload();
-		//hide_file::FltUnload();
+
+		hide_file::FltUnload();
+
 		return;
 	}
 

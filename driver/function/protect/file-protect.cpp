@@ -8,13 +8,10 @@ namespace protect_file
 		kProtectedDirList = new Vector<String<WCHAR>>();
 		kFileMutex.Create();
 		kDirMutex.Create();
+		reg::kFltFuncVector->PushBack({ IRP_MJ_DIRECTORY_CONTROL, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_SET_INFORMATION, PreOperation, nullptr });
-		reg::kFltFuncVector->PushBack({ IRP_MJ_QUERY_INFORMATION, PreOperation, nullptr });
-		//reg::kFltFuncVector->PushBack({ IRP_MJ_CLEANUP, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_CREATE, PreOperation, nullptr });
-		//reg::kFltFuncVector->PushBack({ IRP_MJ_CLOSE, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_WRITE, PreOperation, nullptr });
-		// reg::kFltFuncVector->PushBack({ IRP_MJ_READ, PreOperation, nullptr });
 		return;
 	}
 
@@ -45,7 +42,7 @@ namespace protect_file
 			return FLT_PREOP_SUCCESS_NO_CALLBACK;
 		}
 
-		String<WCHAR> name(GetFileFullPathName(data));
+		String<WCHAR> name(flt::GetFileFullPathName(data));
 
 		if (name.Size() == 0)
 		{
@@ -57,9 +54,11 @@ namespace protect_file
 		{
 			goto return_success_no_callback;
 		}
+
 		ACCESS_MASK flag;
-		// Not directory
-		if (!IsDir && IsProtectedFile(&name))
+		PVOID bufffer;
+
+		if ((IsDir && IsProtectedDir(&name)) || (!IsDir && IsProtectedFile(&name)))
 		{
 			DebugMessage(" ");
 			DebugMessage("%s", flt::DebugIrpFlags(data->Iopb->IrpFlags).Data());
@@ -87,10 +86,7 @@ namespace protect_file
 			default:
 				break;
 			}
-		}
 
-		if ((IsDir && IsProtectedDir(&name)) || (!IsDir && IsProtectedFile(&name)))
-		{
 			// https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/irp-mj-create
 			// When the system tries to open a handle to a file object,
 			// detect requests that have DELETE_ON_CLOSE in DesiredAccess
@@ -102,26 +98,24 @@ namespace protect_file
 				}
 				goto return_success_no_callback;
 			}
+		}
 
-			/* 
-			// This field is only for file deletion
-			// Process requests with FileDispositionInformation, FileDispositionInformationEx or file renames
-			if (data->Iopb->MajorFunction == IRP_MJ_SET_INFORMATION)
+		// ?????
+		if (IsDir && IsProtectedDir(&name))
+		{
+			switch (data->Iopb->MajorFunction)
 			{
-				switch (data->Iopb->Parameters.SetFileInformation.FileInformationClass)
+			case IRP_MJ_DIRECTORY_CONTROL:
+				// https://learn.microsoft.com/en-us/windows-hardware/drivers/ifs/irp-mj-directory-control
+				switch (data->Iopb->MinorFunction)
 				{
-				case FileRenameInformation:
-				case FileRenameInformationEx:
-				case FileDispositionInformation:
-				case FileDispositionInformationEx:
-				case FileRenameInformationBypassAccessCheck:
-				case FileRenameInformationExBypassAccessCheck:
+				case IRP_MN_NOTIFY_CHANGE_DIRECTORY:
+				case IRP_MN_NOTIFY_CHANGE_DIRECTORY_EX:
 					goto return_access_denided;
 				default:
-					goto return_success_no_callback;
+					break;
 				}
 			}
-			*/
 		}
 
 	return_success_no_callback:
@@ -176,31 +170,17 @@ namespace protect_file
 
 	bool IsProtectedDir(const String<WCHAR>* dir_name)
 	{
-		kDirMutex.Lock();
 		bool ret = false;
+		kDirMutex.Lock();
 		for (int i = 0; i < kProtectedDirList->Size(); i++)
 		{
-			if (((String<WCHAR>*)dir_name)->IsPrefixOf((*kProtectedDirList)[i]))
+			if ((*kProtectedDirList)[i] == (*dir_name))
 			{
 				ret = true;
 				break;
 			}
-		}
-		if (ret == true)
-		{
-			return ret;
 		}
 		kDirMutex.Unlock();
-		kFileMutex.Lock();
-		for (int i = 0; i < kProtectedFileList->Size(); i++)
-		{
-			if (((String<WCHAR>*)dir_name)->IsPrefixOf((*kProtectedFileList)[i]))
-			{
-				ret = true;
-				break;
-			}
-		}
-		kFileMutex.Unlock();
 		return ret;
 	}
 
@@ -225,28 +205,6 @@ namespace protect_file
 		}
 		kDirMutex.Unlock();
 		return;
-	}
-
-	String<WCHAR> GetFileFullPathName(PFLT_CALLBACK_DATA data)
-	{
-		if (data == nullptr)
-		{
-			return String<WCHAR>();
-		}
-		String<WCHAR> res;
-		PFLT_FILE_NAME_INFORMATION file_name_info;
-		NTSTATUS status = FltGetFileNameInformation(data, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_ALWAYS_ALLOW_CACHE_LOOKUP, &file_name_info);
-		if (status == STATUS_SUCCESS)
-		{
-			res = String<WCHAR>(file_name_info->Name);
-			FltReleaseFileNameInformation(file_name_info);
-		}
-		else if (status == STATUS_FLT_NAME_CACHE_MISS && FltGetFileNameInformation(data, FLT_FILE_NAME_NORMALIZED | FLT_FILE_NAME_QUERY_FILESYSTEM_ONLY, &file_name_info) == STATUS_SUCCESS)
-		{
-			res = String<WCHAR>(file_name_info->Name);
-			FltReleaseFileNameInformation(file_name_info);
-		}
-		return res;
 	}
 
 }

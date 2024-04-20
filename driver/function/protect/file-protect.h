@@ -6,6 +6,7 @@
 
 #include "../../process/ps-monitor.h"
 #include "../../template/register.h"
+#include "../../template/flt-ex.h"
 
 #include <wdm.h>
 #include <fltKernel.h>
@@ -37,9 +38,6 @@ namespace protect_file
 	void RemoveDirFromProtectedList(const String<WCHAR>* dir_name);
 
 	FLT_PREOP_CALLBACK_STATUS PreOperation(_Inout_ PFLT_CALLBACK_DATA Data, _In_ PCFLT_RELATED_OBJECTS FltObjects, _Flt_CompletionContext_Outptr_ PVOID* CompletionContext);
-
-	String<WCHAR> GetFileFullPathName(PFLT_CALLBACK_DATA data);
-
 
 };
 

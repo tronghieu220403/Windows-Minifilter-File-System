@@ -66,28 +66,28 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 
 		str = cmd->ParseHideFile().file_path;
 		DebugMessage("Hide file: %ws", str.Data());
-		hide_file::AddFileToHideList(str);
+		hide_file::AddFileToHideList(&str);
 		break;
 
 	case IOCTL_CMD_CLASS::kHideDir:
 
 		str = cmd->ParseHideDir().dir_path;
 		DebugMessage("Hide dir: %ws", str.Data());
-		hide_file::AddDirToHideList(str);
+		hide_file::AddDirToHideList(&str);
 		break;
 
 	case IOCTL_CMD_CLASS::kUnhideFile:
 
 		str = cmd->ParseUnhideFile().file_path;
 		DebugMessage("Unhide file: %ws", str.Data());
-		hide_file::DeleteFileFromHideList(str);
+		hide_file::DeleteFileFromHideList(&str);
 		break;
 
 	case IOCTL_CMD_CLASS::kUnhideDir:
 
 		str = cmd->ParseUnhideDir().dir_path;
 		DebugMessage("Unhide dir: %ws", str.Data());
-		hide_file::DeleteDirFromHideList(str);
+		hide_file::DeleteDirFromHideList(&str);
 		break;
 
 	case IOCTL_CMD_CLASS::kHideProc:

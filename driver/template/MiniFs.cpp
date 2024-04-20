@@ -375,12 +375,23 @@ Return Value:
     UNREFERENCED_PARAMETER( completion_context );
     UNREFERENCED_PARAMETER( flags );
 
+    if (!NT_SUCCESS(data->IoStatus.Status))
+    {
+        return FLT_POSTOP_FINISHED_PROCESSING;
+    }
     
     reg::Context* p = (reg::Context*)completion_context;
     if (p == nullptr)
     {
         return FLT_POSTOP_FINISHED_PROCESSING;
     }
+
+    if (!NT_SUCCESS(data->IoStatus.Status))
+    {
+        DeallocCompletionContext(p);
+        return FLT_POSTOP_FINISHED_PROCESSING;
+    }
+
 
     for (int i = 0; i < (*reg::kFltFuncVector).Size(); i++)
     {
