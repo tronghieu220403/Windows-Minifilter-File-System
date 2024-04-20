@@ -60,8 +60,6 @@ namespace protect_file
 
 		if ((IsDir && IsProtectedDir(&name)) || (!IsDir && IsProtectedFile(&name)))
 		{
-			DebugMessage(" ");
-			DebugMessage("%s", flt::DebugIrpFlags(data->Iopb->IrpFlags).Data());
 			flt::DebugIopbMajorFunc(data->Iopb->MajorFunction);
 
 			switch (data->Iopb->MajorFunction)

@@ -26,7 +26,7 @@ namespace hide_file
 
 	void FltUnload();
 
-	NTSTATUS HideFile(flt::FileInfoShort info);
+	NTSTATUS HideFile(flt::FileInfoShort info, String<WCHAR>* root);
 
 	bool IsHiddenFile(const String<WCHAR>* file_name);
 	void AddFileToHideList(const String<WCHAR>* file_name);

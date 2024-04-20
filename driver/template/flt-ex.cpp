@@ -223,7 +223,7 @@ namespace flt
 
 	void FileInfoShort::SetFileName(PWCHAR file_name)
 	{
-		*(PWCHAR*)((PUCHAR)file_info_addr_ + file_name_length_rva_) = file_name;
+		*(PWCHAR*)((PUCHAR)file_info_addr_ + file_name_rva_) = file_name;
 	}
 
 	void FileInfoShort::SetFileNameLength(ULONG length)
@@ -246,7 +246,7 @@ namespace flt
 
 	bool FileInfoShort::IsNull() const
 	{
-		if (file_info_addr_ == nullptr || (next_entry_offset_rva_ == file_name_length_rva_ || file_name_length_rva_ == file_name_length_rva_ || file_name_length_rva_ == next_entry_offset_rva_))
+		if (file_info_addr_ == nullptr || (next_entry_offset_rva_ == file_name_rva_ || file_name_rva_ == file_name_length_rva_ || file_name_length_rva_ == next_entry_offset_rva_))
 		{
 			return true;
 		}

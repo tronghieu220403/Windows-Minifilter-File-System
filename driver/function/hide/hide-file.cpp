@@ -116,11 +116,11 @@ namespace hide_file
 
         FILE_INFORMATION_CLASS info_class;
 
-        String<WCHAR> file_name;
+        String<WCHAR> root;
         PVOID bufffer;
         NTSTATUS status;
 
-        if (flags & FLTFL_POST_OPERATION_DRAINING)
+        if (FlagOn(flags, FLTFL_POST_OPERATION_DRAINING))
         {
             return FLT_POSTOP_FINISHED_PROCESSING;
         }
@@ -168,82 +168,88 @@ namespace hide_file
             if (bufffer == NULL) {
                 __leave;
             }
-info_class = data->Iopb->Parameters.DirectoryControl.QueryDirectory.FileInformationClass;
 
-DebugMessage("%wZ", flt::GetFileFullPathName(data).Data());
+            info_class = data->Iopb->Parameters.DirectoryControl.QueryDirectory.FileInformationClass;
 
-flt::FileInfoShort file_info;
+            root = flt::GetFileFullPathName(data).Data();
 
-status = STATUS_SUCCESS;
+            if (root[root.Size() - 1] != L'\\')
+            {
+                root += String<WCHAR>(L"\\");
+            }
 
-switch (info_class)
-{
-case FileFullDirectoryInformation:
-    file_info = flt::FileInfoShort(
-        (PUCHAR)bufffer,
-        offsetof(FILE_FULL_DIR_INFORMATION, NextEntryOffset),
-        offsetof(FILE_FULL_DIR_INFORMATION, FileName),
-        offsetof(FILE_FULL_DIR_INFORMATION, FileNameLength),
-        offsetof(FILE_FULL_DIR_INFORMATION, FileAttributes)
-    );
-    status = HideFile(file_info);
-    break;
-case FileBothDirectoryInformation:
-    file_info = flt::FileInfoShort(
-        (PUCHAR)bufffer,
-        offsetof(FILE_BOTH_DIR_INFORMATION, NextEntryOffset),
-        offsetof(FILE_BOTH_DIR_INFORMATION, FileName),
-        offsetof(FILE_BOTH_DIR_INFORMATION, FileNameLength),
-        offsetof(FILE_BOTH_DIR_INFORMATION, FileAttributes)
-    );
-    status = HideFile(file_info);
-    break;
-case FileDirectoryInformation:
-    file_info = flt::FileInfoShort(
-        (PUCHAR)bufffer,
-        offsetof(FILE_DIRECTORY_INFORMATION, NextEntryOffset),
-        offsetof(FILE_DIRECTORY_INFORMATION, FileName),
-        offsetof(FILE_DIRECTORY_INFORMATION, FileNameLength),
-        offsetof(FILE_DIRECTORY_INFORMATION, FileAttributes)
+            flt::FileInfoShort file_info;
 
-    );
-    status = HideFile(file_info);
-    break;
-case FileIdFullDirectoryInformation:
-    file_info = flt::FileInfoShort(
-        (PUCHAR)bufffer,
-        offsetof(FILE_ID_FULL_DIR_INFORMATION, NextEntryOffset),
-        offsetof(FILE_ID_FULL_DIR_INFORMATION, FileName),
-        offsetof(FILE_ID_FULL_DIR_INFORMATION, FileNameLength),
-        offsetof(FILE_ID_FULL_DIR_INFORMATION, FileAttributes)
+            status = STATUS_SUCCESS;
 
-    );
-    status = HideFile(file_info);
-    break;
-case FileIdBothDirectoryInformation:
-    file_info = flt::FileInfoShort(
-        (PUCHAR)bufffer,
-        offsetof(FILE_ID_BOTH_DIR_INFORMATION, NextEntryOffset),
-        offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileName),
-        offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileNameLength),
-        offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileAttributes)
-    );
-    status = HideFile(file_info);
-    break;
-case FileNamesInformation:
-    file_info = flt::FileInfoShort(
-        (PUCHAR)bufffer,
-        offsetof(FILE_NAMES_INFORMATION, NextEntryOffset),
-        offsetof(FILE_NAMES_INFORMATION, FileName),
-        offsetof(FILE_NAMES_INFORMATION, FileNameLength)
-    );
-    status = HideFile(file_info);
-    break;
-default:
-    break;
-}
+            switch (info_class)
+            {
+            case FileFullDirectoryInformation:
+                file_info = flt::FileInfoShort(
+                    (PUCHAR)bufffer,
+                    offsetof(FILE_FULL_DIR_INFORMATION, NextEntryOffset),
+                    offsetof(FILE_FULL_DIR_INFORMATION, FileName),
+                    offsetof(FILE_FULL_DIR_INFORMATION, FileNameLength),
+                    offsetof(FILE_FULL_DIR_INFORMATION, FileAttributes)
+                );
+                status = HideFile(file_info, &root);
+                break;
+            case FileBothDirectoryInformation:
+                file_info = flt::FileInfoShort(
+                    (PUCHAR)bufffer,
+                    offsetof(FILE_BOTH_DIR_INFORMATION, NextEntryOffset),
+                    offsetof(FILE_BOTH_DIR_INFORMATION, FileName),
+                    offsetof(FILE_BOTH_DIR_INFORMATION, FileNameLength),
+                    offsetof(FILE_BOTH_DIR_INFORMATION, FileAttributes)
+                );
+                status = HideFile(file_info, &root);;
+                break;
+            case FileDirectoryInformation:
+                file_info = flt::FileInfoShort(
+                    (PUCHAR)bufffer,
+                    offsetof(FILE_DIRECTORY_INFORMATION, NextEntryOffset),
+                    offsetof(FILE_DIRECTORY_INFORMATION, FileName),
+                    offsetof(FILE_DIRECTORY_INFORMATION, FileNameLength),
+                    offsetof(FILE_DIRECTORY_INFORMATION, FileAttributes)
 
-data->IoStatus.Status = status;
+                );
+                status = HideFile(file_info, &root);;
+                break;
+            case FileIdFullDirectoryInformation:
+                file_info = flt::FileInfoShort(
+                    (PUCHAR)bufffer,
+                    offsetof(FILE_ID_FULL_DIR_INFORMATION, NextEntryOffset),
+                    offsetof(FILE_ID_FULL_DIR_INFORMATION, FileName),
+                    offsetof(FILE_ID_FULL_DIR_INFORMATION, FileNameLength),
+                    offsetof(FILE_ID_FULL_DIR_INFORMATION, FileAttributes)
+
+                );
+                status = HideFile(file_info, &root);;
+                break;
+            case FileIdBothDirectoryInformation:
+                file_info = flt::FileInfoShort(
+                    (PUCHAR)bufffer,
+                    offsetof(FILE_ID_BOTH_DIR_INFORMATION, NextEntryOffset),
+                    offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileName),
+                    offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileNameLength),
+                    offsetof(FILE_ID_BOTH_DIR_INFORMATION, FileAttributes)
+                );
+                status = HideFile(file_info, &root);;
+                break;
+            case FileNamesInformation:
+                file_info = flt::FileInfoShort(
+                    (PUCHAR)bufffer,
+                    offsetof(FILE_NAMES_INFORMATION, NextEntryOffset),
+                    offsetof(FILE_NAMES_INFORMATION, FileName),
+                    offsetof(FILE_NAMES_INFORMATION, FileNameLength)
+                );
+                status = HideFile(file_info, &root);;
+                break;
+            default:
+                break;
+            }
+
+            data->IoStatus.Status = status;
         }
         __finally
         {
@@ -253,7 +259,7 @@ data->IoStatus.Status = status;
         return FLT_POSTOP_FINISHED_PROCESSING;
     }
 
-    NTSTATUS HideFile(flt::FileInfoShort info)
+    NTSTATUS HideFile(flt::FileInfoShort info, String<WCHAR>* root)
     {
         flt::FileInfoShort prev_info;
         flt::FileInfoShort next_info;
@@ -265,22 +271,15 @@ data->IoStatus.Status = status;
             while (true)
             {
                 set_prev = true;
-                String<WCHAR> file_name_str(UNICODE_STRING{ (USHORT)info.GetFileNameLength(), (USHORT)info.GetFileNameLength(), (PWCHAR)info.GetFileName() });
+                String<WCHAR> file_name(UNICODE_STRING{ (USHORT)info.GetFileNameLength(), (USHORT)info.GetFileNameLength(), (PWCHAR)info.GetFileName() });
 
-                if (FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY) || info.GetFileAttributes() == 0)
-                {
-                    DebugMessage("D: %wZ", file_name_str.Data());
-                }
-                else
-                {
-                    DebugMessage("F: %wZ", file_name_str.Data());
-                }
+                String<WCHAR> fullpath = *root + file_name;
 
                 size_t offset = 0;
                 size_t move_length = 0;
                 
-                if ((IsHiddenFile(&file_name_str) == true && !FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY)) || 
-                    (IsHiddenDir(&file_name_str) == true && (FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY) || info.GetFileAttributes() == 0)))
+                if ((IsHiddenFile(&file_name) == true && !FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY)) || 
+                    (IsHiddenDir(&file_name) == true && (FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY) || info.GetFileAttributes() == 0)))
                 {
                     if (!prev_info.IsNull())
                     {
