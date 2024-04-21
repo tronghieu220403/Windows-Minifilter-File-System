@@ -17,12 +17,13 @@ namespace hide_proc
 		PsSetCreateProcessNotifyRoutineEx((PCREATE_PROCESS_NOTIFY_ROUTINE_EX)&hide_proc::ProcessNotifyCallBack, TRUE);
 	}
 
-	bool HideProc(const eprocess::ProcInfo& info)
+	bool HideProc(const eprocess::ProcInfo* info)
 	{
+
 		return true;
 	}
 
-	bool UnhideProc(const eprocess::ProcInfo& info)
+	bool UnhideProc(const eprocess::ProcInfo* info)
 	{
 		return true;
 	}
@@ -40,7 +41,7 @@ namespace hide_proc
 				break;
 			}
 		}
-		kProcMutex.Unlock();
+		kProcIdMutex.Unlock();
 		return ret;
 	}
 
@@ -67,6 +68,21 @@ namespace hide_proc
 		}
 		kProcIdMutex.Unlock();
 		return;
+	}
+
+	void AddProcImageToHideList(const String<WCHAR>* image_path)
+	{
+
+	}
+
+	void DeleteProcImageFromHideList(const String<WCHAR>* image_path)
+	{
+
+	}
+
+	void HideOnInitializeOperation()
+	{
+
 	}
 
 	void ProcessNotifyCallBack(PEPROCESS eprocess, size_t pid, PPS_CREATE_NOTIFY_INFO create_info)

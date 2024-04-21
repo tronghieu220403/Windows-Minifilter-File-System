@@ -20,8 +20,8 @@ namespace hide_proc
 
 	void DrvUnload();
 
-	bool HideProc(const eprocess::ProcInfo& info);
-	bool UnhideProc(const eprocess::ProcInfo& info);
+	bool HideProc(const eprocess::ProcInfo* info);
+	bool UnhideProc(const eprocess::ProcInfo* info);
 
 	bool IsHiddenProc(size_t pid);
 
