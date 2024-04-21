@@ -5,14 +5,15 @@ namespace hide_proc
 {
 	void DrvRegister()
 	{
-		kHideProcList = new Vector<eprocess::ProcInfo>();
-		kProcMutex.Create();
+		kHideProcIdList = new Vector<eprocess::ProcInfo>();
+		kProcIdMutex.Create();
+		kProcImageMutex.Create();
 		PsSetCreateProcessNotifyRoutineEx((PCREATE_PROCESS_NOTIFY_ROUTINE_EX)&hide_proc::ProcessNotifyCallBack, FALSE);
 	}
 
 	void DrvUnload()
 	{
-		delete kHideProcList;
+		delete kHideProcIdList;
 		PsSetCreateProcessNotifyRoutineEx((PCREATE_PROCESS_NOTIFY_ROUTINE_EX)&hide_proc::ProcessNotifyCallBack, TRUE);
 	}
 
@@ -29,11 +30,11 @@ namespace hide_proc
 	bool IsHiddenProc(size_t pid)
 	{
 		bool ret = false;
-		kProcMutex.Lock();
-		for (int i = 0; i < kHideProcList->Size(); i++)
+		kProcIdMutex.Lock();
+		for (int i = 0; i < kHideProcIdList->Size(); i++)
 		{
-			if ((*kHideProcList)[i].GetParentPid() == pid ||
-				(*kHideProcList)[i].GetPid() == pid)
+			if ((*kHideProcIdList)[i].GetParentPid() == pid ||
+				(*kHideProcIdList)[i].GetPid() == pid)
 			{
 				ret = true;
 				break;
@@ -43,28 +44,28 @@ namespace hide_proc
 		return ret;
 	}
 
-	void AddProcToHideList(size_t pid)
+	void AddProcIdToHideList(size_t pid)
 	{
-		kProcMutex.Lock();
-		kHideProcList->PushBack(pid);
+		kProcIdMutex.Lock();
+		kHideProcIdList->PushBack(pid);
 		HideProc(eprocess::ProcInfo(pid));
-		kProcMutex.Unlock();
+		kProcIdMutex.Unlock();
 		return;
 
 	}
-	void DeleteProcFromHideList(size_t pid)
+	void DeleteProcIdFromHideList(size_t pid)
 	{
-		kProcMutex.Lock();
-		for (int i = 0; i < kHideProcList->Size(); i++)
+		kProcIdMutex.Lock();
+		for (int i = 0; i < kHideProcIdList->Size(); i++)
 		{
-			if ((*kHideProcList)[i].GetPid() == pid)
+			if ((*kHideProcIdList)[i].GetPid() == pid)
 			{
-				kHideProcList->EraseUnordered(i);
+				kHideProcIdList->EraseUnordered(i);
 				UnhideProc(eprocess::ProcInfo(pid));
 				break;
 			}
 		}
-		kProcMutex.Unlock();
+		kProcIdMutex.Unlock();
 		return;
 	}
 

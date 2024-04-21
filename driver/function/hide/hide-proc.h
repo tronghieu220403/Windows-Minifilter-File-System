@@ -11,9 +11,10 @@
 
 namespace hide_proc
 {
-	extern inline Vector<eprocess::ProcInfo>* kHideProcList = nullptr;
-
-	inline Mutex kProcMutex = Mutex();
+	extern inline Vector<eprocess::ProcInfo>* kHideProcIdList = nullptr;
+	extern inline Vector<String<WCHAR>>* kHideProcImageList = nullptr;
+	inline Mutex kProcIdMutex = Mutex();
+	inline Mutex kProcImageMutex = Mutex();
 	
 	void DrvRegister();
 
@@ -23,8 +24,14 @@ namespace hide_proc
 	bool UnhideProc(const eprocess::ProcInfo& info);
 
 	bool IsHiddenProc(size_t pid);
-	void AddProcToHideList(size_t pid);
-	void DeleteProcFromHideList(size_t pid);
+
+	void AddProcIdToHideList(size_t pid);
+	void DeleteProcIdFromHideList(size_t pid);
+
+	void AddProcImageToHideList(const String<WCHAR>* image_path);
+	void DeleteProcImageFromHideList(const String<WCHAR>* image_path);
+
+	void HideOnInitializeOperation();
 
 	void ProcessNotifyCallBack(PEPROCESS, size_t, PPS_CREATE_NOTIFY_INFO);
 
