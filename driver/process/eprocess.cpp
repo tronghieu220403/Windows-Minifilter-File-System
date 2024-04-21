@@ -21,6 +21,7 @@ namespace eprocess
 	{
 		eproc_ = proc.eproc_;
 		pid_ = GetPid();
+		GetActiveProcessLinks();
 		return *this;
 	}
 
@@ -114,7 +115,7 @@ namespace eprocess
 		/* Retrieve the process path from the handle to the process */
 		status = ZwQueryInformationProcess(h_process,
 			ProcessImageFileName,
-			process_image_name.Data(),
+			(PVOID)process_image_name.Data(),
 			returned_length,
 			&returned_length);
 

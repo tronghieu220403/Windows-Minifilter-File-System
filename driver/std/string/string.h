@@ -336,6 +336,10 @@ inline String<T>& String<T>::operator=(const T* cstr)
 		{
 			elements_[index] = cstr[index];
 		}
+		for (size_t index = cstr_size; index < space_; ++index)
+		{
+			elements_[index] = T();
+		}
 		size_ = cstr_size;
 		return *this;
 	}

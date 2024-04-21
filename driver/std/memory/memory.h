@@ -70,7 +70,8 @@ namespace krnl_std
         {
             return;
         }
-        return ExFreePool(p);
+        ExFreePoolWithTag(p, 0x22042003);
+        p = nullptr;
     }
 
 }

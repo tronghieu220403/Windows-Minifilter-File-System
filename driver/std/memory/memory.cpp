@@ -16,32 +16,17 @@ void* operator new[](size_t n)
 
 void operator delete(void* p, size_t n)
 {
-    if (p == nullptr)
-    {
-        return;
-    }
     krnl_std::Free(p);
-    p = nullptr;
 }
 
 void operator delete[](void* p)
 {
-    if (p == nullptr)
-    {
-        return;
-    }
     krnl_std::Free(p);
-    p = nullptr;
 }
 
 void operator delete[](void* p, size_t n)
 {
-    if (p == nullptr)
-    {
-        return;
-    }
     krnl_std::Free(p);
-    p = nullptr;
 }
 
 void SetUlongAt(size_t addr, ULONG value)

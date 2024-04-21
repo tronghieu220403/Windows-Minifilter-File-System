@@ -6,35 +6,27 @@ namespace hide_proc
 	void DrvRegister()
 	{
 		kHideProcIdList = new Vector<eprocess::ProcInfo>();
+		kHideProcImageList = new Vector<String<WCHAR>>();
 		kProcIdMutex.Create();
 		kProcImageMutex.Create();
-		PsSetCreateProcessNotifyRoutineEx((PCREATE_PROCESS_NOTIFY_ROUTINE_EX)&hide_proc::ProcessNotifyCallBack, FALSE);
+		NTSTATUS status;
+		status = PsSetCreateProcessNotifyRoutineEx((PCREATE_PROCESS_NOTIFY_ROUTINE_EX)&hide_proc::ProcessNotifyCallBack, FALSE);
+		if (STATUS_SUCCESS != status)
+		{
+			DebugMessage("Fail to register: %x", status);
+		}
 	}
 
 	void DrvUnload()
 	{
 		delete kHideProcIdList;
+		delete kHideProcImageList;
 		PsSetCreateProcessNotifyRoutineEx((PCREATE_PROCESS_NOTIFY_ROUTINE_EX)&hide_proc::ProcessNotifyCallBack, TRUE);
-	}
-
-	bool HideProc(const eprocess::ProcInfo* info)
-	{
-		kProcIdMutex.Lock();
-
-		
-
-		kProcIdMutex.Unlock();
-		return true;
-	}
-
-	bool UnhideProc(const eprocess::ProcInfo* info)
-	{
-		return true;
 	}
 
 	size_t GetIndexInHiddenProcIdList(size_t pid)
 	{
-		size_t ret = -1;
+		size_t ret = (size_t)-1;
 		kProcIdMutex.Lock();
 		for (int i = 0; i < kHideProcIdList->Size(); i++)
 		{
@@ -66,7 +58,6 @@ namespace hide_proc
 			if ((*kHideProcIdList)[i].GetPid() == pid)
 			{
 				kHideProcIdList->EraseUnordered(i);
-				UnhideProc(&eprocess::ProcInfo(pid));
 				found = true;
 				break;
 			}
@@ -78,7 +69,7 @@ namespace hide_proc
 
 	size_t GetIndexInHiddenProcImageList(const String<WCHAR>* image_path)
 	{
-		size_t ret = false;
+		size_t ret = (size_t)-1;
 		kProcImageMutex.Lock();
 		for (int i = 0; i < kHideProcImageList->Size(); i++)
 		{
@@ -125,8 +116,8 @@ namespace hide_proc
 		{
 			// Hide process
 			next_proc = cur_proc.GetNextProc();
-
-			if (GetIndexInHiddenProcImageList(&(cur_proc.GetProcessImageName())) != -1 || GetIndexInHiddenProcIdList(cur_proc.GetPid()) != -1)
+			String<WCHAR> process_image_name = cur_proc.GetProcessImageName();
+			if (GetIndexInHiddenProcImageList(&process_image_name) != -1 || GetIndexInHiddenProcIdList(cur_proc.GetPid()) != -1)
 			{
 				cur_proc.DetachFromProcessList();
 			}
@@ -170,23 +161,33 @@ namespace hide_proc
 	{
 		if (create_info) // Process creation
 		{
+			DebugMessage("Process creation");
 			if (create_info->ImageFileName == nullptr || create_info->FileOpenNameAvailable == FALSE)
 			{
 				return;
 			}
 			
 			String<WCHAR> process_image_name(*(create_info)->ImageFileName);
+			DebugMessage("Real: %ws", process_image_name.Data());
+			if (String<WCHAR>(L"\\??\\").IsPrefixOf(process_image_name))
+			{
+				process_image_name = &process_image_name[String<WCHAR>(L"\\??\\").Size()];
+			}
+			DebugMessage("Real: %ws", process_image_name.Data());
+
 			size_t index = GetIndexInHiddenProcIdList(pid);
 			if (index != -1)
 			{
-				(*kHideProcIdList)[index].DetachFromProcessList();
+				DebugMessage("Wtf1");
+				//(*kHideProcIdList)[index].DetachFromProcessList();
 				return;
 			}
 			index = GetIndexInHiddenProcImageList(&process_image_name);
-			if (index != -1)
+			if (index == -1)
 			{
+				DebugMessage("Wtf2");
 				AddProcIdToHideList(pid);
-				(*kHideProcIdList)[index].DetachFromProcessList();
+				//(*kHideProcIdList)[(*kHideProcIdList).Size()-1].DetachFromProcessList();
 				return;
 			}
 		}
@@ -194,7 +195,8 @@ namespace hide_proc
 		{
 			if (GetIndexInHiddenProcIdList(pid))
 			{
-				DeleteProcIdFromHideList(pid);
+				DebugMessage("Wtf3");
+				//DeleteProcIdFromHideList(pid);
 			}
 		}
 	}

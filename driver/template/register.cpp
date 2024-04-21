@@ -17,7 +17,7 @@ namespace reg
 
 		process::DrvRegister();
 		protect_file::DrvRegister();
-		//hide_proc::DrvRegister();
+		hide_proc::DrvRegister();
 
 		ioctl::DrvRegister(driver_object, registry_path);
 
@@ -34,7 +34,7 @@ namespace reg
 		
 		process::DrvUnload();
 		protect_file::DrvUnload();
-		//hide_proc::DrvUnload();
+		hide_proc::DrvUnload();
 
 		ioctl::DrvUnload(driver_object);
 
