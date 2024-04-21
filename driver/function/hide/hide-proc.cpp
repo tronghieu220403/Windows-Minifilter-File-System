@@ -45,11 +45,19 @@ namespace hide_proc
 	void AddProcIdToHideList(size_t pid)
 	{
 		kProcIdMutex.Lock();
-		kHideProcIdList->PushBack(pid);
+		kHideProcIdList->PushBack(eprocess::ProcInfo(pid));
 		kProcIdMutex.Unlock();
 		return;
 
 	}
+	void AddPeprocessToHideList(PEPROCESS peprocess)
+	{
+		kProcIdMutex.Lock();
+		kHideProcIdList->PushBack(eprocess::ProcInfo(peprocess));
+		kProcIdMutex.Unlock();
+		return;
+	}
+
 	void DeleteProcIdFromHideList(size_t pid)
 	{
 		bool found = false;
@@ -178,14 +186,14 @@ namespace hide_proc
 			size_t index = GetIndexInHiddenProcIdList(pid);
 			if (index == -1)
 			{
-				AddProcIdToHideList(pid);
+				AddPeprocessToHideList(eprocess);
 				(*kHideProcIdList)[(*kHideProcIdList).Size() - 1].DetachFromProcessList();
 				return;
 			}
 			index = GetIndexInHiddenProcImageList(&process_image_name);
 			if (index != -1)
 			{
-				AddProcIdToHideList(pid);
+				AddPeprocessToHideList(eprocess);
 				(*kHideProcIdList)[(*kHideProcIdList).Size()-1].DetachFromProcessList();
 				return;
 			}

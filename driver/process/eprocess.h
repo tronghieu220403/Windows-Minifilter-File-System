@@ -5,7 +5,7 @@
 #include "../../std/sync/mutex.h"
 
 #include "../../template/system_routine.h"
-
+#include "../../template/debug.h"
 #pragma warning( disable : 6001)
 
 #define SYSTEM_PROCESS_ID 4
@@ -17,6 +17,7 @@ namespace eprocess
 
 	inline size_t kPidRva = 0;
 	inline size_t kAplRva = 0;
+	inline Mutex kEprocssMutex;
 	void DrvRegister();
 
 	class ProcInfo
@@ -34,7 +35,7 @@ namespace eprocess
 		ProcInfo() = default;
 
 		ProcInfo(const ProcInfo& proc) = default;
-		ProcInfo(const PEPROCESS& eproc) : eproc_(eproc), pid_(GetPid()), active_process_links_(GetActiveProcessLinks()) {};
+		ProcInfo(const PEPROCESS& eproc);
 
 		ProcInfo(const size_t pid);
 

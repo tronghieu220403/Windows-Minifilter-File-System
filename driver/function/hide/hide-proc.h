@@ -23,7 +23,9 @@ namespace hide_proc
 	size_t GetIndexInHiddenProcIdList(size_t pid);
 
 	void AddProcIdToHideList(size_t pid);
+	void AddPeprocessToHideList(PEPROCESS peprocess);
 	void DeleteProcIdFromHideList(size_t pid);
+
 
 	size_t GetIndexInHiddenProcImageList(const String<WCHAR>* image_path);
 

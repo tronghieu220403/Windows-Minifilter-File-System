@@ -2,7 +2,12 @@
 
 namespace eprocess
 {
-
+	ProcInfo::ProcInfo(const PEPROCESS& eproc)
+	{
+		eproc_ = eproc; 
+		pid_ = GetPid();
+		active_process_links_ = GetActiveProcessLinks();
+	}
 	ProcInfo::ProcInfo(const size_t pid)
 	{
 		if (KeGetCurrentIrql() != PASSIVE_LEVEL && KeGetCurrentIrql() != APC_LEVEL)
@@ -31,15 +36,6 @@ namespace eprocess
 		return eproc_;
 	}
 
-	PEPROCESS ProcInfo::GetNextProc() const
-	{
-		return (PEPROCESS)((LONG64)(active_process_links_->Flink) - kAplRva);
-	}
-
-	PEPROCESS ProcInfo::GetPrevProc() const
-	{
-		return (PEPROCESS)((LONG64)(active_process_links_->Blink) - kAplRva);
-	}
 
 	PLIST_ENTRY ProcInfo::GetActiveProcessLinks()
 	{
@@ -133,14 +129,48 @@ namespace eprocess
 	}
 
 
+	PEPROCESS ProcInfo::GetNextProc() const
+	{
+		LIST_ENTRY* apl = active_process_links_->Flink;
+		return (PEPROCESS)((PUCHAR)apl - kAplRva);
+	}
+
+	PEPROCESS ProcInfo::GetPrevProc() const
+	{
+		LIST_ENTRY* apl = active_process_links_->Blink;
+		return (PEPROCESS)((PUCHAR)apl - kAplRva);
+	}
+
 	void ProcInfo::SetNextEntryProc(const PEPROCESS& eproc)
 	{
-		InterlockedExchange64((LONG64*) & (active_process_links_->Flink), (LONG64)ProcInfo(eproc).GetActiveProcessLinks());
+		active_process_links_->Flink = eprocess::ProcInfo(eproc).GetActiveProcessLinks();
+		/*
+		DebugMessage("SetNextEntryProc");
+		DebugMessage("Cur eporcess: %p", eproc_);
+		DebugMessage("%p", active_process_links_->Flink);
+		DebugMessage("%llx", *(LONG64*)(active_process_links_->Flink));
+		DebugMessage("%p", (LONG64*)(active_process_links_->Flink));
+		DebugMessage("%p", (LONG64*)&(active_process_links_->Flink));
+		DebugMessage("%p", (LONG64*)(ProcInfo(eproc).GetActiveProcessLinks()));
+		DebugMessage("");
+		*/
+		//InterlockedExchange64((LONG64 *)&(active_process_links_->Flink), (LONG64)ProcInfo(eproc).GetActiveProcessLinks());
 	}
 
 	void ProcInfo::SetPrevEntryProc(const PEPROCESS& eproc)
 	{
-		InterlockedExchange64((LONG64*)&(active_process_links_->Blink), (LONG64)ProcInfo(eproc).GetActiveProcessLinks());
+		active_process_links_->Blink = eprocess::ProcInfo(eproc).GetActiveProcessLinks();
+		/*
+		DebugMessage("SetPrevEntryProc");
+		DebugMessage("Cur eporcess: %p", eproc_);
+		DebugMessage("%p", active_process_links_->Blink);
+		DebugMessage("%llx", *(LONG64*)(active_process_links_->Blink));
+		DebugMessage("%p", (LONG64*)(active_process_links_->Blink));
+		DebugMessage("%p", (LONG64*)&(active_process_links_->Blink));
+		DebugMessage("%p", (LONG64*)(ProcInfo(eproc).GetActiveProcessLinks()));
+		DebugMessage("");
+		*/
+		//InterlockedExchange64((LONG64 *)&(active_process_links_->Blink), (LONG64)ProcInfo(eproc).GetActiveProcessLinks());
 	}
 
 	void ProcInfo::SetName(const String<WCHAR>& name)
@@ -160,10 +190,33 @@ namespace eprocess
 
 	void ProcInfo::DetachFromProcessList()
 	{
-		ProcInfo(GetPrevProc()).SetNextEntryProc(GetNextProc());
-		ProcInfo(GetNextProc()).SetPrevEntryProc(GetPrevProc());
-		SetNextEntryProc(eproc_);
-		SetPrevEntryProc(eproc_);
+		kEprocssMutex.Lock();
+		__try
+		{
+			//RemoveEntryList(GetActiveProcessLinks());
+			//ProcInfo(GetPrevProc()).SetNextEntryProc(GetNextProc());
+			//ProcInfo(GetNextProc()).SetPrevEntryProc(GetPrevProc());
+			//SetPrevEntryProc(eproc_);
+			//SetNextEntryProc(eproc_);
+			//GetActiveProcessLinks()->Blink = GetActiveProcessLinks();
+			//GetActiveProcessLinks()->Flink = GetActiveProcessLinks();
+			PLIST_ENTRY prev, next;
+			PLIST_ENTRY cur = GetActiveProcessLinks();
+			prev = cur->Blink;
+			next = cur->Flink;
+			prev->Flink = next;
+			next->Blink = prev;
+			//DebugMessage("% p", prev);
+			//DebugMessage("% p", prev->);
+
+			//cur->Flink = (PLIST_ENTRY)&cur->Flink;
+			//cur->Blink = (PLIST_ENTRY)&cur->Flink;
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER)
+		{
+			DebugMessage("Catch a bug");
+		}
+		kEprocssMutex.Unlock();
 	}
 
 	void ProcInfo::JoinToProcessList()
@@ -248,6 +301,7 @@ namespace eprocess
 	{
 		kPidRva = GetPidRva();
 		kAplRva = GetAplRva();
+		kEprocssMutex.Create();
 	}
 }
 
