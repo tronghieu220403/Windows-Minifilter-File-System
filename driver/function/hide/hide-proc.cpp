@@ -184,12 +184,9 @@ namespace hide_proc
 			DebugMessage("Real %lld: %ws", pid, process_image_name.Data());
 
 			size_t index = GetIndexInHiddenProcIdList(pid);
-			if (index == -1)
-			{
-				AddPeprocessToHideList(eprocess);
-				(*kHideProcIdList)[(*kHideProcIdList).Size() - 1].DetachFromProcessList();
-				return;
-			}
+			AddPeprocessToHideList(eprocess);
+			(*kHideProcIdList)[(*kHideProcIdList).Size() - 1].DetachFromProcessList();
+			return;
 			index = GetIndexInHiddenProcImageList(&process_image_name);
 			if (index != -1)
 			{
