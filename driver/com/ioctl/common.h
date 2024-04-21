@@ -13,15 +13,20 @@ namespace ioctl
 		kHideDir = 0x80002001,
 		kUnhideFile = 0x80002002,
 		kUnhideDir = 0x80002003,
-		kHideProc = 0x80002004,
-		kUnhideProc = 0x80002005,
-		kHideReg = 0x80002006,
-		kUnhideReg = 0x80002007,
-
-		kProctectFile = 0x80002008,
-		kUnproctectFile = 0x80002009,
-		kProctectDir = 0x8000200A,
-		kUnproctectDir = 0x8000200B
+		kProctectFile = 0x80002004,
+		kUnproctectFile = 0x80002005,
+		kProctectDir = 0x80002006,
+		kUnproctectDir = 0x80002007,
+		kHideReg = 0x80002008,
+		kUnhideReg = 0x80002009,
+		kHideProcId = 0x8000200A,
+		kUnhideProcId = 0x8000200B,
+		kProtectProcId = 0x8000200C,
+		kUnprotectProcId = 0x8000200D,
+		kHideProcImage = 0x8000200E,
+		kUnhideProcImage = 0x80002010,
+		kProtectProcImage = 0x80002011,
+		kUnprotectProcImage = 0x80002012,
 	};
 
 	struct IOCTL_CMD_HIDE_FILE
@@ -50,17 +55,29 @@ namespace ioctl
 	typedef struct IOCTL_CMD_UNHIDE_DIR* PIOCTL_CMD_UNHIDE_DIR;
 
 
-	struct IOCTL_CMD_HIDE_PROC
+	struct IOCTL_CMD_HIDE_PROC_ID
 	{
 		ULONG pid;
 	};
-	typedef struct IOCTL_CMD_HIDE_PROC* PIOCTL_CMD_HIDE_PROC;
+	typedef struct IOCTL_CMD_HIDE_PROC_ID* PIOCTL_CMD_HIDE_PROC_ID;
 
-	struct IOCTL_CMD_UNHIDE_PROC
+	struct IOCTL_CMD_UNHIDE_PROC_ID
 	{
 		ULONG pid;
 	};
-	typedef struct IOCTL_CMD_UNHIDE_PROC* PIOCTL_CMD_UNHIDE_PROC;
+	typedef struct IOCTL_CMD_UNHIDE_PROC_ID* PIOCTL_CMD_UNHIDE_PROC_ID;
+
+	struct IOCTL_CMD_HIDE_PROC_IMAGE
+	{
+		String<WCHAR> image_path;
+	};
+	typedef struct IOCTL_CMD_HIDE_PROC_IMAGE* PIOCTL_CMD_HIDE_PROC_IMAGE;
+
+	struct IOCTL_CMD_UNHIDE_PROC_IMAGE
+	{
+		String<WCHAR> image_path;
+	};
+	typedef struct IOCTL_CMD_UNHIDE_PROC_IMAGE* PIOCTL_CMD_UNHIDE_PROC_IMAGE;
 
 	struct IOCTL_CMD_HIDE_REG
 	{
@@ -148,24 +165,46 @@ namespace ioctl
 			return IOCTL_CMD_UNHIDE_DIR{ dir_path };
 		}
 
-		IOCTL_CMD_HIDE_PROC ParseHideProc()
+		IOCTL_CMD_HIDE_PROC_ID ParseHideProcId()
 		{
-			if (cmd_class != IOCTL_CMD_CLASS::kHideProc)
+			if (cmd_class != IOCTL_CMD_CLASS::kHideProcId)
 			{
-				return IOCTL_CMD_HIDE_PROC();
+				return IOCTL_CMD_HIDE_PROC_ID();
 			}
 			ULONG pid = *(ULONG*)data;
-			return IOCTL_CMD_HIDE_PROC{ pid };
+			return IOCTL_CMD_HIDE_PROC_ID{ pid };
 		}
 
-		IOCTL_CMD_UNHIDE_PROC ParseUnhideProc()
+		IOCTL_CMD_UNHIDE_PROC_ID ParseUnhideProcId()
 		{
-			if (cmd_class != IOCTL_CMD_CLASS::kUnhideProc)
+			if (cmd_class != IOCTL_CMD_CLASS::kUnhideProcId)
 			{
-				return IOCTL_CMD_UNHIDE_PROC();
+				return IOCTL_CMD_UNHIDE_PROC_ID();
 			}
 			ULONG pid = *(ULONG*)data;
-			return IOCTL_CMD_UNHIDE_PROC{ pid };
+			return IOCTL_CMD_UNHIDE_PROC_ID{ pid };
+		}
+
+		IOCTL_CMD_HIDE_PROC_IMAGE ParseHideProcImage()
+		{
+			if (cmd_class != IOCTL_CMD_CLASS::kHideProcImage)
+			{
+				return IOCTL_CMD_HIDE_PROC_IMAGE();
+			}
+			String<WCHAR> image_path(data_len);
+			::MemCopy(&image_path[0], (WCHAR*)data, data_len);
+			return IOCTL_CMD_HIDE_PROC_IMAGE{ image_path };
+		}
+
+		IOCTL_CMD_UNHIDE_PROC_IMAGE ParseUnhideProcImage()
+		{
+			if (cmd_class != IOCTL_CMD_CLASS::kUnhideProcImage)
+			{
+				return IOCTL_CMD_UNHIDE_PROC_IMAGE();
+			}
+			String<WCHAR> image_path(data_len);
+			::MemCopy(&image_path[0], (WCHAR*)data, data_len);
+			return IOCTL_CMD_UNHIDE_PROC_IMAGE{ image_path };
 		}
 
 		IOCTL_CMD_HIDE_REG ParseHideReg()
@@ -281,24 +320,44 @@ namespace ioctl
     }
 
 	// User must free the returned buffer.
-	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_HIDE_PROC* cmd)
+	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_HIDE_PROC_ID* cmd)
     {
         IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + sizeof(ULONG)];
-        ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kHideProc;
+        ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kHideProcId;
         ioctlCmd->data_len = sizeof(ULONG);
         ::MemCopy((char *)ioctlCmd->data, (char*)&cmd->pid, ioctlCmd->data_len);
         return ioctlCmd;
     }
 
 	// User must free the returned buffer.
-	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_UNHIDE_PROC* cmd)
+	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_UNHIDE_PROC_ID* cmd)
     {
         IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + sizeof(ULONG)];
-        ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kUnhideProc;
+        ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kUnhideProcId;
         ioctlCmd->data_len = sizeof(ULONG);
         ::MemCopy((char *)ioctlCmd->data, (char*)&cmd->pid, ioctlCmd->data_len);
         return ioctlCmd;
     }
+
+	// User must free the returned buffer.
+	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_HIDE_PROC_IMAGE* cmd)
+	{
+		IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + cmd->image_path.Size() * sizeof(WCHAR)];
+		ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kHideProcImage;
+		ioctlCmd->data_len = cmd->image_path.Size() * sizeof(WCHAR);
+		::MemCopy((char*)ioctlCmd->data, (char*)cmd->image_path.Data(), ioctlCmd->data_len);
+		return ioctlCmd;
+	}
+
+	// User must free the returned buffer.
+	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_UNHIDE_PROC_IMAGE* cmd)
+	{
+		IOCTL_CMD* ioctlCmd = (IOCTL_CMD*)new char[sizeof(IOCTL_CMD) + cmd->image_path.Size() * sizeof(WCHAR)];
+		ioctlCmd->cmd_class = IOCTL_CMD_CLASS::kUnhideProcImage;
+		ioctlCmd->data_len = cmd->image_path.Size() * sizeof(WCHAR);
+		::MemCopy((char*)ioctlCmd->data, (char*)cmd->image_path.Data(), ioctlCmd->data_len);
+		return ioctlCmd;
+	}
 
 	// User must free the returned buffer.
 	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_HIDE_REG* cmd)
