@@ -33,8 +33,8 @@ namespace eprocess
 	public:
 		ProcInfo() = default;
 
-		ProcInfo(const ProcInfo& proc) : eproc_(proc.eproc_) {};
-		ProcInfo(const PEPROCESS& eproc) : eproc_(eproc) {};
+		ProcInfo(const ProcInfo& proc) = default;
+		ProcInfo(const PEPROCESS& eproc) : eproc_(eproc), pid_(GetPid()), active_process_links_(GetActiveProcessLinks()) {};
 
 		ProcInfo(const size_t pid);
 
@@ -46,7 +46,7 @@ namespace eprocess
 		PLIST_ENTRY GetActiveProcessLinks();
 
 		String<WCHAR> GetName() const;
-		size_t GetPid() const;
+		size_t GetPid();
 		size_t GetParentPid() const;
 
 		String<WCHAR> GetProcessImageName() const;

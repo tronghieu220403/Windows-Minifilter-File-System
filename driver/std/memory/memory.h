@@ -6,6 +6,8 @@ typedef unsigned long long size_t;
 #include <ntdef.h>
 #include <wdm.h>
 
+#include "../../template/debug.h"
+
 #pragma warning(disable:4100)
 
 #define max(X, Y) (((X) > (Y)) ? (X) : (Y))

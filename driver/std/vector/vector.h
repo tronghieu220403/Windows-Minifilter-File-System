@@ -255,7 +255,7 @@ inline Vector<T>& Vector<T>::operator=(const Vector<T>& v)
 	for (size_t index = 0; index < v.size_; ++index)
 		p[index] = v.elements_[index];
 
-	delete[] elements_;
+	Deallocate();
 	size_ = v.size_;
 	space_ = v.size_;
 	elements_ = p;
@@ -265,7 +265,7 @@ inline Vector<T>& Vector<T>::operator=(const Vector<T>& v)
 template<class T>
 Vector<T>::~Vector()
 {
-	delete[] elements_;
+	Deallocate();
 }
 
 
@@ -332,7 +332,7 @@ inline void Vector<T>::Reserve(size_t new_size)
 	for (size_t i = 0; i < size_; ++i)
 		p[i] = elements_[i];
 
-	delete[] elements_;
+	Deallocate();
 
 	elements_ = p;
 
@@ -372,9 +372,13 @@ template<class T>
 inline void Vector<T>::PushBack(const T& d)
 {
 	if (space_ == 0)
+	{
 		Reserve(8);
+	}
 	else if (size_ == space_)
+	{
 		Reserve(2 * space_);
+	}
 
 	elements_[size_] = d;
 
@@ -592,11 +596,5 @@ inline T* Vector<T>::Allocate(size_t n)
 template<class T>
 inline void Vector<T>::Deallocate()
 {
-	if (elements_ == nullptr)
-	{
-		return;
-	}
-
 	krnl_std::Free(elements_);
-	elements_;
 }

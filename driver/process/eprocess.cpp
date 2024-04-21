@@ -2,6 +2,7 @@
 
 namespace eprocess
 {
+
 	ProcInfo::ProcInfo(const size_t pid)
 	{
 		if (KeGetCurrentIrql() != PASSIVE_LEVEL && KeGetCurrentIrql() != APC_LEVEL)
@@ -54,9 +55,13 @@ namespace eprocess
 		return name_;
 	}
 
-	size_t ProcInfo::GetPid() const
+	size_t ProcInfo::GetPid()
 	{
-		return *(size_t*)((PUCHAR)eproc_ + kPidRva);
+		if (pid_ == 0)
+		{
+			pid_ = *(size_t*)((PUCHAR)eproc_ + kPidRva);
+		}
+		return pid_;
 	}
 
 	size_t ProcInfo::GetParentPid() const
@@ -195,6 +200,7 @@ namespace eprocess
 
 	size_t GetPidRva()
 	{
+		DebugMessage("Finding pid rva.");
 		if (KeGetCurrentIrql() != PASSIVE_LEVEL && KeGetCurrentIrql() != APC_LEVEL)
 		{
 			// Debug message to know if this is happening
@@ -220,7 +226,7 @@ namespace eprocess
 		// we can start at 0x20 because Uniqueproc_Id should
 		// not be in the first 0x20 bytes,
 		// also we should stop after 0x300 bytes with no success
-		for (int i = 0x20; i < 0x300; i += 4)
+		for (int i = 0x20; i < 0x1000; i += 4)
 		{
 			if ((*(ULONG*)((UCHAR*)eprocs[0] + i) == pids[0])
 				&& (*(ULONG*)((UCHAR*)eprocs[1] + i) == pids[1])
@@ -237,6 +243,7 @@ namespace eprocess
 
 		return pid_rva;
 	}
+
 	void DrvRegister()
 	{
 		kPidRva = GetPidRva();
