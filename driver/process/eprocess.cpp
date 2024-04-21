@@ -192,11 +192,11 @@ namespace eprocess
 			DebugMessage("Legit eprocess: %p", cur);
 			DebugMessage("Legit flink: %p", &cur->Flink);
 			DebugMessage("Legit blink: %p", &cur->Blink);
-			//RemoveEntryList(cur);
+			//RemoveEntryList(cur); // -> bug ???
 			//SetPrevEntryProc(eproc_); //-> bug 
 			//SetNextEntryProc(eproc_); //-> bug 
-			prev = (cur->Blink);
-			next = (cur->Flink);
+			prev = cur->Blink;
+			next = cur->Flink;
 
 			// Loop over self (connect previous with next)
 			prev->Flink = next;
@@ -205,6 +205,8 @@ namespace eprocess
 			DebugMessage("Legit after");
 			cur->Flink = (PLIST_ENTRY)&cur->Flink;
 			cur->Blink = (PLIST_ENTRY)&cur->Flink;
+			// cur->Flink = cur; -> bug ???
+			// cur->Blink = cur; -> bug ???
 			DebugMessage("After flink %p", cur->Flink);
 			DebugMessage("After blink %p", cur->Blink);
 
