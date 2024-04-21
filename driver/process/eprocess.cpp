@@ -147,10 +147,9 @@ namespace eprocess
 		DebugMessage("Flink %p", &active_process_links_->Flink);
 		DebugMessage("Apl %p", eprocess::ProcInfo(eproc).GetActiveProcessLinks());
 
-		//active_process_links_->Flink = eprocess::ProcInfo(eproc).GetActiveProcessLinks();
-		DebugMessage("After %p", active_process_links_->Flink);
-
-		//InterlockedExchange64((LONG64 *)&(active_process_links_->Flink), (LONG64)ProcInfo(eproc).GetActiveProcessLinks());
+		//active_process_links_->Flink = (PLIST_ENTRY)&(eprocess::ProcInfo(eproc).GetActiveProcessLinks())->Flink;
+		DebugMessage("After1 %p", active_process_links_->Flink);
+		DebugMessage("After2 %p", (PLIST_ENTRY)&(eprocess::ProcInfo(eproc).GetActiveProcessLinks())->Flink);
 	}
 
 	void ProcInfo::SetPrevEntryProc(const PEPROCESS& eproc)
@@ -158,11 +157,11 @@ namespace eprocess
 		DebugMessage("SetPrevEntryProc");
 		DebugMessage("Blink %p", &active_process_links_->Blink);
 		DebugMessage("Apl %p", eprocess::ProcInfo(eproc).GetActiveProcessLinks());
-		//active_process_links_->Blink = eprocess::ProcInfo(eproc).GetActiveProcessLinks();
+		//active_process_links_->Blink = (PLIST_ENTRY)&(eprocess::ProcInfo(eproc).GetActiveProcessLinks())->Flink;
 
-		DebugMessage("After %p", active_process_links_->Blink);
-		//active_process_links_->Blink = eprocess::ProcInfo(eproc).GetActiveProcessLinks();
-		//InterlockedExchange64((LONG64 *)&(active_process_links_->Blink), (LONG64)ProcInfo(eproc).GetActiveProcessLinks());
+		DebugMessage("After1 %p", active_process_links_->Blink);
+		DebugMessage("After2 %p", (PLIST_ENTRY)&(eprocess::ProcInfo(eproc).GetActiveProcessLinks())->Flink);
+
 	}
 
 	void ProcInfo::SetName(const String<WCHAR>& name)
