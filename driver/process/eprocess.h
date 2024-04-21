@@ -6,6 +6,8 @@
 
 #pragma warning( disable : 6001)
 
+#define SYSTEM_PROCESS_ID 4
+
 namespace eprocess
 {
 	size_t GetAplRva();
@@ -26,6 +28,8 @@ namespace eprocess
 
 		PLIST_ENTRY active_process_links_ = nullptr;
 
+		bool is_detached = false;
+
 	public:
 		ProcInfo() = default;
 
@@ -36,19 +40,25 @@ namespace eprocess
 
 		ProcInfo& operator=(const ProcInfo& proc);
 
+		PEPROCESS GetPeprocess() const;
 		PEPROCESS GetNextProc() const;
 		PEPROCESS GetPrevProc() const;
+		PLIST_ENTRY GetActiveProcessLinks() const;
 
 		String<WCHAR> GetName() const;
 		size_t GetPid() const;
 		size_t GetParentPid() const;
 
-		void SetNextProc(const PEPROCESS& eproc);
-		void SetPrevProc(const PEPROCESS& eproc);
+		void SetNextEntryProc(const PEPROCESS& eproc);
+		void SetPrevEntryProc(const PEPROCESS& eproc);
 
 		void SetName(const String<WCHAR>& name);
 		void SetPid(const size_t pid);
 		void SetParentPid(const size_t parent_pid);
+
+		bool DetachFromProcessList();
+		bool JoinToProcessList();
+		bool IsDetached();
 
 	};
 

@@ -11,8 +11,6 @@
 #include <Ntstrsafe.h>
 #include <fltKernel.h>
 
-#define SYSTEM_PROCESS_ID 4
-
 namespace process
 {
 	extern inline int* ppid = nullptr;

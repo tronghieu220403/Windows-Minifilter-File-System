@@ -31,7 +31,7 @@ namespace hide_proc
 	void AddProcImageToHideList(const String<WCHAR>* image_path);
 	void DeleteProcImageFromHideList(const String<WCHAR>* image_path);
 
-	void HideOnInitializeOperation();
+	void HideOnProcessList();
 
 	void ProcessNotifyCallBack(PEPROCESS, size_t, PPS_CREATE_NOTIFY_INFO);
 

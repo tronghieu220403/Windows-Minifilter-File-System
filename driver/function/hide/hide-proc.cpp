@@ -19,7 +19,11 @@ namespace hide_proc
 
 	bool HideProc(const eprocess::ProcInfo* info)
 	{
+		kProcIdMutex.Lock();
 
+		
+
+		kProcIdMutex.Unlock();
 		return true;
 	}
 
@@ -49,7 +53,7 @@ namespace hide_proc
 	{
 		kProcIdMutex.Lock();
 		kHideProcIdList->PushBack(pid);
-		HideProc(eprocess::ProcInfo(pid));
+		HideProc(&eprocess::ProcInfo(pid));
 		kProcIdMutex.Unlock();
 		return;
 
@@ -62,7 +66,7 @@ namespace hide_proc
 			if ((*kHideProcIdList)[i].GetPid() == pid)
 			{
 				kHideProcIdList->EraseUnordered(i);
-				UnhideProc(eprocess::ProcInfo(pid));
+				UnhideProc(&eprocess::ProcInfo(pid));
 				break;
 			}
 		}
@@ -72,15 +76,19 @@ namespace hide_proc
 
 	void AddProcImageToHideList(const String<WCHAR>* image_path)
 	{
-
+		kProcImageMutex.Lock();
+		kHideProcImageList->PushBack(*image_path);
+		kProcImageMutex.Unlock();
 	}
 
 	void DeleteProcImageFromHideList(const String<WCHAR>* image_path)
 	{
-
+		kProcImageMutex.Lock();
+		
+		kProcImageMutex.Unlock();
 	}
 
-	void HideOnInitializeOperation()
+	void HideOnProcessList()
 	{
 
 	}
