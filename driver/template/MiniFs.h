@@ -20,6 +20,7 @@ Environment:
 
 #include "register.h"
 #include "debug.h"
+#include "system_routine.h"
 
 #pragma prefast(disable:__WARNING_ENCODE_MEMBER_FUNCTION_POINTER, "Not valid for kernel mode drivers")
 

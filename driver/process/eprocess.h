@@ -4,6 +4,8 @@
 #include "../../std/vector/vector.h"
 #include "../../std/sync/mutex.h"
 
+#include "../../template/system_routine.h"
+
 #pragma warning( disable : 6001)
 
 #define SYSTEM_PROCESS_ID 4
@@ -28,8 +30,6 @@ namespace eprocess
 
 		PLIST_ENTRY active_process_links_ = nullptr;
 
-		bool is_detached = false;
-
 	public:
 		ProcInfo() = default;
 
@@ -43,11 +43,13 @@ namespace eprocess
 		PEPROCESS GetPeprocess() const;
 		PEPROCESS GetNextProc() const;
 		PEPROCESS GetPrevProc() const;
-		PLIST_ENTRY GetActiveProcessLinks() const;
+		PLIST_ENTRY GetActiveProcessLinks();
 
 		String<WCHAR> GetName() const;
 		size_t GetPid() const;
 		size_t GetParentPid() const;
+
+		String<WCHAR> GetProcessImageName() const;
 
 		void SetNextEntryProc(const PEPROCESS& eproc);
 		void SetPrevEntryProc(const PEPROCESS& eproc);
@@ -56,8 +58,8 @@ namespace eprocess
 		void SetPid(const size_t pid);
 		void SetParentPid(const size_t parent_pid);
 
-		bool DetachFromProcessList();
-		bool JoinToProcessList();
+		void DetachFromProcessList();
+		void JoinToProcessList();
 		bool IsDetached();
 
 	};

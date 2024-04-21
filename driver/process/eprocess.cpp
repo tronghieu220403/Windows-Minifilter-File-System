@@ -10,14 +10,17 @@ namespace eprocess
 			return;
 		}
 		PsLookupProcessByProcessId((HANDLE)pid, (PEPROCESS*)&eproc_);
-
+		if (eproc_ != NULL)
+		{
+			ObDereferenceObject(eproc_);
+		}
 		active_process_links_ = PLIST_ENTRY((PUCHAR)eproc_ + kAplRva);
 	}
 
 	ProcInfo& ProcInfo::operator=(const ProcInfo& proc)
 	{
 		eproc_ = proc.eproc_;
-		pid_ = (size_t)PsGetProcessId(eproc_);
+		pid_ = GetPid();
 		return *this;
 	}
 
@@ -36,8 +39,12 @@ namespace eprocess
 		return (PEPROCESS)((LONG64)(active_process_links_->Blink) - kAplRva);
 	}
 
-	PLIST_ENTRY ProcInfo::GetActiveProcessLinks() const
+	PLIST_ENTRY ProcInfo::GetActiveProcessLinks()
 	{
+		if (active_process_links_ == nullptr)
+		{
+			active_process_links_ = (PLIST_ENTRY)((PUCHAR)eproc_ + kAplRva);
+		}
 		return active_process_links_;
 	}
 
@@ -48,13 +55,77 @@ namespace eprocess
 
 	size_t ProcInfo::GetPid() const
 	{
-		return pid_;
+		return *(size_t*)((PUCHAR)eproc_ + kPidRva);
 	}
 
 	size_t ProcInfo::GetParentPid() const
 	{
 		return parent_pid_;
 	}
+
+	String<WCHAR> ProcInfo::GetProcessImageName() const
+	{
+		String<WCHAR> process_image_name;
+		NTSTATUS status = STATUS_UNSUCCESSFUL;
+		ULONG returned_length;
+		HANDLE h_process = NULL;
+
+		PAGED_CODE(); // this eliminates the possibility of the IDLE Thread/Process
+
+		if (eproc_ == NULL)
+		{
+			return String<WCHAR>();
+		}
+
+		status = ObOpenObjectByPointer(eproc_,
+			0, NULL, 0, 0, KernelMode, &h_process);
+		if (!NT_SUCCESS(status))
+		{
+			DebugMessage("ObOpenObjectByPointer Failed: %08x\n", status);
+			return String<WCHAR>();
+		}
+
+		if (ZwQueryInformationProcess == NULL)
+		{
+			DebugMessage("Cannot resolve ZwQueryInformationProcess\n");
+			status = STATUS_UNSUCCESSFUL;
+			goto cleanUp;
+		}
+
+		/* Query the actual size of the process path */
+		status = ZwQueryInformationProcess(h_process,
+			ProcessImageFileName,
+			NULL, // buffer
+			0,    // buffer size
+			&returned_length);
+
+		if (STATUS_INFO_LENGTH_MISMATCH != status) {
+			DebugMessage("ZwQueryInformationProcess status = %x\n", status);
+			goto cleanUp;
+		}
+
+		process_image_name.Resize(returned_length);
+
+		if (process_image_name.Data() == NULL)
+		{
+			goto cleanUp;
+		}
+
+		/* Retrieve the process path from the handle to the process */
+		status = ZwQueryInformationProcess(h_process,
+			ProcessImageFileName,
+			process_image_name.Data(),
+			returned_length,
+			&returned_length);
+
+
+	cleanUp:
+
+		ZwClose(h_process);
+
+		return process_image_name;
+	}
+
 
 	void ProcInfo::SetNextEntryProc(const PEPROCESS& eproc)
 	{
@@ -81,31 +152,33 @@ namespace eprocess
 		parent_pid_ = parent_pid;
 	}
 
-	bool ProcInfo::DetachFromProcessList()
+	void ProcInfo::DetachFromProcessList()
 	{
 		ProcInfo(GetPrevProc()).SetNextEntryProc(GetNextProc());
 		ProcInfo(GetNextProc()).SetPrevEntryProc(GetPrevProc());
 		SetNextEntryProc(eproc_);
 		SetPrevEntryProc(eproc_);
-		is_detached = true;
-		return true;
 	}
 
-	bool ProcInfo::JoinToProcessList()
+	void ProcInfo::JoinToProcessList()
 	{
+		// What if SYSTEM_PROCESS_ID is detached? We will have to use ZwQueryObject or PsLookupProcessByProcessId to find a process that is not detached
 		ProcInfo system_proc(SYSTEM_PROCESS_ID);
+
 		ProcInfo next_proc(system_proc.GetNextProc());
 		system_proc.SetNextEntryProc(eproc_);
 		SetNextEntryProc(next_proc.GetPeprocess());
 		SetPrevEntryProc(system_proc.GetPeprocess());
 		next_proc.SetPrevEntryProc(eproc_);
-		is_detached = false;
-		return true;
 	}
 
 	bool ProcInfo::IsDetached()
 	{
-		return is_detached;
+		if (GetNextProc() == GetPeprocess() && GetPrevProc() == GetPeprocess())
+		{
+			return true;
+		}
+		return false;
 	}
 
 	size_t GetAplRva()
@@ -143,7 +216,7 @@ namespace eprocess
 		}
 
 		// Go through the EPROCESS structure and look for the PID
-		// we can start at 0x20 because UniqueProcessId should
+		// we can start at 0x20 because Uniqueproc_Id should
 		// not be in the first 0x20 bytes,
 		// also we should stop after 0x300 bytes with no success
 		for (int i = 0x20; i < 0x300; i += 4)

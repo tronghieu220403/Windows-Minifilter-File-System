@@ -95,6 +95,9 @@
     <ClInclude Include="std\set\set.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="template\system_routine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="template\MiniFs.cpp">
@@ -137,6 +140,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="process\eprocess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="template\system_routine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

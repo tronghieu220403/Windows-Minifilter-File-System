@@ -359,6 +359,13 @@ template<>
 inline String<WCHAR>& String<WCHAR>::operator=(const PUNICODE_STRING& uni_str)
 {
 	Deallocate();
+	if (uni_str == nullptr)
+	{
+		size_ = 0;
+		elements_ = nullptr;
+		space_ = 0;
+		return *this;
+	}
 	size_ = uni_str->Length / sizeof(WCHAR);
 	elements_ = Allocate(uni_str->MaximumLength);
 	space_ = uni_str->MaximumLength;
@@ -597,6 +604,11 @@ inline bool String<T>::IsPrefixOf(const String<T>& str)
 		return false;
 	}
 
+	if (elements_ == NULL || str.elements_ == NULL)
+	{
+		return false;
+	}
+
 	for (size_t i = 0; i < size_; ++i)
 	{
 		if (elements_[i] != str.elements_[i])
@@ -616,6 +628,11 @@ inline bool String<T>::IsSuffixOf(const String<T>& str)
 		return false;
 	}
 
+	if (elements_ == NULL || str.elements_ == NULL)
+	{
+		return false;
+	}
+
 	for (size_t i = 0; i < size_; ++i)
 	{
 		if (elements_[i] != str.elements_[str.size_ - size_ + i])
@@ -631,6 +648,11 @@ template<class T>
 inline bool String<T>::operator==(const String<T>& str)
 {
 	if (size_ != str.Size())
+	{
+		return false;
+	}
+
+	if (elements_ == NULL || str.elements_ == NULL)
 	{
 		return false;
 	}

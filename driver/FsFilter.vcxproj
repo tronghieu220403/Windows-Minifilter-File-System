@@ -260,6 +260,7 @@
     <ClInclude Include="template\flt-ex.h" />
     <ClInclude Include="template\MiniFs.h" />
     <ClInclude Include="template\register.h" />
+    <ClInclude Include="template\system_routine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="com\comport\comport.cpp" />
@@ -276,6 +277,7 @@
     <ClCompile Include="template\flt-ex.cpp" />
     <ClCompile Include="template\MiniFs.cpp" />
     <ClCompile Include="template\register.cpp" />
+    <ClCompile Include="template\system_routine.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

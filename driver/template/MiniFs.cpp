@@ -179,6 +179,8 @@ Return Value:
 
     UNREFERENCED_PARAMETER( registry_path );
 
+    GetSystemRoutineAddresses();
+
     reg::DrvRegister(driver_object, registry_path);
 
     driver_object->DriverUnload = (PDRIVER_UNLOAD)DriverUnload;

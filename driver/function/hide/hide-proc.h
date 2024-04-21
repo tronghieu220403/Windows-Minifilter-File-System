@@ -23,15 +23,18 @@ namespace hide_proc
 	bool HideProc(const eprocess::ProcInfo* info);
 	bool UnhideProc(const eprocess::ProcInfo* info);
 
-	bool IsHiddenProc(size_t pid);
+	size_t GetIndexInHiddenProcIdList(size_t pid);
 
 	void AddProcIdToHideList(size_t pid);
 	void DeleteProcIdFromHideList(size_t pid);
+
+	size_t GetIndexInHiddenProcImageList(const String<WCHAR>* image_path);
 
 	void AddProcImageToHideList(const String<WCHAR>* image_path);
 	void DeleteProcImageFromHideList(const String<WCHAR>* image_path);
 
 	void HideOnProcessList();
+	void HideOnProcessList(const String<WCHAR>* image_path);
 
 	void ProcessNotifyCallBack(PEPROCESS, size_t, PPS_CREATE_NOTIFY_INFO);
 
