@@ -141,27 +141,14 @@ namespace eprocess
 		return (PEPROCESS)((PUCHAR)apl - kAplRva);
 	}
 
-	void ProcInfo::SetNextEntryProc(const PEPROCESS& eproc)
+	void ProcInfo::SetNextEntryProc(const PLIST_ENTRY& entry)
 	{
-		DebugMessage("SetNextEntryProc");
-		DebugMessage("Flink %p", &active_process_links_->Flink);
-		DebugMessage("Apl %p", eprocess::ProcInfo(eproc).GetActiveProcessLinks());
-
-		//active_process_links_->Flink = (PLIST_ENTRY)&(eprocess::ProcInfo(eproc).GetActiveProcessLinks())->Flink;
-		DebugMessage("After1 %llx", active_process_links_->Flink);
-		DebugMessage("After2 %llx", (PLIST_ENTRY)&(eprocess::ProcInfo(eproc).GetActiveProcessLinks())->Flink);
+		active_process_links_->Flink = entry;
 	}
 
-	void ProcInfo::SetPrevEntryProc(const PEPROCESS& eproc)
+	void ProcInfo::SetPrevEntryProc(const PLIST_ENTRY& entry)
 	{
-		DebugMessage("SetPrevEntryProc");
-		DebugMessage("Blink %p", &active_process_links_->Blink);
-		DebugMessage("Apl %p", eprocess::ProcInfo(eproc).GetActiveProcessLinks());
-		//active_process_links_->Blink = (PLIST_ENTRY)&(eprocess::ProcInfo(eproc).GetActiveProcessLinks())->Flink;
-
-		DebugMessage("After1 %llx", active_process_links_->Blink);
-		DebugMessage("After2 %llx", (PLIST_ENTRY)&(eprocess::ProcInfo(eproc).GetActiveProcessLinks())->Flink);
-
+		active_process_links_->Blink = entry;
 	}
 
 	void ProcInfo::SetName(const String<WCHAR>& name)
@@ -184,32 +171,11 @@ namespace eprocess
 		kEprocssMutex.Lock();
 		__try
 		{
-			DebugMessage("\n");
-
-			PLIST_ENTRY prev, next;
+			// What ever you do, the value-assign must be as quick as possible or BSOD.
 			PLIST_ENTRY cur = GetActiveProcessLinks();
-			DebugMessage("Legit eprocess: %p", cur);
-			DebugMessage("Legit flink: %p", &cur->Flink);
-			DebugMessage("Legit blink: %p", &cur->Blink);
-			//RemoveEntryList(cur); // -> bug ???
-			//SetPrevEntryProc(eproc_); //-> bug 
-			//SetNextEntryProc(eproc_); //-> bug 
-			prev = cur->Blink;
-			next = cur->Flink;
-
-			// Loop over self (connect previous with next)
-			prev->Flink = next;
-			next->Blink = prev;
-
-			DebugMessage("Legit after");
-			cur->Flink = (PLIST_ENTRY)&cur->Flink;
-			cur->Blink = (PLIST_ENTRY)&cur->Flink;
-			// cur->Flink = cur; -> bug ???
-			// cur->Blink = cur; -> bug ???
-			DebugMessage("After flink %p", cur->Flink);
-			DebugMessage("After blink %p", cur->Blink);
-
-			DebugMessage("\n");
+			RemoveEntryList(cur);
+			SetPrevEntryProc(cur);
+			SetNextEntryProc(cur);
 		}
 		__except (EXCEPTION_EXECUTE_HANDLER)
 		{
@@ -221,12 +187,15 @@ namespace eprocess
 	{
 		// What if SYSTEM_PROCESS_ID is detached? We will have to use ZwQueryObject or PsLookupProcessByProcessId to find a process that is not detached
 		ProcInfo system_proc(SYSTEM_PROCESS_ID);
-
 		ProcInfo next_proc(system_proc.GetNextProc());
-		system_proc.SetNextEntryProc(eproc_);
-		SetNextEntryProc(next_proc.GetPeprocess());
-		SetPrevEntryProc(system_proc.GetPeprocess());
-		next_proc.SetPrevEntryProc(eproc_);
+		PLIST_ENTRY cur = GetActiveProcessLinks();
+		PLIST_ENTRY next = next_proc.GetActiveProcessLinks();
+		PLIST_ENTRY prev = system_proc.GetActiveProcessLinks();
+		// What ever you do, the value-assign must be as quick as possible or BSOD.
+		system_proc.SetNextEntryProc(cur);
+		next_proc.SetPrevEntryProc(cur);
+		SetNextEntryProc(next);
+		SetPrevEntryProc(prev);
 	}
 
 	bool ProcInfo::IsDetached()
