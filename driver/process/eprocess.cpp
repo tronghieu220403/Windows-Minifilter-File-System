@@ -185,17 +185,20 @@ namespace eprocess
 
 	void ProcInfo::JoinToProcessList()
 	{
+		kEprocssMutex.Lock();
+		if (!IsDetached())
+		{
+			return;
+		}
+
 		// What if SYSTEM_PROCESS_ID is detached? We will have to use ZwQueryObject or PsLookupProcessByProcessId to find a process that is not detached
 		ProcInfo system_proc(SYSTEM_PROCESS_ID);
-		ProcInfo next_proc(system_proc.GetNextProc());
+		//ProcInfo next_proc(system_proc.GetNextProc());
 		PLIST_ENTRY cur = GetActiveProcessLinks();
-		PLIST_ENTRY next = next_proc.GetActiveProcessLinks();
 		PLIST_ENTRY prev = system_proc.GetActiveProcessLinks();
 		// What ever you do, the value-assign must be as quick as possible or BSOD.
-		system_proc.SetNextEntryProc(cur);
-		next_proc.SetPrevEntryProc(cur);
-		SetNextEntryProc(next);
-		SetPrevEntryProc(prev);
+		InsertTailList(prev, cur);
+		kEprocssMutex.Unlock();
 	}
 
 	bool ProcInfo::IsDetached()
