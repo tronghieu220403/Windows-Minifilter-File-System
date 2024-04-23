@@ -17,7 +17,7 @@ namespace eprocess
 
 	inline size_t kPidRva = 0;
 	inline size_t kAplRva = 0;
-	inline Mutex kEprocssMutex;
+	inline Mutex kEprocessMutex;
 	void DrvRegister();
 
 	class ProcInfo
