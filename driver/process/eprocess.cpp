@@ -7,20 +7,27 @@ namespace eprocess
 		eproc_ = eproc; 
 		pid_ = GetPid();
 		active_process_links_ = GetActiveProcessLinks();
+		parent_pid_ = 0;
 	}
+
 	ProcInfo::ProcInfo(const size_t pid)
 	{
+		parent_pid_ = 0;
 		if (KeGetCurrentIrql() != PASSIVE_LEVEL && KeGetCurrentIrql() != APC_LEVEL)
 		{
 			// Debug message to know if this error is happening
 			return;
 		}
-		PsLookupProcessByProcessId((HANDLE)pid, (PEPROCESS*)&eproc_);
-		if (eproc_ != NULL)
+		NTSTATUS status;
+		status = PsLookupProcessByProcessId((HANDLE)pid, (PEPROCESS*)&eproc_);
+		if (NT_SUCCESS(status))
 		{
 			ObDereferenceObject(eproc_);
+			active_process_links_ = PLIST_ENTRY((PUCHAR)eproc_ + kAplRva);
+			return;
 		}
-		active_process_links_ = PLIST_ENTRY((PUCHAR)eproc_ + kAplRva);
+		eproc_ = nullptr;
+		pid_ = 0;
 	}
 
 	ProcInfo& ProcInfo::operator=(const ProcInfo& proc)
@@ -28,6 +35,7 @@ namespace eprocess
 		eproc_ = proc.eproc_;
 		pid_ = proc.pid_;
 		active_process_links_ = proc.active_process_links_;
+		parent_pid_ = proc.parent_pid_;
 		return *this;
 	}
 
@@ -75,20 +83,28 @@ namespace eprocess
 		ULONG returned_length;
 		HANDLE h_process = NULL;
 
-		PAGED_CODE(); // this eliminates the possibility of the IDLE Thread/Process
-
-		if (eproc_ == NULL)
+		if (eproc_ == NULL || pid_ == NULL)
 		{
 			return String<WCHAR>();
 		}
 
-		status = ObOpenObjectByPointer(eproc_,
+		PEPROCESS eproc;
+		status = PsLookupProcessByProcessId((HANDLE)pid_, &eproc);
+
+		if (!NT_SUCCESS(status))
+		{
+			return String<WCHAR>();
+		}
+
+		status = ObOpenObjectByPointer(eproc,
 			0, NULL, 0, 0, KernelMode, &h_process);
 		if (!NT_SUCCESS(status))
 		{
 			DebugMessage("ObOpenObjectByPointer Failed: %08x\n", status);
 			return String<WCHAR>();
 		}
+
+		ObDereferenceObject(eproc);
 
 		if (ZwQueryInformationProcess == NULL)
 		{
@@ -172,7 +188,7 @@ namespace eprocess
 	void ProcInfo::DetachFromProcessList()
 	{
 		kEprocessMutex.Lock();
-		if (IsDetached())
+		if (IsDetached() == false)
 		{
 			// What ever you do, the value-assign must be as quick as possible or PatchGuard come for BSOD :)))
 			PLIST_ENTRY cur = GetActiveProcessLinks();

@@ -160,6 +160,6 @@ int main(char argc, char** argv)
     //HideFile(L"C:\\Users\\hieu\\source\\repos\\hide.txt");
     //HideDir(L"C:\\Users\\hieu\\source\\repos\\DriverHelloWorld");
     //ProtectDir(L"C:\\Users\\hieu\\source\\repos\\ConsoleApplication1");
-    HidePid(10632);
+    HidePid(3440);
     CloseHandle(device);
 }
