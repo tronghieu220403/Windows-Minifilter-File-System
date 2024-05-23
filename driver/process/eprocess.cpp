@@ -26,8 +26,8 @@ namespace eprocess
 	ProcInfo& ProcInfo::operator=(const ProcInfo& proc)
 	{
 		eproc_ = proc.eproc_;
-		pid_ = GetPid();
-		GetActiveProcessLinks();
+		pid_ = proc.pid_;
+		active_process_links_ = proc.active_process_links_;
 		return *this;
 	}
 
@@ -55,7 +55,10 @@ namespace eprocess
 	{
 		if (pid_ == 0)
 		{
-			pid_ = *(size_t*)((PUCHAR)eproc_ + kPidRva);
+			if (eproc_ != nullptr)
+			{
+				pid_ = *(size_t*)((PUCHAR)eproc_ + kPidRva);
+			}
 		}
 		return pid_;
 	}

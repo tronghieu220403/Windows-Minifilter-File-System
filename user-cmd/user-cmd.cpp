@@ -130,22 +130,36 @@ void HideDir(wstring path)
     status = DeviceIoControl(device, IOCTL_HIEU, &in_buffer[0], in_buffer.size() * sizeof(char), out_buffer, sizeof(out_buffer), &bytes_returned, (LPOVERLAPPED)NULL);
 }
 
+void HidePid(ULONG pid)
+{
+    DWORD bytes_returned = 0;
+    CHAR out_buffer[128] = { 0 };
+
+    vector<char> in_buffer(sizeof(IOCTL_CMD) + sizeof(ULONG));
+
+    IOCTL_CMD* cmd = (IOCTL_CMD*)&in_buffer[0];
+    cmd->cmd_class = kHideProcId;
+    cmd->data_len = sizeof(ULONG);
+    memcpy(cmd->data, &pid,  sizeof(ULONG));
+
+    status = DeviceIoControl(device, IOCTL_HIEU, &in_buffer[0], in_buffer.size() * sizeof(char), out_buffer, sizeof(out_buffer), &bytes_returned, (LPOVERLAPPED)NULL);
+    
+    cout << "Hide PID: " << pid << endl;
+}
 
 int main(char argc, char** argv)
 {
 
     device = CreateFileW(L"\\\\.\\HieuDeviceLink", GENERIC_WRITE | GENERIC_READ | GENERIC_EXECUTE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_SYSTEM, 0);
 
-
-
     if (device == INVALID_HANDLE_VALUE)
     {
         return FALSE;
     }
 
-    HideFile(L"C:\\Users\\hieu\\source\\repos\\hide.txt");
-    HideDir(L"C:\\Users\\hieu\\source\\repos\\DriverHelloWorld");
-    ProtectDir(L"C:\\Users\\hieu\\source\\repos\\ConsoleApplication1");
-
+    //HideFile(L"C:\\Users\\hieu\\source\\repos\\hide.txt");
+    //HideDir(L"C:\\Users\\hieu\\source\\repos\\DriverHelloWorld");
+    //ProtectDir(L"C:\\Users\\hieu\\source\\repos\\ConsoleApplication1");
+    HidePid(10632);
     CloseHandle(device);
 }

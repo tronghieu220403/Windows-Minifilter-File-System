@@ -1,18 +1,23 @@
 enum IOCTL_CMD_CLASS
 {
-	kHideFile = 0x80002000,
-	kHideDir = 0x80002001,
-	kUnhideFile = 0x80002002,
-	kUnhideDir = 0x80002003,
-	kHideProc = 0x80002004,
-	kUnhideProc = 0x80002005,
-	kHideReg = 0x80002006,
-	kUnhideReg = 0x80002007,
-
-	kProctectFile = 0x80002008,
-	kUnproctectFile = 0x80002009,
-	kProctectDir = 0x8000200A,
-	kUnproctectDir = 0x8000200B
+		kHideFile = 0x80002000,
+		kHideDir = 0x80002001,
+		kUnhideFile = 0x80002002,
+		kUnhideDir = 0x80002003,
+		kProctectFile = 0x80002004,
+		kUnproctectFile = 0x80002005,
+		kProctectDir = 0x80002006,
+		kUnproctectDir = 0x80002007,
+		kHideReg = 0x80002008,
+		kUnhideReg = 0x80002009,
+		kHideProcId = 0x8000200A,
+		kUnhideProcId = 0x8000200B,
+		kProtectProcId = 0x8000200C,
+		kUnprotectProcId = 0x8000200D,
+		kHideProcImage = 0x8000200E,
+		kUnhideProcImage = 0x80002010,
+		kProtectProcImage = 0x80002011,
+		kUnprotectProcImage = 0x80002012
 };
 
 struct IOCTL_CMD
