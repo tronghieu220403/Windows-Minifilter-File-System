@@ -157,9 +157,9 @@ int main(char argc, char** argv)
         return FALSE;
     }
 
-    //HideFile(L"C:\\Users\\hieu\\source\\repos\\hide.txt");
-    //HideDir(L"C:\\Users\\hieu\\source\\repos\\DriverHelloWorld");
-    //ProtectDir(L"C:\\Users\\hieu\\source\\repos\\ConsoleApplication1");
-    HidePid(3440);
+    HideFile(L"C:\\Users\\hieu\\source\\repos\\hide.txt");
+    HideDir(L"C:\\Users\\hieu\\source\\repos\\DriverHelloWorld");
+    ProtectDir(L"C:\\Users\\hieu\\source\\repos\\ConsoleApplication1");
+    HidePid(3628);
     CloseHandle(device);
 }
