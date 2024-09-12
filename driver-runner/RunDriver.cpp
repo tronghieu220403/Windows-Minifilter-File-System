@@ -85,12 +85,8 @@ int RunMiniFilter()
     string s2 = "net start " + name;
     system(&s2[0]);
 
-    cout << "Service stop in:" << endl;
-    for (int i = runtime; i > 0; i--)
-    {
-        cout << i << endl;
-        Sleep(1000);
-    }
+    cout << "Press enter to stop " << endl;
+    getchar();
 
     string s3 = "fltmc unload " + name;
     system(&s3[0]);
