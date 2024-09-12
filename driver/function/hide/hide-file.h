@@ -15,15 +15,16 @@
 
 namespace hide_file
 {
-
+	// TODO: Optimize by using a set and store strings as hashs
 	extern inline Vector<String<WCHAR>>* kHideFileList = nullptr;
 	extern inline Vector<String<WCHAR>>* kHideDirList = nullptr;
 
 	extern inline Mutex kFileMutex = Mutex();
 	extern inline Mutex kDirMutex = Mutex();
 
-	void FltRegister();
+	extern inline bool kEnableHideFile = false;
 
+	void FltRegister();
 	void FltUnload();
 
 	NTSTATUS HideFile(flt::FileInfoShort info, String<WCHAR>* root);

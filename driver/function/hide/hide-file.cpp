@@ -120,6 +120,11 @@ namespace hide_file
         PVOID bufffer;
         NTSTATUS status;
 
+		if (kEnableHideFile == false)
+		{
+			return FLT_POSTOP_FINISHED_PROCESSING;
+		}
+
         if (FlagOn(flags, FLTFL_POST_OPERATION_DRAINING))
         {
             return FLT_POSTOP_FINISHED_PROCESSING;
@@ -259,6 +264,7 @@ namespace hide_file
         return FLT_POSTOP_FINISHED_PROCESSING;
     }
 
+    // TODO: Optimize by prechecking root path before calling this function.
     NTSTATUS HideFile(flt::FileInfoShort info, String<WCHAR>* root)
     {
         flt::FileInfoShort prev_info;
@@ -284,7 +290,6 @@ namespace hide_file
                 if ((IsHiddenFile(&full_path) == true && !FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY)) ||
                     (IsHiddenDir(&full_path) == true && (FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY) || info.GetFileAttributes() == 0)))
                 {
-                    // DebugMessage("Try to hide: %ws", full_path.Data());
                     if (!prev_info.IsNull())
                     {
                         if (info.GetNextEntryOffset() != 0)
