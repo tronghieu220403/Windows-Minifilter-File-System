@@ -19,14 +19,21 @@ namespace ioctl
 		kUnproctectDir = 0x80002007,
 		kHideReg = 0x80002008,
 		kUnhideReg = 0x80002009,
+		/*
 		kHideProcId = 0x8000200A,
 		kUnhideProcId = 0x8000200B,
+		*/
 		kProtectProcId = 0x8000200C,
 		kUnprotectProcId = 0x8000200D,
+		/*
 		kHideProcImage = 0x8000200E,
 		kUnhideProcImage = 0x80002010,
+		*/
 		kProtectProcImage = 0x80002011,
 		kUnprotectProcImage = 0x80002012,
+
+		kEnableDriver = 0x80002013,
+		kDisableDriver = 0x80002014,
 	};
 
 	struct IOCTL_CMD_HIDE_FILE
@@ -165,6 +172,7 @@ namespace ioctl
 			return IOCTL_CMD_UNHIDE_DIR{ dir_path };
 		}
 
+		/*
 		IOCTL_CMD_HIDE_PROC_ID ParseHideProcId()
 		{
 			if (cmd_class != IOCTL_CMD_CLASS::kHideProcId)
@@ -184,7 +192,8 @@ namespace ioctl
 			ULONG pid = *(ULONG*)data;
 			return IOCTL_CMD_UNHIDE_PROC_ID{ pid };
 		}
-
+		*/
+		/*
 		IOCTL_CMD_HIDE_PROC_IMAGE ParseHideProcImage()
 		{
 			if (cmd_class != IOCTL_CMD_CLASS::kHideProcImage)
@@ -206,6 +215,7 @@ namespace ioctl
 			::MemCopy(&image_path[0], (WCHAR*)data, data_len);
 			return IOCTL_CMD_UNHIDE_PROC_IMAGE{ image_path };
 		}
+		*/
 
 		IOCTL_CMD_HIDE_REG ParseHideReg()
 		{
@@ -217,7 +227,7 @@ namespace ioctl
 			::MemCopy(&reg_path[0], (WCHAR*)data, data_len);
 			return IOCTL_CMD_HIDE_REG{ reg_path };
 		}
-
+		
 		IOCTL_CMD_UNHIDE_REG ParseUnhideReg()
 		{
 			if (cmd_class != IOCTL_CMD_CLASS::kUnhideReg)
@@ -319,6 +329,7 @@ namespace ioctl
         return ioctlCmd;
     }
 
+	/*
 	// User must free the returned buffer.
 	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_HIDE_PROC_ID* cmd)
     {
@@ -358,7 +369,7 @@ namespace ioctl
 		::MemCopy((char*)ioctlCmd->data, (char*)cmd->image_path.Data(), ioctlCmd->data_len);
 		return ioctlCmd;
 	}
-
+	*/
 	// User must free the returned buffer.
 	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_HIDE_REG* cmd)
     {
