@@ -52,8 +52,8 @@ namespace eprocess
 
 		String<WCHAR> GetProcessImageName() const;
 
-		void SetNextEntryProc(const PLIST_ENTRY& entry);
-		void SetPrevEntryProc(const PLIST_ENTRY& entry);
+		inline void SetNextEntryProc(const PLIST_ENTRY& entry);
+		inline void SetPrevEntryProc(const PLIST_ENTRY& entry);
 
 		void SetName(const String<WCHAR>& name);
 		void SetPid(const size_t pid);

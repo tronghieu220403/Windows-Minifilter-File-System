@@ -44,6 +44,7 @@ namespace process
 		kProcessMutex.Unlock();
 		return ret;
 	}
+
 	void AddTrustedProcess(size_t pid)
 	{
 		kProcessMutex.Lock();

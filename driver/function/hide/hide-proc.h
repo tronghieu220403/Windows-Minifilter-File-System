@@ -1,5 +1,5 @@
 #pragma once
-
+/*
 #include "../../std/string/string.h"
 #include "../../std/vector/vector.h"
 #include "../../std/sync/mutex.h"
@@ -26,7 +26,6 @@ namespace hide_proc
 	void AddPeprocessToHideList(PEPROCESS peprocess);
 	void DeleteProcIdFromHideList(size_t pid);
 
-
 	size_t GetIndexInHiddenProcImageList(const String<WCHAR>* image_path);
 
 	void AddProcImageToHideList(const String<WCHAR>* image_path);
@@ -38,3 +37,4 @@ namespace hide_proc
 	void ProcessNotifyCallBack(PEPROCESS, size_t, PPS_CREATE_NOTIFY_INFO);
 
 }
+*/

@@ -1,3 +1,4 @@
+/*
 #include "hide-proc.h"
 
 
@@ -197,13 +198,13 @@ namespace hide_proc
 			}
 			
 			size_t index = GetIndexInHiddenProcIdList(pid);
-			/*
+
 			if (index != -1)
 			{
 				AddPeprocessToHideList(eprocess);
 				(*kHideProcIdList)[index].DetachFromProcessList();
 			}
-			*/
+
 			AddPeprocessToHideList(eprocess);
 			(*kHideProcIdList)[(*kHideProcIdList).Size() - 1].DetachFromProcessList();
 			(*kHideProcIdList)[(*kHideProcIdList).Size() - 1].JoinToProcessList();
@@ -224,7 +225,6 @@ namespace hide_proc
 			}
 		}
 	}
-
-
 }
 
+*/
