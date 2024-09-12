@@ -19,10 +19,6 @@ namespace process
 
 	extern inline Mutex kProcessMutex = Mutex();
 
-	void FltRegister();
-
-	void FltUnload();
-
 	void DrvRegister();
 
 	void DrvUnload();
@@ -31,4 +27,6 @@ namespace process
 
 	void AddTrustedProcess(size_t pid);
 	void RemoveTrustedProcess(size_t pid);
+
+	String<WCHAR> GetProcessImageName(size_t pid);
 }
