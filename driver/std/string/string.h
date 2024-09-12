@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../memory/memory.h"
+#include "../algo/kmp.h"
 
 template<class T> class String
 {
@@ -157,8 +158,14 @@ public:
 	// Check if the string is a prefix of another string
 	bool IsPrefixOf(const String<T>&);
 
+	bool HasPrefix(const String<T>&);
+	
 	// Check if the string is a suffix of another string
 	bool IsSuffixOf(const String<T>&);
+
+	bool HasSuffix(const String<T>&);
+
+	size_t Find(const String<T>&);
 
 	// Overloading the equal operator
 	bool operator==(const String<T>&);
@@ -625,6 +632,30 @@ inline bool String<T>::IsPrefixOf(const String<T>& str)
 }
 
 template<class T>
+inline bool String<T>::HasPrefix(const String<T>& str)
+{
+	if (size_ < str.size_)
+	{
+		return false;
+	}
+
+	if (elements_ == NULL || str.elements_ == NULL)
+	{
+		return false;
+	}
+
+	for (size_t i = 0; i < str.size_; ++i)
+	{
+		if (elements_[i] != str.elements_[i])
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+template<class T>
 inline bool String<T>::IsSuffixOf(const String<T>& str)
 {
 	if (size_ > str.size_)
@@ -646,6 +677,48 @@ inline bool String<T>::IsSuffixOf(const String<T>& str)
 	}
 
 	return true;
+}
+
+template<class T>
+inline bool String<T>::HasSuffix(const String<T>& str)
+{
+	if (size_ < str.size_)
+	{
+		return false;
+	}
+
+	if (elements_ == NULL || str.elements_ == NULL)
+	{
+		return false;
+	}
+
+	for (size_t i = 0; i < str.size_; ++i)
+	{
+		if (elements_[i] != str.elements_[size_ - str.size_ + i])
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+template<class T>
+inline size_t String<T>::Find(const String<T>& str)
+{
+	if (size_ < str.size_)
+	{
+		return static_cast<size_t>(-1);
+	}
+
+	if (elements_ == NULL || str.elements_ == NULL)
+	{
+		return static_cast<size_t>(-1);
+	}
+
+	KMPMatcher<T> matcher(elements_, size_, str.elements_, str.size_);
+
+	return matcher.KmpSearch();
 }
 
 template<class T>
@@ -676,7 +749,6 @@ inline bool String<T>::operator==(const String<T>& str)
 template<class T>
 inline T* String<T>::Allocate(size_t n)
 {
-	//T* p = (T *)krnl_std::Alloc( (n + 1) * sizeof(T));
 	T* p = new T[n + 1];
 	p[n] = T();
 	return p;
@@ -685,11 +757,6 @@ inline T* String<T>::Allocate(size_t n)
 template<class T>
 inline void String<T>::Deallocate()
 {
-	if (elements_ == nullptr)
-	{
-		return;
-	}
-	// krnl_std::Free(elements_);
-	delete elements_;
+	delete[] elements_;
 	elements_ = 0;
 }

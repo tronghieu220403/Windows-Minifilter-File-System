@@ -13,6 +13,8 @@ typedef unsigned long long size_t;
 #define max(X, Y) (((X) > (Y)) ? (X) : (Y))
 #define min(X, Y) (((X) < (Y)) ? (X) : (Y))
 
+#define INT_MAX 2147483647
+
 extern void* operator new(size_t);
 extern void* operator new[](size_t);
 
@@ -59,10 +61,8 @@ namespace krnl_std
 {
     inline void* Alloc(size_t n)
     {
-        void* p;
-
+        void* p = nullptr;
         p = ExAllocatePool2(POOL_FLAG_NON_PAGED, n, 0x22042003);
-        // ZeroMemory(p, n);
         return p;
     }
 
@@ -73,7 +73,6 @@ namespace krnl_std
             return;
         }
         ExFreePoolWithTag(p, 0x22042003);
-        p = nullptr;
     }
 
 }

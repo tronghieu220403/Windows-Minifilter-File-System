@@ -49,7 +49,7 @@ public:
 template <typename K, typename M>
 class Map {
 public:
-	//member type
+	//member_ type
 	typedef Pair<const K, M> ValueType;
 
 	/*
