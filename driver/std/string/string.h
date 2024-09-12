@@ -18,6 +18,7 @@ public:
 	String(const T*);
 
 	String(const UNICODE_STRING&);
+	String(const PUNICODE_STRING&);
 
 	// Copy Assingment
 	String<T>& operator=(const String<T>&);
@@ -283,6 +284,12 @@ inline String<WCHAR>::String(const UNICODE_STRING& uni_str)
 	MemCopy(elements_, uni_str.Buffer, size_);
 	elements_[size_] = 0;
 
+}
+
+template<>
+inline String<WCHAR>::String(const PUNICODE_STRING& p_uni_str)
+{
+	this->String<WCHAR>::String(*p_uni_str);
 }
 
 template<>
