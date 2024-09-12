@@ -11,6 +11,9 @@ Write a class in Windows Kernel Driver that have the following operation on a fi
 
 namespace file
 {
+
+    // DO NOT USE INSIDE ANY MINIFILTER FUNCTION.
+    // TODO: Write FltFile class using FltCreateFile, FltReadFile and FltWriteFile instead.
     class File {
     private:
         String<WCHAR> file_path_;
