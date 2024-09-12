@@ -12,6 +12,7 @@ namespace protect_file
 		reg::kFltFuncVector->PushBack({ IRP_MJ_DIRECTORY_CONTROL, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_SET_INFORMATION, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_CREATE, PreOperation, nullptr });
+		DebugMessage("protect_file FltRegister completed successfully.");
 		return;
 	}
 
@@ -35,6 +36,8 @@ namespace protect_file
 	{
 		UNREFERENCED_PARAMETER(completion_context);
 
+		NTSTATUS status;
+
 		PAGED_CODE();
 
 		if (kEnableProtectFile == false)
@@ -54,10 +57,67 @@ namespace protect_file
 			goto return_success_no_callback;
 		}
 
-		BOOLEAN is_dir;
-		if (!NT_SUCCESS(FltIsDirectory(flt_objects->FileObject, flt_objects->Instance, &is_dir)))
+		if (data->Iopb->MajorFunction != IRP_MJ_CREATE)
 		{
 			goto return_success_no_callback;
+		}
+
+		BOOLEAN is_dir;
+		if (FlagOn(data->Iopb->Parameters.Create.Options, FILE_DIRECTORY_FILE))
+		{
+			is_dir = true;
+		}
+		else if (FlagOn(data->Iopb->Parameters.Create.Options, FILE_NON_DIRECTORY_FILE))
+		{
+			is_dir = false;
+		}
+		else
+		{
+			// https://community.osr.com/t/directory-detection-in-precreate-operation/47359/2
+			// Step: FltCreateFileEx -> FltIsDirectory -> FltClose
+			HANDLE file_handle; 
+			PFILE_OBJECT file_object;
+			IO_STATUS_BLOCK io_status_block;
+			OBJECT_ATTRIBUTES oa;
+			UNICODE_STRING uni_str = {name.Size() * 2, name.Size() * 2, name.Data()};
+			
+			InitializeObjectAttributes(&oa,
+				&uni_str,
+				OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
+				NULL,
+				NULL);
+			status = FltCreateFileEx(flt_objects->Filter,
+				data->Iopb->TargetInstance,
+				&file_handle,
+				&file_object,
+				FILE_READ_ATTRIBUTES,
+				&oa,
+				&io_status_block,
+				0,
+				FILE_ATTRIBUTE_NORMAL,
+				0,
+				FILE_OPEN,
+				FILE_COMPLETE_IF_OPLOCKED,
+				NULL,
+				0,
+				IO_IGNORE_SHARE_ACCESS_CHECK | IO_OPEN_TARGET_DIRECTORY);
+			if (status == STATUS_SUCCESS)
+			{
+				status = FltIsDirectory(file_object, flt_objects->Instance, &is_dir);
+				FltClose(file_handle);
+				if (!NT_SUCCESS(status))
+				{
+					DebugMessage("[+] FltIsDirectory failed with status %x for file %wS in line %d, function %s,", status, name.Data(), __LINE__, __FUNCTION__);
+					DebugMessage("\n");
+					goto return_success_no_callback;
+				}
+			}
+			else
+			{
+				DebugMessage("[+] FltCreateFileEx failed with statux %x for file %wS in line %d, function %s,", status, name.Data(), __LINE__, __FUNCTION__);
+				DebugMessage("\n");
+				goto return_success_no_callback;
+			}
 		}
 
 		ACCESS_MASK flag;
@@ -67,6 +127,7 @@ namespace protect_file
 		// Test create
 		if (data->Iopb->MajorFunction == IRP_MJ_CREATE)
 		{
+			/*
 			DebugMessage("[+] IRP_MJ_CREATE operation\n");
 			DebugMessage("File name %wS", name.Data());
 			if (is_dir)
@@ -82,9 +143,9 @@ namespace protect_file
 			DebugMessage("Create Disposition: %d\n", create_disposition);
 			DebugMessage("Desired Access: %x\n", flag);
 			DebugMessage("\n");
-			DebugMessage("\n");
+			*/
 		}
-		return FLT_PREOP_SUCCESS_NO_CALLBACK;
+		goto return_success_no_callback;
 
 		/*
 		if ((is_dir && IsProtectedDir(&name)) || (!is_dir && IsProtectedFile(&name)))
