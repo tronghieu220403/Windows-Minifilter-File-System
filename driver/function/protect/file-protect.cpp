@@ -4,6 +4,7 @@ namespace protect_file
 {
 	void FltRegister()
 	{
+		kEnableProtectFile = true;
 		kProtectedFileList = new Vector<String<WCHAR>>();
 		kProtectedDirList = new Vector<String<WCHAR>>();
 		kFileMutex.Create();
@@ -11,7 +12,6 @@ namespace protect_file
 		reg::kFltFuncVector->PushBack({ IRP_MJ_DIRECTORY_CONTROL, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_SET_INFORMATION, PreOperation, nullptr });
 		reg::kFltFuncVector->PushBack({ IRP_MJ_CREATE, PreOperation, nullptr });
-		reg::kFltFuncVector->PushBack({ IRP_MJ_WRITE, PreOperation, nullptr });
 		return;
 	}
 
@@ -37,6 +37,11 @@ namespace protect_file
 
 		PAGED_CODE();
 
+		if (kEnableProtectFile == false)
+		{
+			return FLT_PREOP_SUCCESS_NO_CALLBACK;
+		}
+
 		if (flt::IsTrustedRequestor(data) == true)
 		{
 			return FLT_PREOP_SUCCESS_NO_CALLBACK;
@@ -49,21 +54,43 @@ namespace protect_file
 			goto return_success_no_callback;
 		}
 
-		BOOLEAN IsDir;
-		if (!NT_SUCCESS(FltIsDirectory(flt_objects->FileObject, flt_objects->Instance, &IsDir)))
+		BOOLEAN is_dir;
+		if (!NT_SUCCESS(FltIsDirectory(flt_objects->FileObject, flt_objects->Instance, &is_dir)))
 		{
 			goto return_success_no_callback;
 		}
 
 		ACCESS_MASK flag;
 		PVOID bufffer;
+		ULONG create_disposition;
 
-		if ((IsDir && IsProtectedDir(&name)) || (!IsDir && IsProtectedFile(&name)))
+		// Test create
+		if (data->Iopb->MajorFunction == IRP_MJ_CREATE)
+		{
+			DebugMessage("[+] IRP_MJ_CREATE operation\n");
+			DebugMessage("File name %wS", name.Data());
+			if (is_dir)
+			{
+				DebugMessage("Directory\n");
+			}
+			else
+			{
+				DebugMessage("File\n");
+			}
+			flag = data->Iopb->Parameters.Create.SecurityContext->DesiredAccess;
+			create_disposition = (data->Iopb->Parameters.Create.Options >> 24) & 0x000000FF;
+			DebugMessage("Create Disposition: %d\n", create_disposition);
+			DebugMessage("Desired Access: %x\n", flag);
+			DebugMessage("\n");
+			DebugMessage("\n");
+		}
+		return FLT_PREOP_SUCCESS_NO_CALLBACK;
+
+		/*
+		if ((is_dir && IsProtectedDir(&name)) || (!is_dir && IsProtectedFile(&name)))
 		{
 			switch (data->Iopb->MajorFunction)
 			{
-			case IRP_MJ_WRITE:
-				goto return_access_denided;
 			case IRP_MJ_SET_INFORMATION:
 				goto return_access_denided;
 			case IRP_MJ_CREATE:
@@ -79,6 +106,7 @@ namespace protect_file
 				ClearFlag(flag, STANDARD_RIGHTS_WRITE);
 				data->Iopb->Parameters.Create.SecurityContext->DesiredAccess = flag;
 				FltSetCallbackDataDirty(data);
+				break;
 			default:
 				break;
 			}
@@ -95,15 +123,15 @@ namespace protect_file
 				goto return_success_no_callback;
 			}
 		}
+		*/
 
-	return_success_no_callback:
-		return FLT_PREOP_SUCCESS_NO_CALLBACK;
+		return_success_no_callback:
+			return FLT_PREOP_SUCCESS_NO_CALLBACK;
 
-	return_access_denided:
-		data->IoStatus.Status = STATUS_ACCESS_DENIED;
-		data->IoStatus.Information = 0;
-		return FLT_PREOP_COMPLETE;
-
+		return_access_denided:
+			data->IoStatus.Status = STATUS_ACCESS_DENIED;
+			data->IoStatus.Information = 0;
+			return FLT_PREOP_COMPLETE;
 	}
 
 

@@ -20,13 +20,13 @@ namespace protect_file
 	inline Mutex kFileMutex = Mutex();
 	
 	inline Mutex kDirMutex = Mutex();
-
+	
+	inline bool kEnableProtectFile = false;
+	
 	void FltRegister();
-
 	void FltUnload();
 
 	void DrvRegister();
-
 	void DrvUnload();
 
 	bool IsProtectedFile(const String<WCHAR>* file_name);
