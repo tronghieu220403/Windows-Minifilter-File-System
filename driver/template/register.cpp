@@ -16,8 +16,7 @@ namespace reg
 		kDrvFuncVector = new Vector<void*>();
 
 		process::DrvRegister();
-		//protect_file::DrvRegister();
-		hide_proc::DrvRegister();
+		protect_file::DrvRegister();
 
 		ioctl::DrvRegister(driver_object, registry_path);
 
@@ -33,8 +32,7 @@ namespace reg
 		delete kDrvFuncVector;
 		
 		process::DrvUnload();
-		//protect_file::DrvUnload();
-		hide_proc::DrvUnload();
+		protect_file::DrvUnload();
 
 		ioctl::DrvUnload(driver_object);
 

@@ -91,6 +91,7 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 		hide_file::DeleteDirFromHideList(&str);
 		break;
 
+	/*
 	case IOCTL_CMD_CLASS::kHideProcId:
 		pid = cmd->ParseHideProcId().pid;
 		DebugMessage("Hide proc ID: %d", pid);
@@ -110,6 +111,7 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 	case IOCTL_CMD_CLASS::kUnhideProcImage:
 
 		break;
+	*/
 
 	case IOCTL_CMD_CLASS::kHideReg:
 
