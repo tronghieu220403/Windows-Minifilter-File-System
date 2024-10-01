@@ -4,9 +4,7 @@ namespace protect_proc
 {
 	void DrvRegister()
 	{
-		kProtectProcIdList = new Vector<eprocess::ProcInfo>();
 		kProtectProcImageList = new Vector<String<WCHAR>>();
-		kProcIdMutex.Create();
 		kProcImageMutex.Create();
 		NTSTATUS status;
 
@@ -48,14 +46,34 @@ namespace protect_proc
 		PsSetCreateProcessNotifyRoutineEx((PCREATE_PROCESS_NOTIFY_ROUTINE_EX)&protect_proc::ProcessNotifyCallBack, TRUE);
 		ObUnRegisterCallbacks(kHandleRegistration);
 
-		delete kProtectProcIdList;
 		delete kProtectProcImageList;
 
 	}
 
+	void AddImageToProtectList(const String<WCHAR>& image_name)
+	{
+		kProcImageMutex.Lock();
+		kProtectProcImageList->PushBack(image_name);
+		kProcImageMutex.Unlock();
+	}
+
+	void DeleteImageFromProtectList(const String<WCHAR>& image_name)
+	{
+		kProcImageMutex.Lock();
+		for (size_t i = 0; i < kProtectProcImageList->Size(); i++)
+		{
+			if (kProtectProcImageList->At(i) == image_name)
+			{
+				kProtectProcImageList->EraseUnordered(i);
+				break;
+			}
+		}
+		kProcImageMutex.Unlock();
+	}
+
 	void ProcessNotifyCallBack(PEPROCESS eprocess, size_t pid, PPS_CREATE_NOTIFY_INFO create_info)
 	{
-		if (kEnableProtectProc == false)
+		if (kEnableProcProtect == false)
 		{
 			return;
 		}
@@ -72,7 +90,7 @@ namespace protect_proc
 
 	OB_PREOP_CALLBACK_STATUS PreObCallback(PVOID RegistrationContext, POB_PRE_OPERATION_INFORMATION pOperationInformation)
 	{
-		if (kEnableProtectProc == false)
+		if (kEnableProcProtect == false)
 		{
 			return OB_PREOP_CALLBACK_STATUS();
 		}

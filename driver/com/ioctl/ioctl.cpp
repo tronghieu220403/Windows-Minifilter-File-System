@@ -91,31 +91,28 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 		hide_file::DeleteDirFromHideList(&str);
 		break;
 
-	case IOCTL_CMD_CLASS::kProctectFile:
+	case IOCTL_CMD_CLASS::kProtectFile:
 
 		str = cmd->ParseProtectFile().path;
 		DebugMessage("Protect file: %ws", str.Data());
 		protect_file::AddFileToProtectedList(&str);
-
 		break;
 
-	case IOCTL_CMD_CLASS::kUnproctectFile:
+	case IOCTL_CMD_CLASS::kUnprotectFile:
 
 		str = cmd->ParseUnprotectFile().path;
 		DebugMessage("Unprotect file: %ws", str.Data());
 		protect_file::RemoveFileFromProtectedList(&str);
-
 		break;
 
-	case IOCTL_CMD_CLASS::kProctectDir:
+	case IOCTL_CMD_CLASS::kProtectDir:
 
 		str = cmd->ParseProtectDir().path;
 		DebugMessage("Protect dir: %ws", str.Data());
 		protect_file::AddDirToProtectedList(&str);
-
 		break;
 
-	case IOCTL_CMD_CLASS::kUnproctectDir:
+	case IOCTL_CMD_CLASS::kUnprotectDir:
 
 		str = cmd->ParseUnprotectDir().path;
 		DebugMessage("Unprotect dir: %ws", str.Data());
@@ -123,18 +120,28 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 		break;
 
 	case IOCTL_CMD_CLASS::kProtectProcImage:
+
+		str = cmd->ParseProtectProcImage().path;
+		DebugMessage("Protect proc image: %ws", str.Data());
+		protect_proc::AddImageToProtectList(str);
 		break;
 
 	case IOCTL_CMD_CLASS::kUnprotectProcImage:
+
+		str = cmd->ParseUnprotectProcImage().path;
+		DebugMessage("Unprotect proc image: %ws", str.Data());
+		protect_proc::DeleteImageFromProtectList(str);
 		break;
 
 	case IOCTL_CMD_CLASS::kWhitelistProcImage:
+
 		str = cmd->ParseWhitelistProcImage().path;
 		DebugMessage("Whitelist proc image: %ws", str.Data());
 		process::AddTrustedProcess(str);
 		break;
 
 	case IOCTL_CMD_CLASS::kUnwhitelistProcImage:
+
 		str = cmd->ParseUnwhitelistProcImage().path;
 		DebugMessage("Unwhitelist proc image: %ws", str.Data());
 		process::RemoveTrustedProcess(str);

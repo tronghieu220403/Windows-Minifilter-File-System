@@ -251,7 +251,6 @@
     <ClInclude Include="com\ioctl\ioctl.h" />
     <ClInclude Include="std\file\file.h" />
     <ClInclude Include="function\hide\hide-file.h" />
-    <ClInclude Include="function\hide\hide-proc.h" />
     <ClInclude Include="function\protect\file-protect.h" />
     <ClInclude Include="function\protect\proc-protect.h" />
     <ClInclude Include="process\eprocess.h" />
@@ -274,7 +273,6 @@
     <ClCompile Include="com\comport\comport.cpp" />
     <ClCompile Include="com\ioctl\ioctl.cpp" />
     <ClCompile Include="std\file\file.cpp" />
-    <ClCompile Include="function\hide\hide-proc.cpp" />
     <ClCompile Include="function\protect\file-protect.cpp" />
     <ClCompile Include="function\protect\proc-protect.cpp" />
     <ClCompile Include="function\hide\hide-file.cpp" />

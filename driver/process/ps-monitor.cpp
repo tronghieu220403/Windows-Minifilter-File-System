@@ -57,55 +57,67 @@ namespace process
 
 	String<WCHAR> GetProcessImageName(size_t pid)
 	{
-		NTSTATUS status;
-		ULONG returned_len;
-		HANDLE h_process = nullptr;
-		PEPROCESS e_process;
-		UNICODE_STRING name;
+		String<WCHAR> process_image_name;
+		NTSTATUS status = STATUS_UNSUCCESSFUL;
+		ULONG returned_length;
+		HANDLE h_process = NULL;
 
-		status = PsLookupProcessByProcessId((HANDLE)pid, &e_process);
+		PEPROCESS eproc;
+		status = PsLookupProcessByProcessId((HANDLE)pid, &eproc);
+
 		if (!NT_SUCCESS(status))
 		{
-			DebugMessage("PsLookupProcessByProcessId Failed: %08x\n", status);
+			return String<WCHAR>();
+		}
 
-		}
-		status = ObOpenObjectByPointer(e_process, 0, NULL, 0, 0, KernelMode, &h_process);
-		if (!NT_SUCCESS(status)) {
+		status = ObOpenObjectByPointer(eproc,
+			0, NULL, 0, 0, KernelMode, &h_process);
+		if (!NT_SUCCESS(status))
+		{
 			DebugMessage("ObOpenObjectByPointer Failed: %08x\n", status);
+			return String<WCHAR>();
 		}
-		ObDereferenceObject(e_process);
+
+		ObDereferenceObject(eproc);
+
+		if (ZwQueryInformationProcess == NULL)
+		{
+			DebugMessage("Cannot resolve ZwQueryInformationProcess\n");
+			status = STATUS_UNSUCCESSFUL;
+			goto cleanUp;
+		}
 
 		/* Query the actual size of the process path */
 		status = ZwQueryInformationProcess(h_process,
 			ProcessImageFileName,
 			NULL, // buffer
-			0, // buffer size
-			&returned_len);
+			0,    // buffer size
+			&returned_length);
 
 		if (STATUS_INFO_LENGTH_MISMATCH != status) {
-			ZwClose(h_process);
-			return String<WCHAR>();
+			DebugMessage("ZwQueryInformationProcess status = %x\n", status);
+			goto cleanUp;
 		}
 
-		Vector<UCHAR> buffer;
-		buffer.Resize(returned_len + 520);
+		process_image_name.Resize(returned_length);
+
+		if (process_image_name.Data() == NULL)
+		{
+			goto cleanUp;
+		}
 
 		/* Retrieve the process path from the handle to the process */
 		status = ZwQueryInformationProcess(h_process,
 			ProcessImageFileName,
-			buffer.Data(),
-			buffer.Size(),
-			&returned_len);
+			(PVOID)process_image_name.Data(),
+			returned_length,
+			&returned_length);
 
-		if (!NT_SUCCESS(status))
-		{
-			ZwClose(h_process);
-			return String<WCHAR>();
-		}
-		
-		String<WCHAR> process_image_name((PUNICODE_STRING)buffer.Data());
+
+	cleanUp:
 
 		ZwClose(h_process);
+
 		return process_image_name;
 	}
 }

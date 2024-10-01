@@ -12,10 +12,10 @@ enum IOCTL_CMD_CLASS
 	kUnhideFile = 0x80002002,
 	kUnhideDir = 0x80002003,
 
-	kProctectFile = 0x80002004,
-	kUnproctectFile = 0x80002005,
-	kProctectDir = 0x80002006,
-	kUnproctectDir = 0x80002007,
+	kProtectFile = 0x80002004,
+	kUnprotectFile = 0x80002005,
+	kProtectDir = 0x80002006,
+	kUnprotectDir = 0x80002007,
 
 	kProtectProcImage = 0x80002011,
 	kUnprotectProcImage = 0x80002012,
@@ -71,6 +71,18 @@ public:
 
 	void WhitelistProcImage(const std::wstring& path);
 	void UnwhitelistProcImage(const std::wstring& path);
+
+	void EnableDriver();
+	void DisableDriver();
+
+	void EnableFileHide();
+	void DisableFileHide();
+
+	void EnableFileProtect();
+	void DisableFileProtect();
+
+	void EnableProcProtect();
+	void DisableProcProtect();
 
 private:
     HANDLE device;

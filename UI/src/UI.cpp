@@ -185,36 +185,28 @@ JSValue UI::UpdateFeatureStatus(const JSObject& thisObject, const JSArgs& args) 
     // Tùy chỉnh các hành động cho từng chức năng khác nhau
     if (featureName == L"Files hidden") {
         if (status == L"on") {
-            kHiddenFileEnable = true;
+			file_manager_.EnableHiddenFileMode();
         }
         else {
-            kHiddenFileEnable = false; 
+			file_manager_.DisableHiddenFileMode();
         }
     }
     else if (featureName == L"Files protection") {
         if (status == L"on") {
-            kProtectedFileEnable = true; 
+			file_manager_.EnableProtectedFileMode();
         }
         else {
-            kProtectedFileEnable = false;
+			file_manager_.DisableProtectedFileMode();
         }
     }
     else if (featureName == L"Processes protection") {
         if (status == L"on") {
-			kProtectedProcessEnable = true;
+			process_manager_.EnableProtectedProcessMode();
         }
         else {
-			kProtectedProcessEnable = false;
+			process_manager_.DisableProtectedProcessMode();
         }
     }
-	else if (featureName == L"Process white list") {
-		if (status == L"on") {
-			kWhitelistProcessEnable = true;
-		}
-		else {
-			kWhitelistProcessEnable = false;
-		}
-	}
     return JSValue("Feature status updated successfully");
 }
 
@@ -228,17 +220,14 @@ JSValue UI::GetFeatureStatus(const JSObject& thisObject, const JSArgs& args) {
 
     // Trả về trạng thái tương ứng dựa vào tên chức năng
     if (featureName == L"Files hidden") {
-        return JSValue(kHiddenFileEnable ? "on" : "off");
+        return JSValue(file_manager_.IsHiddenFileModeEnabled() ? "on" : "off");
     }
     else if (featureName == L"Files protection") {
-        return JSValue(kProtectedFileEnable ? "on" : "off");
+        return JSValue(file_manager_.IsProtectedFileModeEnabled() ? "on" : "off");
     }
     else if (featureName == L"Processes protection") {
-        return JSValue(kProtectedProcessEnable ? "on" : "off");
+        return JSValue(process_manager_.IsProtectedProcessModeEnabled() ? "on" : "off");
     }
-	else if (featureName == L"Process white list") {
-		return JSValue(kWhitelistProcessEnable ? "on" : "off");
-	}
 
     return JSValue("off"); // Trả về "off" cho các chức năng không được biết
 }

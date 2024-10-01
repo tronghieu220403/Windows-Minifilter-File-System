@@ -15,11 +15,13 @@ struct FileInfo {
     bool isEnable = true;
 };
 
-extern inline bool kHiddenFileEnable = true;
-extern inline bool kProtectedFileEnable = true;
 
 class FileManager {
 private:
+
+	bool kHiddenFileEnable = true;
+	bool kProtectedFileEnable = true;
+
 	std::map<size_t, FileInfo> hidden_list_;
 	std::map<size_t, FileInfo> protected_list_;
 	DriverComm* driver_comm_;
@@ -38,6 +40,14 @@ public:
 
 	void DisableHiddenFile(const std::wstring& name);
 	void DisableProtectedFile(const std::wstring& name);
+
+	void EnableHiddenFileMode();
+	void DisableHiddenFileMode();
+	bool IsHiddenFileModeEnabled();
+
+	void EnableProtectedFileMode();
+	void DisableProtectedFileMode();
+	bool IsProtectedFileModeEnabled();
 
 	const std::map<size_t, FileInfo>& GetHiddenList();
 	const std::map<size_t, FileInfo>& GetProtectedList();

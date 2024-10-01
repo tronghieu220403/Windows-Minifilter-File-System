@@ -88,6 +88,40 @@ void FileManager::DisableProtectedFile(const std::wstring& name) {
 	}
 }
 
+void FileManager::EnableHiddenFileMode()
+{
+	kHiddenFileEnable = true;
+	driver_comm_->EnableFileHide();
+}
+
+void FileManager::DisableHiddenFileMode()
+{
+	kHiddenFileEnable = false;
+	driver_comm_->DisableFileHide();
+}
+
+bool FileManager::IsHiddenFileModeEnabled()
+{
+	return kHiddenFileEnable;
+}
+
+void FileManager::EnableProtectedFileMode()
+{
+	kProtectedFileEnable = true;
+	driver_comm_->EnableFileProtect();
+}
+
+void FileManager::DisableProtectedFileMode()
+{
+	kProtectedFileEnable = false;
+	driver_comm_->DisableFileProtect();
+}
+
+bool FileManager::IsProtectedFileModeEnabled()
+{
+	return kProtectedFileEnable;
+}
+
 const std::map<size_t, FileInfo>& FileManager::GetHiddenList() {
 	return hidden_list_;
 }

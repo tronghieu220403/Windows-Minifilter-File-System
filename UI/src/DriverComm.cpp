@@ -70,6 +70,38 @@ void DriverComm::UnwhitelistProcImage(const std::wstring& path) {
 	SendCommand(kUnwhitelistProcImage, path);
 }
 
+void DriverComm::EnableDriver() {
+	SendCommand(kEnableDriver, L"");
+}
+
+void DriverComm::DisableDriver() {
+	SendCommand(kDisableDriver, L"");
+}
+
+void DriverComm::EnableFileHide() {
+	SendCommand(kEnableFileHide, L"");
+}
+
+void DriverComm::DisableFileHide() {
+	SendCommand(kDisableFileHide, L"");
+}
+
+void DriverComm::EnableFileProtect() {
+	SendCommand(kEnableFileProtect, L"");
+}
+
+void DriverComm::DisableFileProtect() {
+	SendCommand(kDisableFileProtect, L"");
+}
+
+void DriverComm::EnableProcProtect() {
+	SendCommand(kEnableProcProtect, L"");
+}
+
+void DriverComm::DisableProcProtect() {
+	SendCommand(kDisableProcProtect, L"");
+}
+
 std::wstring DriverComm::GetDosPath(const std::wstring& wstr) {
     std::wstring device_name = wstr.substr(0, wstr.find_first_of(L'\\'));
     std::wstring dos_name;

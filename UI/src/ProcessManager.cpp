@@ -75,3 +75,20 @@ void ProcessManager::RemoveProcessFromWhitelist(const std::wstring& name) {
 const std::map<size_t, ProcessInfo>& ProcessManager::GetWhitelistProcessList() {
     return whitelist_process_list_;
 }
+
+void ProcessManager::EnableProtectedProcessMode()
+{
+	kProtectedProcessEnable = true;
+    driver_comm_->EnableProcProtect();
+}
+
+void ProcessManager::DisableProtectedProcessMode()
+{
+	kProtectedProcessEnable = false;
+	driver_comm_->DisableProcProtect();
+}
+
+bool ProcessManager::IsProtectedProcessModeEnabled()
+{
+	return kProtectedProcessEnable;
+}

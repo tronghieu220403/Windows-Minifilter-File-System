@@ -18,11 +18,12 @@ struct ProcessInfo {
     bool isEnable = true;
 };
 
-extern inline bool kProtectedProcessEnable = true;
-extern inline bool kWhitelistProcessEnable = true;
 
 class ProcessManager {
 private:
+    bool kProtectedProcessEnable = true;
+    bool kWhitelistProcessEnable = true;
+
     std::map<size_t, ProcessInfo> protected_process_list_;
     std::map<size_t, ProcessInfo> whitelist_process_list_;
 	DriverComm* driver_comm_;
@@ -42,6 +43,11 @@ public:
     void AddProcessToWhitelist(const ProcessInfo& process);
     void RemoveProcessFromWhitelist(const std::wstring& name);
     const std::map<size_t, ProcessInfo>& GetWhitelistProcessList();
+
+	// Bật/Tắt chế độ bảo vệ process
+	void EnableProtectedProcessMode();
+	void DisableProtectedProcessMode();
+	bool IsProtectedProcessModeEnabled();
 };
 
 #endif // PROCESSMANAGER_H

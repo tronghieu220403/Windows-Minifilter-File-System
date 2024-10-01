@@ -77,9 +77,6 @@
     <ClInclude Include="std\vector\vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="function\hide\hide-proc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="std\memory\pair.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -134,9 +131,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="std\sync\mutex.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="function\hide\hide-proc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="process\eprocess.cpp">

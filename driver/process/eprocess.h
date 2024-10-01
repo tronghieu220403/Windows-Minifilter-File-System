@@ -18,7 +18,6 @@ namespace eprocess
 	inline size_t kPidRva = 0;
 	inline size_t kAplRva = 0;
 
-	String<WCHAR> GetProcessImageName(int pid);
 	void DrvRegister();
 
 }

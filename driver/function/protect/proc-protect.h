@@ -36,9 +36,7 @@
 
 namespace protect_proc
 {
-	extern inline Vector<eprocess::ProcInfo>* kProtectProcIdList = nullptr;
 	extern inline Vector<String<WCHAR>>* kProtectProcImageList = nullptr;
-	inline Mutex kProcIdMutex = Mutex();
 	inline Mutex kProcImageMutex = Mutex();
 	inline PVOID kHandleRegistration = nullptr;
 
@@ -46,6 +44,9 @@ namespace protect_proc
 
 	void DrvRegister();
 	void DrvUnload();
+
+	void AddImageToProtectList(const String<WCHAR>& image_name);
+	void DeleteImageFromProtectList(const String<WCHAR>& image_name);
 
 	void ProcessNotifyCallBack(PEPROCESS, size_t, PPS_CREATE_NOTIFY_INFO);
 
