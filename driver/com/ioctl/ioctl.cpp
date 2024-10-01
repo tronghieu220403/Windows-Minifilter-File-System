@@ -60,7 +60,7 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 	IOCTL_CMD_CLASS type = cmd->cmd_class;
 	// TODO: Build a function to handle each type
 	String<WCHAR> str;
-	int pid;
+
 	switch (type)
 	{
 	case IOCTL_CMD_CLASS::kHideFile:
