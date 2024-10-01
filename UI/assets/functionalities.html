@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Secure Application</title>
+    <link rel="stylesheet" href="file:///css/functionalities.css">
+    <link rel="stylesheet" href="file:///css/shared.css">
+    <script src="file:///js/functionalities.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-item active">Functionalities</div>
+            <div class="sidebar-item" onclick="LoadPage('files_hidden.html')">Files hidden</div>
+            <div class="sidebar-item" onclick="LoadPage('files_protection.html')">Files protection</div>
+            <div class="sidebar-item" onclick="LoadPage('process_protection.html')">Process protection</div>
+            <div class="sidebar-item" onclick="LoadPage('settings.html')">Settings</div>
+        </div>
+        <div class="main-content">
+            <div class="feature">
+                <div class="icon"></div>
+                <div class="switch">
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="feature-label">Files hidden</div>
+            </div>
+            <div class="feature">
+                <div class="icon"></div>
+                <div class="switch">
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="feature-label">Files protection</div>
+            </div>
+            <div class="feature">
+                <div class="icon"></div>
+                <div class="switch">
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="feature-label">Processes protection</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

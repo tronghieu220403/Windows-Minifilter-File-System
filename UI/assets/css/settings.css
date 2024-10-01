@@ -1,0 +1,41 @@
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    background-color: #fff;
+    padding: 20px;
+    overflow: hidden;
+}
+
+.settings-menu {
+    width: 200px;
+    border-right: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    padding-right: 10px;
+}
+
+.settings-menu-item {
+    padding: 15px;
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+    text-align: left;
+    font-weight: bold;
+}
+
+.settings-menu-item:hover {
+    background-color: #ddd;
+}
+
+.settings-menu-item.active {
+    background-color: #3c8dbc;
+    color: #fff;
+}
+
+.settings-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

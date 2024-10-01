@@ -1,0 +1,237 @@
+/* Cấu trúc chính */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #f7f9fc; /* Màu nền nhẹ cho phần chính */
+    padding: 20px;
+    border-radius: 8px; /* Làm tròn góc */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+    position: relative; /* Để có thể định vị div con */
+}
+
+/* Thanh điều khiển trên cùng */
+.top-bar {
+    display: flex;
+    flex-direction: column; /* Chuyển từ hàng ngang sang cột dọc */
+    align-items: flex-start; /* Canh trái cho các thành phần */
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #ffffff; /* Màu nền trắng cho thanh điều khiển */
+    border-radius: 8px; /* Làm tròn góc */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+    width: 100%; /* Đảm bảo chiều rộng đầy đủ */
+}
+
+/* Nhóm chứa ô nhập và nút OK */
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* Khoảng cách với hàng thứ hai */
+    width: 100%; /* Đảm bảo chiều rộng đầy đủ */
+}
+
+#process-input {
+    flex: 1;
+    padding: 10px;
+    margin-left: 10px;
+    border: 1px solid #d1d9e6; /* Màu viền nhạt hơn */
+    border-radius: 4px;
+    background-color: #ffffff; /* Màu nền trắng */
+    transition: border-color 0.3s; /* Hiệu ứng chuyển màu viền */
+}
+
+#process-input:focus {
+    border-color: #3c8dbc; /* Màu viền nổi bật khi focus */
+    outline: none; /* Bỏ viền mặc định khi focus */
+}
+
+/* Nút OK */
+.ok-button {
+    padding: 10px 15px; /* Tăng kích thước padding */
+    margin-left: 10px;
+    border: 1px solid #3c8dbc;
+    background-color: #3c8dbc;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s; /* Hiệu ứng chuyển màu nền */
+}
+
+.ok-button:hover {
+    background-color: #357ab7; /* Màu nền khi hover */
+}
+
+/* Nhóm chứa các nút chọn process */
+.button-group-select {
+    display: flex;
+    align-items: center;
+    margin-top: 10px; /* Khoảng cách với hàng đầu tiên */
+    width: 100%; /* Đảm bảo chiều rộng đầy đủ */
+}
+
+.select-button {
+    padding: 10px 15px; /* Tăng kích thước padding */
+    margin-left: 10px;
+    border: 1px solid #3c8dbc;
+    background-color: #3c8dbc;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s, transform 0.3s; /* Hiệu ứng chuyển màu nền và hiệu ứng nhấn */
+}
+
+.select-button:hover {
+    background-color: #357ab7; /* Màu nền khi hover */
+    transform: translateY(-2px); /* Hiệu ứng nhấn nhẹ khi hover */
+}
+
+/* Vùng chứa danh sách process */
+.process-list-container {
+    position: absolute;
+    top: 90px; /* Định vị bên dưới thanh điều khiển */
+    left: 50%;
+    transform: translateX(-50%); /* Canh giữa theo chiều ngang */
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    z-index: 1000; /* Hiển thị trên các phần tử khác */
+    display: flex;
+    flex-direction: column;
+    max-height: 300px; /* Giới hạn chiều cao */
+    width: 600px; /* Đặt chiều rộng cố định cho khung */
+    overflow: hidden; /* Ẩn phần vượt quá */
+    visibility: hidden; /* Ẩn theo mặc định */
+    opacity: 0;
+    transition: visibility 0s, opacity 0.3s ease-in-out; /* Hiệu ứng mở ẩn */
+}
+
+.process-list-container.visible {
+    visibility: visible; /* Hiển thị khi có class visible */
+    opacity: 1;
+}
+
+/* Header của danh sách process */
+.process-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+/* Danh sách các process */
+.process-list {
+    flex: 1;
+    height: 210px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* Cuộn dọc khi có quá nhiều phần tử */
+    overflow-x: hidden; /* Ẩn cuộn ngang */
+}
+
+/* Các item trong danh sách process */
+.process-item {
+    padding: 10px;
+    border-bottom: 1px solid #e2e8f0; /* Đường viền giữa các ô */
+    cursor: pointer;
+    transition: background-color 0.3s;
+    white-space: nowrap; /* Không xuống dòng cho text */
+    text-overflow: ellipsis; /* Thêm dấu ba chấm khi text bị ẩn */
+}
+
+.process-item:hover {
+    background-color: #357ab7; /* Màu nền khi hover */
+    transform: translateY(-2px); /* Hiệu ứng nhấn nhẹ khi hover */
+}
+
+/* Nút OK và Cancel */
+.button-group {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 10px; /* Khoảng cách trên cùng cho nhóm nút */
+    border-top: 1px solid #e2e8f0; /* Đường viền trên cùng */
+}
+
+/* Vùng chứa bảng dữ liệu của process protection */
+.process-protection-table-container {
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid #d1d9e6; /* Màu viền nhạt hơn */
+    border-radius: 8px; /* Làm tròn góc */
+    background-color: #ffffff; /* Màu nền trắng */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+    margin-top: 20px; /* Khoảng cách giữa bảng và thanh điều khiển */
+    overflow-x: auto; /* Cho phép cuộn ngang */
+}
+
+/* Bảng dữ liệu của process protection */
+.process-protection-table {
+    width: 100%;
+    border-collapse: collapse; /* Bỏ khoảng cách giữa các ô */
+    border-radius: 8px; /* Làm tròn góc cho bảng */
+    overflow: hidden; /* Ẩn phần góc tròn của bảng */
+}
+
+.process-protection-table thead {
+    background-color: #3c8dbc; /* Màu nền cho phần tiêu đề */
+    color: #ffffff; /* Màu chữ trắng */
+    text-transform: uppercase; /* Viết hoa tiêu đề */
+    font-size: 14px; /* Kích thước chữ tiêu đề */
+    letter-spacing: 1px; /* Khoảng cách giữa các chữ */
+}
+
+.process-protection-table th,
+.process-protection-table td {
+    padding: 15px; /* Tăng kích thước padding */
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0; /* Đường viền giữa các ô */
+    white-space: nowrap; /* Không xuống dòng trong các ô */
+    overflow: hidden; /* Ẩn phần text vượt quá */
+    text-overflow: ellipsis; /* Thêm dấu ba chấm khi text bị ẩn */
+    max-width: 300px; /* Giới hạn chiều rộng tối đa cho các ô */
+}
+
+.process-protection-table th {
+    cursor: pointer; /* Thêm con trỏ chỉ tay cho tiêu đề */
+}
+
+/* Hàng dữ liệu trong bảng */
+.process-protection-table tbody tr {
+    cursor: pointer;
+    transition: background-color 0.3s; /* Hiệu ứng chuyển màu nền */
+}
+
+.process-protection-table tbody tr:hover {
+    background-color: #f1f5fa; /* Màu nền khi hover */
+}
+
+/* Hàng dữ liệu được chọn */
+.process-protection-table tbody tr.selected {
+    background-color: #d0e9ff; /* Màu nền cho hàng được chọn */
+}
+
+/* Nhóm các nút hành động */
+.button-group {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Nút hành động */
+.action-button {
+    padding: 10px 20px; /* Tăng kích thước padding */
+    margin-left: 10px;
+    border: 1px solid #3c8dbc;
+    background-color: #3c8dbc;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s, transform 0.3s; /* Hiệu ứng chuyển màu nền và hiệu ứng nhấn */
+}
+
+.action-button:hover {
+    background-color: #357ab7; /* Màu nền khi hover */
+    transform: translateY(-2px); /* Hiệu ứng nhấn nhẹ khi hover */
+}

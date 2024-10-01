@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Files Hidden</title>
+    <link rel="stylesheet" href="file:///css/files_hidden.css">
+    <link rel="stylesheet" href="file:///css/shared.css">
+    <script src="file:///js/files_hidden.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-item" onclick='LoadPage("functionalities.html")'>Functionalities</div>
+            <div class="sidebar-item active">Files hidden</div>
+            <div class="sidebar-item" onclick="LoadPage('files_protection.html')">Files protection</div>
+            <div class="sidebar-item" onclick="LoadPage('process_protection.html')">Process protection</div>
+            <div class="sidebar-item" onclick="LoadPage('settings.html')">Settings</div>
+        </div>
+        <div class="main-content">
+            <div class="top-bar">
+                <input type="text" id="file-input" placeholder="Enter path here..." onkeydown="addFileFolder(event)">
+                <button class="select-button" onclick="selectHiddenFile()">Select file</button>
+                <button class="select-button" onclick="selectHiddenFolder()">Select folder</button>
+            </div>
+            <div class="table-container">
+                <table id="file-table">
+                    <thead>
+                        <tr>
+                            <th>Path</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Các hàng sẽ được thêm vào đây bằng JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="button-group">
+                <button class="action-button" onclick="enableHiddenProtection()">Enable protection</button>
+                <button class="action-button" onclick="disableHiddenProtection()">Disable protection</button>
+                <button class="action-button" onclick="deleteHiddenRows()">Delete</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

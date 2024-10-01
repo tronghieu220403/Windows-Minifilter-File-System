@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings</title>
+    <link rel="stylesheet" href="file:///css/settings.css">
+    <link rel="stylesheet" href="file:///css/shared.css">
+    <script src="file:///js/settings.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-item" onclick="LoadPage('functionalities.html')">Functionalities</div>
+            <div class="sidebar-item" onclick="LoadPage('files_hidden.html')">Files hidden</div>
+            <div class="sidebar-item" onclick="LoadPage('files_protection.html')">Files protection</div>
+            <div class="sidebar-item" onclick="LoadPage('process_protection.html')">Process protection</div>
+            <div class="sidebar-item active" onclick="LoadPage('settings.html')">Settings</div>
+        </div>
+        <div class="main-content">
+            <div class="settings-menu">
+                <div class="settings-menu-item" onclick="loadSubPage('settings_trusted_process.html')">Trusted processes</div>
+                <div class="settings-menu-item" onclick="loadSubPage('settings_change_password.html')">Change password</div>
+                <div class="settings-menu-item" onclick="loadSubPage('settings_about_us.html')">About us</div>
+            </div>
+            <div class="settings-content">
+                <iframe id="settings-iframe" src="settings_trusted_process.html" frameborder="0" style="width: 100%; height: 100%;"></iframe>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

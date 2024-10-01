@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Process Protection</title>
+    <link rel="stylesheet" href="file:///css/process_protection.css">
+    <link rel="stylesheet" href="file:///css/shared.css">
+    <script src="file:///js/process_protection.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-item" onclick="LoadPage('functionalities.html')">Functionalities</div>
+            <div class="sidebar-item" onclick="LoadPage('files_hidden.html')">Files hidden</div>
+            <div class="sidebar-item" onclick="LoadPage('files_protection.html')">Files protection</div>
+            <div class="sidebar-item active">Process protection</div>
+            <div class="sidebar-item" onclick="LoadPage('settings.html')">Settings</div>
+        </div>
+        <div class="main-content">
+            <div class="top-bar">
+                <!-- Hàng đầu tiên chứa ô nhập và nút OK -->
+                <div class="input-group">
+                    <label for="process-input">Add process path:</label>
+                    <input type="text" id="process-input" placeholder="Enter process path here..." onkeydown="addProcess(event)">
+                    <button class="ok-button" onclick="addProcessManually()">OK</button>
+                </div>
+                <!-- Hàng thứ hai chứa các nút chọn process -->
+                <div class="button-group-select">
+                    <span>Or:</span>
+                    <button class="select-button" onclick="toggleProcessList()">Select process</button>
+                    <button class="select-button" onclick="selectProcessPath()">Select process path</button>
+                </div>
+            </div>
+            <div id="process-list-container" class="process-list-container hidden">
+                <div class="process-list-header">
+                    <span>Select a process:</span>
+                </div>
+                <div id="process-list" class="process-list">
+                    <!-- Danh sách các process sẽ được thêm vào đây bằng JavaScript -->
+                </div>
+                <div class="button-group">
+                    <button class="action-button" onclick="addProcessFromSelection()">OK</button>
+                    <button class="action-button" onclick="toggleProcessList()">Cancel</button>
+                </div>
+            </div>
+            <div class="process-protection-table-container">
+                <table class="process-protection-table" id="process-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Path</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Các hàng sẽ được thêm vào đây bằng JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="button-group">
+                <button class="action-button" onclick="enableProtection()">Enable protection</button>
+                <button class="action-button" onclick="disableProtection()">Disable protection</button>
+                <button class="action-button" onclick="deleteRows()">Delete</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

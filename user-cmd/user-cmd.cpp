@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <Windows.h>
 
 #include "common.h"
@@ -46,7 +46,7 @@ void ProtectFile(wstring path)
     vector<char> in_buffer(sizeof(IOCTL_CMD) + dos_path.size() * sizeof(WCHAR));
 
     IOCTL_CMD* cmd = (IOCTL_CMD*)&in_buffer[0];
-    cmd->cmd_class = kProctectFile;
+    cmd->cmd_class = kProtectFile;
     cmd->data_len = dos_path.size();
     memcpy(cmd->data, &dos_path[0], dos_path.size() * sizeof(WCHAR));
 
@@ -71,7 +71,7 @@ void ProtectDir(wstring path)
     vector<char> in_buffer(sizeof(IOCTL_CMD) + dos_path.size() * sizeof(WCHAR));
 
     IOCTL_CMD* cmd = (IOCTL_CMD*)&in_buffer[0];
-    cmd->cmd_class = kProctectDir;
+    cmd->cmd_class = kProtectDir;
     cmd->data_len = dos_path.size();
     memcpy(cmd->data, &dos_path[0], dos_path.size() * sizeof(WCHAR));
 
@@ -88,9 +88,6 @@ void HideFile(wstring path)
     CHAR out_buffer[128] = { 0 };
 
     wstring dos_path = GetDosPath(&path);
-
-    cout << dos_path.size() << endl;
-    wcout << dos_path << endl;
 
     vector<char> in_buffer(sizeof(IOCTL_CMD) + dos_path.size() * sizeof(WCHAR));
 
@@ -130,22 +127,115 @@ void HideDir(wstring path)
     status = DeviceIoControl(device, IOCTL_HIEU, &in_buffer[0], in_buffer.size() * sizeof(char), out_buffer, sizeof(out_buffer), &bytes_returned, (LPOVERLAPPED)NULL);
 }
 
-void HidePid(ULONG pid)
+// Hàm bảo vệ tiến trình
+void ProtectProcImage(wstring path)
 {
     DWORD bytes_returned = 0;
     CHAR out_buffer[128] = { 0 };
 
-    vector<char> in_buffer(sizeof(IOCTL_CMD) + sizeof(ULONG));
+    wstring dos_path = GetDosPath(&path);
+
+    vector<char> in_buffer(sizeof(IOCTL_CMD) + dos_path.size() * sizeof(WCHAR));
 
     IOCTL_CMD* cmd = (IOCTL_CMD*)&in_buffer[0];
-    cmd->cmd_class = kHideProcId;
-    cmd->data_len = sizeof(ULONG);
-    memcpy(cmd->data, &pid,  sizeof(ULONG));
+    cmd->cmd_class = kProtectProcImage; // Lớp lệnh để bảo vệ tiến trình
+    cmd->data_len = dos_path.size();
+    memcpy(cmd->data, &dos_path[0], dos_path.size() * sizeof(WCHAR));
 
     status = DeviceIoControl(device, IOCTL_HIEU, &in_buffer[0], in_buffer.size() * sizeof(char), out_buffer, sizeof(out_buffer), &bytes_returned, (LPOVERLAPPED)NULL);
-    
-    cout << "Hide PID: " << pid << endl;
 }
+
+// Hàm bỏ bảo vệ tiến trình
+void UnprotectProcImage(wstring path)
+{
+    DWORD bytes_returned = 0;
+    CHAR out_buffer[128] = { 0 };
+
+    wstring dos_path = GetDosPath(&path);
+
+    vector<char> in_buffer(sizeof(IOCTL_CMD) + dos_path.size() * sizeof(WCHAR));
+
+    IOCTL_CMD* cmd = (IOCTL_CMD*)&in_buffer[0];
+    cmd->cmd_class = kUnprotectProcImage; // Lớp lệnh để bỏ bảo vệ tiến trình
+    cmd->data_len = dos_path.size();
+    memcpy(cmd->data, &dos_path[0], dos_path.size() * sizeof(WCHAR));
+
+    status = DeviceIoControl(device, IOCTL_HIEU, &in_buffer[0], in_buffer.size() * sizeof(char), out_buffer, sizeof(out_buffer), &bytes_returned, (LPOVERLAPPED)NULL);
+}
+
+// Hàm bỏ ẩn tập tin
+void UnhideFile(wstring path)
+{
+    DWORD bytes_returned = 0;
+    CHAR out_buffer[128] = { 0 };
+
+    wstring dos_path = GetDosPath(&path);
+
+    vector<char> in_buffer(sizeof(IOCTL_CMD) + dos_path.size() * sizeof(WCHAR));
+
+    IOCTL_CMD* cmd = (IOCTL_CMD*)&in_buffer[0];
+    cmd->cmd_class = kUnhideFile; // Lớp lệnh để bỏ ẩn tập tin
+    cmd->data_len = dos_path.size();
+    memcpy(cmd->data, &dos_path[0], dos_path.size() * sizeof(WCHAR));
+
+    status = DeviceIoControl(device, IOCTL_HIEU, &in_buffer[0], in_buffer.size() * sizeof(char), out_buffer, sizeof(out_buffer), &bytes_returned, (LPOVERLAPPED)NULL);
+}
+
+// Hàm bỏ ẩn thư mục
+void UnhideDir(wstring path)
+{
+    DWORD bytes_returned = 0;
+    CHAR out_buffer[128] = { 0 };
+
+    wstring dos_path = GetDosPath(&path);
+
+    vector<char> in_buffer(sizeof(IOCTL_CMD) + dos_path.size() * sizeof(WCHAR));
+
+    IOCTL_CMD* cmd = (IOCTL_CMD*)&in_buffer[0];
+    cmd->cmd_class = kUnhideDir; // Lớp lệnh để bỏ ẩn thư mục
+    cmd->data_len = dos_path.size();
+    memcpy(cmd->data, &dos_path[0], dos_path.size() * sizeof(WCHAR));
+
+    status = DeviceIoControl(device, IOCTL_HIEU, &in_buffer[0], in_buffer.size() * sizeof(char), out_buffer, sizeof(out_buffer), &bytes_returned, (LPOVERLAPPED)NULL);
+}
+
+void UnprotectFile(wstring path)
+{
+    DWORD bytes_returned = 0;
+    CHAR out_buffer[128] = { 0 };
+
+    wstring dos_path = GetDosPath(&path);
+
+    vector<char> in_buffer(sizeof(IOCTL_CMD) + dos_path.size() * sizeof(WCHAR));
+
+    IOCTL_CMD* cmd = (IOCTL_CMD*)&in_buffer[0];
+    cmd->cmd_class = kUnprotectFile; // Lớp lệnh để bỏ bảo vệ tập tin
+    cmd->data_len = dos_path.size();
+    memcpy(cmd->data, &dos_path[0], dos_path.size() * sizeof(WCHAR));
+
+    status = DeviceIoControl(device, IOCTL_HIEU, &in_buffer[0], in_buffer.size() * sizeof(char), out_buffer, sizeof(out_buffer), &bytes_returned, (LPOVERLAPPED)NULL);
+}
+
+void UnprotectDir(wstring path)
+{
+    DWORD bytes_returned = 0;
+    CHAR out_buffer[128] = { 0 };
+
+    wstring dos_path = GetDosPath(&path);
+
+    cout << dos_path.size() << endl;
+    wcout << dos_path << endl;
+
+    vector<char> in_buffer(sizeof(IOCTL_CMD) + dos_path.size() * sizeof(WCHAR));
+
+    IOCTL_CMD* cmd = (IOCTL_CMD*)&in_buffer[0];
+    cmd->cmd_class = kUnprotectDir; // Lớp lệnh để bỏ bảo vệ thư mục
+    cmd->data_len = dos_path.size();
+    memcpy(cmd->data, &dos_path[0], dos_path.size() * sizeof(WCHAR));
+
+    status = DeviceIoControl(device, IOCTL_HIEU, &in_buffer[0], in_buffer.size() * sizeof(char), out_buffer, sizeof(out_buffer), &bytes_returned, (LPOVERLAPPED)NULL);
+}
+
 
 int main(char argc, char** argv)
 {
@@ -160,6 +250,5 @@ int main(char argc, char** argv)
     HideFile(L"C:\\Users\\hieu\\source\\repos\\hide.txt");
     HideDir(L"C:\\Users\\hieu\\source\\repos\\DriverHelloWorld");
     ProtectDir(L"C:\\Users\\hieu\\source\\repos\\ConsoleApplication1");
-    HidePid(3628);
     CloseHandle(device);
 }
