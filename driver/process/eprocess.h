@@ -17,52 +17,8 @@ namespace eprocess
 
 	inline size_t kPidRva = 0;
 	inline size_t kAplRva = 0;
-	inline Mutex kEprocessMutex;
+
+	String<WCHAR> GetProcessImageName(int pid);
 	void DrvRegister();
-
-	class ProcInfo
-	{
-	private:
-		PEPROCESS eproc_ = nullptr;
-		String<WCHAR> name_;
-
-		size_t pid_ = 0;
-		size_t parent_pid_ = 0;
-
-		PLIST_ENTRY active_process_links_ = nullptr;
-
-	public:
-		ProcInfo() = default;
-
-		ProcInfo(const ProcInfo& proc) = default;
-		ProcInfo(const PEPROCESS& eproc);
-
-		ProcInfo(const size_t pid);
-
-		ProcInfo& operator=(const ProcInfo& proc);
-
-		PEPROCESS GetPeprocess() const;
-		PEPROCESS GetNextProc() const;
-		PEPROCESS GetPrevProc() const;
-		PLIST_ENTRY GetActiveProcessLinks();
-
-		String<WCHAR> GetName() const;
-		size_t GetPid();
-		size_t GetParentPid() const;
-
-		String<WCHAR> GetProcessImageName() const;
-
-		inline void SetNextEntryProc(const PLIST_ENTRY& entry);
-		inline void SetPrevEntryProc(const PLIST_ENTRY& entry);
-
-		void SetName(const String<WCHAR>& name);
-		void SetPid(const size_t pid);
-		void SetParentPid(const size_t parent_pid);
-
-		void DetachFromProcessList();
-		void JoinToProcessList();
-		bool IsDetached();
-
-	};
 
 }

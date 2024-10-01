@@ -17,7 +17,7 @@ namespace reg
 
 		process::DrvRegister();
 		protect_file::DrvRegister();
-
+		hide_file::FltRegister();
 		ioctl::DrvRegister(driver_object, registry_path);
 
 		return;
@@ -29,10 +29,11 @@ namespace reg
 	{
 		DebugMessage("DriverUnloadRegistered");
 
-		delete kDrvFuncVector;
-		
+		hide_file::FltUnload();
 		process::DrvUnload();
 		protect_file::DrvUnload();
+
+		delete kDrvFuncVector;
 
 		ioctl::DrvUnload(driver_object);
 

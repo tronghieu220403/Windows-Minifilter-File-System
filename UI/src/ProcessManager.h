@@ -5,8 +5,10 @@
 #include <string>
 #include <map>
 #include <unordered_map>
-
 #include <functional> // std::hash
+#include "DriverComm.h"
+
+
 using std::hash;
 using std::wstring;
 
@@ -23,9 +25,10 @@ class ProcessManager {
 private:
     std::map<size_t, ProcessInfo> protected_process_list_;
     std::map<size_t, ProcessInfo> whitelist_process_list_;
+	DriverComm* driver_comm_;
 
 public:
-    ProcessManager();
+    ProcessManager(DriverComm* dc);
     ~ProcessManager();
 
     // Quản lý danh sách bảo vệ process

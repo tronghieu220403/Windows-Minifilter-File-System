@@ -1,6 +1,7 @@
 ﻿#include "FileManager.h"
 
-FileManager::FileManager() {
+FileManager::FileManager(DriverComm* dc) {
+	driver_comm_ = dc;
 	hidden_list_ = {
 	{hash<std::wstring>{}(L"E:\\Download\\Blitz-2.1.206.exe"),{L"E:\\Download\\Blitz-2.1.206.exe", true, true}},
 	{hash<std::wstring>{}(L"E:\\Download\\debug.txt"),{L"E:\\Download\\debug.txt", true, false}},
@@ -24,6 +25,7 @@ void FileManager::AddHiddenFile(const FileInfo& file) {
 	{
 		hidden_list_.insert({ hash_val, file });
 	}
+	driver_comm_->HideFile(file.Path);
 }
 
 void FileManager::AddProtectedFile(const FileInfo& file) {
@@ -32,6 +34,7 @@ void FileManager::AddProtectedFile(const FileInfo& file) {
 	{
 		protected_list_.insert({ hash_val, file });
 	}
+	driver_comm_->ProtectFile(file.Path);
 }
 
 void FileManager::RemoveHiddenFile(const std::wstring& name) {
@@ -40,6 +43,7 @@ void FileManager::RemoveHiddenFile(const std::wstring& name) {
 	{
 		hidden_list_.erase(hash_val);
 	}
+	driver_comm_->UnhideFile(name);
 }
 
 void FileManager::RemoveProtectedFile(const std::wstring& name) {
@@ -48,6 +52,7 @@ void FileManager::RemoveProtectedFile(const std::wstring& name) {
 	{
 		protected_list_.erase(hash_val);
 	}
+	driver_comm_->UnprotectFile(name);
 }
 
 void FileManager::EnableHiddenFile(const std::wstring& name) {
@@ -56,6 +61,7 @@ void FileManager::EnableHiddenFile(const std::wstring& name) {
 	{
 		hidden_list_[hash_val].isEnable = true;
 	}
+
 }
 
 void FileManager::EnableProtectedFile(const std::wstring& name) {

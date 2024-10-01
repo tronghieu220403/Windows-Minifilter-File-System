@@ -6,60 +6,52 @@ namespace process
 	void DrvRegister()
 	{
 		eprocess::DrvRegister();
-		kProcessMutex.Create();
-		kTrustedProcessList = new Vector<size_t>();
-		ppid = new int[300000];
-		::ZeroMemory(ppid, 300000);
+		kTrustedProcessMutex.Create();
+		kTrustedProcessList = new Vector<String<WCHAR>>();
 	}
 
 	void DrvUnload()
 	{
 		delete kTrustedProcessList;
-		delete[] ppid;
 		kTrustedProcessList = nullptr;
-		ppid = nullptr;
 	}
 
-	bool IsTrustedProcess(size_t pid)
+	bool IsTrustedProcess(const String<WCHAR>& name)
 	{
-		if (pid == SYSTEM_PROCESS_ID)
-		{
-			return true;
-		}
 		bool ret = false;
-		kProcessMutex.Lock();
+		kTrustedProcessMutex.Lock();
 		for (size_t i = 0; i < kTrustedProcessList->Size(); i++)
 		{
-			if ((*kTrustedProcessList)[i] == pid)
+			if ((*kTrustedProcessList)[i] == name)
 			{
 				ret = true;
 				break;
 			}
 		}
-		kProcessMutex.Unlock();
+		kTrustedProcessMutex.Unlock();
 		return ret;
 	}
 
-	void AddTrustedProcess(size_t pid)
+	void AddTrustedProcess(const String<WCHAR>& name)
 	{
-		kProcessMutex.Lock();
-		kTrustedProcessList->PushBack(pid);
-		kProcessMutex.Unlock();
+		kTrustedProcessMutex.Lock();
+		kTrustedProcessList->PushBack(name);
+		kTrustedProcessMutex.Unlock();
 		return;
 	}
 
-	void RemoveTrustedProcess(size_t pid)
+	void RemoveTrustedProcess(const String<WCHAR>& name)
 	{
-		kProcessMutex.Lock();
+		kTrustedProcessMutex.Lock();
 		for (size_t i = 0; i < kTrustedProcessList->Size(); i++)
 		{
-			if ((*kTrustedProcessList)[i] == pid)
+			if ((*kTrustedProcessList)[i] == name)
 			{
 				kTrustedProcessList->EraseUnordered(i);
 				break;
 			}
 		}
-		kProcessMutex.Unlock();
+		kTrustedProcessMutex.Unlock();
 		return;
 	}
 

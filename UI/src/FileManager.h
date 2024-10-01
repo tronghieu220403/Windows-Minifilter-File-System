@@ -5,6 +5,8 @@
 #include <string>
 #include <map>
 
+#include "DriverComm.h"
+
 using std::hash;
 
 struct FileInfo {
@@ -20,8 +22,9 @@ class FileManager {
 private:
 	std::map<size_t, FileInfo> hidden_list_;
 	std::map<size_t, FileInfo> protected_list_;
+	DriverComm* driver_comm_;
 public:
-	FileManager();
+	FileManager(DriverComm* dc);
 	~FileManager();
 
 	void AddHiddenFile(const FileInfo& file);

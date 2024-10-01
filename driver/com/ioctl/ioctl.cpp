@@ -65,65 +65,35 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 	{
 	case IOCTL_CMD_CLASS::kHideFile:
 
-		str = cmd->ParseHideFile().file_path;
+		str = cmd->ParseHideFile().path;
 		DebugMessage("Hide file: %ws", str.Data());
 		hide_file::AddFileToHideList(&str);
 		break;
 
 	case IOCTL_CMD_CLASS::kHideDir:
 
-		str = cmd->ParseHideDir().dir_path;
+		str = cmd->ParseHideDir().path;
 		DebugMessage("Hide dir: %ws", str.Data());
 		hide_file::AddDirToHideList(&str);
 		break;
 
 	case IOCTL_CMD_CLASS::kUnhideFile:
 
-		str = cmd->ParseUnhideFile().file_path;
+		str = cmd->ParseUnhideFile().path;
 		DebugMessage("Unhide file: %ws", str.Data());
 		hide_file::DeleteFileFromHideList(&str);
 		break;
 
 	case IOCTL_CMD_CLASS::kUnhideDir:
 
-		str = cmd->ParseUnhideDir().dir_path;
+		str = cmd->ParseUnhideDir().path;
 		DebugMessage("Unhide dir: %ws", str.Data());
 		hide_file::DeleteDirFromHideList(&str);
 		break;
 
-	/*
-	case IOCTL_CMD_CLASS::kHideProcId:
-		pid = cmd->ParseHideProcId().pid;
-		DebugMessage("Hide proc ID: %d", pid);
-		hide_proc::AddProcIdToHideList(pid);
-		break;
-
-	case IOCTL_CMD_CLASS::kUnhideProcId:
-		pid = cmd->ParseHideProcId().pid;
-		DebugMessage("Unhide proc ID: %d", pid);
-		hide_proc::DeleteProcIdFromHideList(pid);
-		break;
-
-	case IOCTL_CMD_CLASS::kHideProcImage:
-
-		break;
-
-	case IOCTL_CMD_CLASS::kUnhideProcImage:
-
-		break;
-	*/
-
-	case IOCTL_CMD_CLASS::kHideReg:
-
-		break;
-
-	case IOCTL_CMD_CLASS::kUnhideReg:
-
-		break;
-
 	case IOCTL_CMD_CLASS::kProctectFile:
 
-		str = cmd->ParseProtectFile().file_path;
+		str = cmd->ParseProtectFile().path;
 		DebugMessage("Protect file: %ws", str.Data());
 		protect_file::AddFileToProtectedList(&str);
 
@@ -131,7 +101,7 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 
 	case IOCTL_CMD_CLASS::kUnproctectFile:
 
-		str = cmd->ParseUnprotectFile().file_path;
+		str = cmd->ParseUnprotectFile().path;
 		DebugMessage("Unprotect file: %ws", str.Data());
 		protect_file::RemoveFileFromProtectedList(&str);
 
@@ -139,7 +109,7 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 
 	case IOCTL_CMD_CLASS::kProctectDir:
 
-		str = cmd->ParseProtectDir().dir_path;
+		str = cmd->ParseProtectDir().path;
 		DebugMessage("Protect dir: %ws", str.Data());
 		protect_file::AddDirToProtectedList(&str);
 
@@ -147,9 +117,66 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 
 	case IOCTL_CMD_CLASS::kUnproctectDir:
 
-		str = cmd->ParseUnprotectDir().dir_path;
+		str = cmd->ParseUnprotectDir().path;
 		DebugMessage("Unprotect dir: %ws", str.Data());
 		protect_file::RemoveDirFromProtectedList(&str);
+		break;
+
+	case IOCTL_CMD_CLASS::kProtectProcImage:
+		break;
+
+	case IOCTL_CMD_CLASS::kUnprotectProcImage:
+		break;
+
+	case IOCTL_CMD_CLASS::kWhitelistProcImage:
+		str = cmd->ParseWhitelistProcImage().path;
+		DebugMessage("Whitelist proc image: %ws", str.Data());
+		process::AddTrustedProcess(str);
+		break;
+
+	case IOCTL_CMD_CLASS::kUnwhitelistProcImage:
+		str = cmd->ParseUnwhitelistProcImage().path;
+		DebugMessage("Unwhitelist proc image: %ws", str.Data());
+		process::RemoveTrustedProcess(str);
+		break;
+
+	case IOCTL_CMD_CLASS::kEnableDriver:
+		DebugMessage("Enable driver");
+		// DO SOMETHING
+		break;
+
+	case IOCTL_CMD_CLASS::kDisableDriver:
+		DebugMessage("Disable driver");
+		// DO SOMETHING
+		break;
+
+	case IOCTL_CMD_CLASS::kEnableFileProtect:
+		protect_file::kEnableProtectFile = true;
+		DebugMessage("Enable protect file");
+		break;
+
+	case IOCTL_CMD_CLASS::kDisableFileProtect:
+		protect_file::kEnableProtectFile = false;
+		DebugMessage("Disable protect file");
+		break;
+
+	case IOCTL_CMD_CLASS::kEnableFileHide:
+		hide_file::kEnableHideFile = true;
+		DebugMessage("Enable hide file");
+
+	case IOCTL_CMD_CLASS::kDisableFileHide:
+		hide_file::kEnableHideFile = false;
+		DebugMessage("Disable hide file");
+		break;
+
+	case IOCTL_CMD_CLASS::kEnableProcProtect:
+		protect_proc::kEnableProcProtect = true;
+		DebugMessage("Enable protect process");
+		break;
+
+	case IOCTL_CMD_CLASS::kDisableProcProtect:
+		protect_proc::kEnableProcProtect = false;
+		DebugMessage("Disable protect process");
 		break;
 
 	default:

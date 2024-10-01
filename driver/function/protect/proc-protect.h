@@ -42,7 +42,7 @@ namespace protect_proc
 	inline Mutex kProcImageMutex = Mutex();
 	inline PVOID kHandleRegistration = nullptr;
 
-	inline bool kEnableProtectProc = false;
+	inline bool kEnableProcProtect = true;
 
 	void DrvRegister();
 	void DrvUnload();

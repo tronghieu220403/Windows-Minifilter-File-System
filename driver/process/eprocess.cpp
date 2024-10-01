@@ -2,94 +2,16 @@
 
 namespace eprocess
 {
-	ProcInfo::ProcInfo(const PEPROCESS& eproc)
-	{
-		eproc_ = eproc; 
-		pid_ = GetPid();
-		active_process_links_ = GetActiveProcessLinks();
-		parent_pid_ = 0;
-	}
 
-	ProcInfo::ProcInfo(const size_t pid)
-	{
-		parent_pid_ = 0;
-		if (KeGetCurrentIrql() != PASSIVE_LEVEL && KeGetCurrentIrql() != APC_LEVEL)
-		{
-			// Debug message to know if this error is happening
-			return;
-		}
-		NTSTATUS status;
-		status = PsLookupProcessByProcessId((HANDLE)pid, (PEPROCESS*)&eproc_);
-		if (NT_SUCCESS(status))
-		{
-			ObDereferenceObject(eproc_);
-			active_process_links_ = PLIST_ENTRY((PUCHAR)eproc_ + kAplRva);
-			return;
-		}
-		eproc_ = nullptr;
-		pid_ = 0;
-	}
-
-	ProcInfo& ProcInfo::operator=(const ProcInfo& proc)
-	{
-		eproc_ = proc.eproc_;
-		pid_ = proc.pid_;
-		active_process_links_ = proc.active_process_links_;
-		parent_pid_ = proc.parent_pid_;
-		return *this;
-	}
-
-	PEPROCESS ProcInfo::GetPeprocess() const
-	{
-		return eproc_;
-	}
-
-
-	PLIST_ENTRY ProcInfo::GetActiveProcessLinks()
-	{
-		if (active_process_links_ == nullptr)
-		{
-			active_process_links_ = (PLIST_ENTRY)((PUCHAR)eproc_ + kAplRva);
-		}
-		return active_process_links_;
-	}
-
-	String<WCHAR> ProcInfo::GetName() const
-	{
-		return name_;
-	}
-
-	size_t ProcInfo::GetPid()
-	{
-		if (pid_ == 0)
-		{
-			if (eproc_ != nullptr)
-			{
-				pid_ = *(size_t*)((PUCHAR)eproc_ + kPidRva);
-			}
-		}
-		return pid_;
-	}
-
-	size_t ProcInfo::GetParentPid() const
-	{
-		return parent_pid_;
-	}
-
-	String<WCHAR> ProcInfo::GetProcessImageName() const
+	String<WCHAR> GetProcessImageName(int pid)
 	{
 		String<WCHAR> process_image_name;
 		NTSTATUS status = STATUS_UNSUCCESSFUL;
 		ULONG returned_length;
 		HANDLE h_process = NULL;
 
-		if (eproc_ == NULL || pid_ == NULL)
-		{
-			return String<WCHAR>();
-		}
-
 		PEPROCESS eproc;
-		status = PsLookupProcessByProcessId((HANDLE)pid_, &eproc);
+		status = PsLookupProcessByProcessId((HANDLE)pid, &eproc);
 
 		if (!NT_SUCCESS(status))
 		{
@@ -145,90 +67,6 @@ namespace eprocess
 		ZwClose(h_process);
 
 		return process_image_name;
-	}
-
-
-	PEPROCESS ProcInfo::GetNextProc() const
-	{
-		LIST_ENTRY* apl = active_process_links_->Flink;
-		return (PEPROCESS)((PUCHAR)apl - kAplRva);
-	}
-
-	PEPROCESS ProcInfo::GetPrevProc() const
-	{
-		LIST_ENTRY* apl = active_process_links_->Blink;
-		return (PEPROCESS)((PUCHAR)apl - kAplRva);
-	}
-
-	void ProcInfo::SetNextEntryProc(const PLIST_ENTRY& entry)
-	{
-		active_process_links_->Flink = entry;
-	}
-
-	void ProcInfo::SetPrevEntryProc(const PLIST_ENTRY& entry)
-	{
-		active_process_links_->Blink = entry;
-	}
-
-	void ProcInfo::SetName(const String<WCHAR>& name)
-	{
-		name_ = name;
-	}
-
-	void ProcInfo::SetPid(const size_t pid)
-	{
-		pid_ = pid;
-	}
-
-	void ProcInfo::SetParentPid(const size_t parent_pid)
-	{
-		parent_pid_ = parent_pid;
-	}
-
-	void ProcInfo::DetachFromProcessList()
-	{
-		kEprocessMutex.Lock();
-		if (IsDetached() == false)
-		{
-			// What ever you do, the value-assign must be as quick as possible or PatchGuard come for BSOD :)))
-			PLIST_ENTRY cur = GetActiveProcessLinks();
-			RemoveEntryList(cur);
-			SetPrevEntryProc(cur);
-			SetNextEntryProc(cur);
-		}
-		kEprocessMutex.Unlock();
-	}
-
-	void ProcInfo::JoinToProcessList()
-	{
-		kEprocessMutex.Lock();
-		if (IsDetached())
-		{
-			// What if SYSTEM_PROCESS_ID is detached? We will have to use ZwQueryObject or PsLookupProcessByProcessId to find a process that is not detached
-			ProcInfo proc(ProcInfo(ProcInfo(SYSTEM_PROCESS_ID).GetPrevProc()).GetPrevProc());
-			ProcInfo next_proc(proc.GetNextProc());
-			PLIST_ENTRY cur = GetActiveProcessLinks();
-			PLIST_ENTRY prev = proc.GetActiveProcessLinks();
-			PLIST_ENTRY next = prev->Flink;
-			// What ever you do, the value-assign must be as quick as possible or PatchGuard come for BSOD :)))
-			InsertTailList(prev, cur);
-			/*
-			cur->Blink = prev;
-			cur->Flink = next;
-			prev->Flink = cur;
-			next->Blink = cur;
-			*/
-		}
-		kEprocessMutex.Unlock();
-	}
-
-	bool ProcInfo::IsDetached()
-	{
-		if (GetNextProc() == GetPeprocess() && GetPrevProc() == GetPeprocess())
-		{
-			return true;
-		}
-		return false;
 	}
 
 	size_t GetAplRva()
@@ -292,7 +130,6 @@ namespace eprocess
 	{
 		kPidRva = GetPidRva();
 		kAplRva = GetAplRva();
-		kEprocessMutex.Create();
 	}
 }
 

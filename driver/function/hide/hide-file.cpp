@@ -134,6 +134,11 @@ namespace hide_file
         {
             return FLT_POSTOP_FINISHED_PROCESSING;
         }
+        
+        if (flt::IsTrustedRequestor(data) == true)
+        {
+            return FLT_POSTOP_FINISHED_PROCESSING;
+        }
 
         if (data->Iopb->MinorFunction != IRP_MN_QUERY_DIRECTORY)
         {

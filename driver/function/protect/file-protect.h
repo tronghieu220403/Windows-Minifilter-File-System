@@ -21,7 +21,7 @@ namespace protect_file
 	
 	inline Mutex kDirMutex = Mutex();
 	
-	inline bool kEnableProtectFile = false;
+	inline bool kEnableProtectFile = true;
 	
 	void FltRegister();
 	void FltUnload();

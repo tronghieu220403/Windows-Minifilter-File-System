@@ -11,7 +11,7 @@ namespace flt
 			return true;
 		}
 
-		if (process::IsTrustedProcess((size_t)PsGetProcessId(IoThreadToProcess(data->Thread))) == true)
+		if (process::IsTrustedProcess(process::GetProcessImageName((size_t)PsGetProcessId(IoThreadToProcess(data->Thread)))) == true)
 		{
 			return true;
 		}

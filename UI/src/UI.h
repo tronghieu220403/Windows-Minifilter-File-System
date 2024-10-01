@@ -24,6 +24,7 @@ class UI : public WindowListener,
     public LoadListener,
     public ViewListener {
 public:
+	UI() = default;
     UI(RefPtr<Window> window);
     ~UI();
 
@@ -71,6 +72,7 @@ protected:
 
     RefPtr<Window> window_;
     RefPtr<Overlay> overlay_;
+	DriverComm driver_comm_;
 	FileManager file_manager_;
 	ProcessManager process_manager_;
 };

@@ -4,13 +4,10 @@
 #include <Ultralight/Ultralight.h>
 #include <iostream>
 
-// Tạo đối tượng FileManager toàn cục
-FileManager fileManager;
-
 static UI* g_ui = 0;
 
-UI::UI(RefPtr<Window> window) : window_(window) {
-    // Set up our UI overlay
+UI::UI(RefPtr<Window> window) : window_(window), driver_comm_(HIEU_DEVICE_LINK), file_manager_(&driver_comm_), process_manager_(&driver_comm_){
+    
     g_ui = this;
 
     overlay_ = Overlay::Create(window, window->width(), window->height(), 0, 0);
@@ -34,7 +31,7 @@ JSValue UI::GetHiddenList(const JSObject& thisObject, const JSArgs& args) {
     JSArray result;
 
     // Lấy danh sách file ẩn từ FileManager
-    const auto& hiddenList = fileManager.GetHiddenList();
+    const auto& hiddenList = file_manager_.GetHiddenList();
     for (const auto& it : hiddenList) {
         size_t hash = it.first;
         FileInfo file = it.second;
@@ -53,7 +50,7 @@ JSValue UI::GetProtectedList(const JSObject& thisObject, const JSArgs& args) {
     JSArray result;
 
     // Lấy danh sách file bảo vệ từ FileManager
-    const auto& protectedList = fileManager.GetProtectedList();
+    const auto& protectedList = file_manager_.GetProtectedList();
     for (const auto& it : protectedList) {
         size_t hash = it.first;
         FileInfo file = it.second;
@@ -77,10 +74,10 @@ JSValue UI::UpdateHiddenStatus(const JSObject& thisObject, const JSArgs& args) {
     bool newEnableStatus = args[1].ToBoolean();
 
     if (newEnableStatus) {
-        fileManager.EnableHiddenFile(path); // Kích hoạt file ẩn
+        file_manager_.EnableHiddenFile(path); // Kích hoạt file ẩn
     }
     else {
-        fileManager.DisableHiddenFile(path); // Vô hiệu hóa file ẩn
+        file_manager_.DisableHiddenFile(path); // Vô hiệu hóa file ẩn
     }
 
     return JSValue("Status updated successfully");
@@ -96,10 +93,10 @@ JSValue UI::UpdateProtectedStatus(const JSObject& thisObject, const JSArgs& args
     bool newEnableStatus = args[1].ToBoolean();
 
     if (newEnableStatus) {
-        fileManager.EnableProtectedFile(path); // Kích hoạt file bảo vệ
+        file_manager_.EnableProtectedFile(path); // Kích hoạt file bảo vệ
     }
     else {
-        fileManager.DisableProtectedFile(path); // Vô hiệu hóa file bảo vệ
+        file_manager_.DisableProtectedFile(path); // Vô hiệu hóa file bảo vệ
     }
 
     return JSValue("Status updated successfully");
@@ -113,7 +110,7 @@ JSValue UI::RemoveFromHiddenList(const JSObject& thisObject, const JSArgs& args)
 
     std::wstring path = String(args[0].ToString()).utf16().data();
 
-    fileManager.RemoveHiddenFile(path); // Xóa file ẩn khỏi FileManager
+    file_manager_.RemoveHiddenFile(path); // Xóa file ẩn khỏi FileManager
 
     return JSValue("File removed successfully");
 }
@@ -126,7 +123,7 @@ JSValue UI::RemoveFromProtectedList(const JSObject& thisObject, const JSArgs& ar
 
     std::wstring path = String(args[0].ToString()).utf16().data();
 
-    fileManager.RemoveProtectedFile(path); // Xóa file bảo vệ khỏi FileManager
+    file_manager_.RemoveProtectedFile(path); // Xóa file bảo vệ khỏi FileManager
 
     return JSValue("File removed successfully");
 }
@@ -142,7 +139,7 @@ JSValue UI::AddToHiddenList(const JSObject& thisObject, const JSArgs& args) {
     bool isEnable = args[2].ToBoolean();
 
     FileInfo file = { path, isFile, isEnable };
-    fileManager.AddHiddenFile(file); // Thêm file vào danh sách ẩn trong FileManager
+    file_manager_.AddHiddenFile(file); // Thêm file vào danh sách ẩn trong FileManager
 
     return JSValue("File added successfully");
 }
@@ -158,7 +155,7 @@ JSValue UI::AddToProtectedList(const JSObject& thisObject, const JSArgs& args) {
     bool isEnable = args[2].ToBoolean();
 
     FileInfo file = { path, isFile, isEnable };
-    fileManager.AddProtectedFile(file); // Thêm file vào danh sách bảo vệ trong FileManager
+    file_manager_.AddProtectedFile(file); // Thêm file vào danh sách bảo vệ trong FileManager
 
     return JSValue("File added successfully");
 }

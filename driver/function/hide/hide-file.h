@@ -22,7 +22,7 @@ namespace hide_file
 	extern inline Mutex kFileMutex = Mutex();
 	extern inline Mutex kDirMutex = Mutex();
 
-	extern inline bool kEnableHideFile = false;
+	extern inline bool kEnableHideFile = true;
 
 	void FltRegister();
 	void FltUnload();

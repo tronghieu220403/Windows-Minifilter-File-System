@@ -11,7 +11,6 @@
 #include "../../function/protect/file-protect.h"
 #include "../../function/protect/proc-protect.h"
 #include "../../function/hide/hide-file.h"
-#include "../../function/hide/hide-proc.h"
 #include "common.h"
 
 inline UNICODE_STRING DEVICE_NAME = RTL_CONSTANT_STRING(L"\\Device\\HieuDevice");
