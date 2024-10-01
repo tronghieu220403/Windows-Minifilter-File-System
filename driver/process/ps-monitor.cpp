@@ -67,7 +67,7 @@ namespace process
 	{
 		NTSTATUS status;
 		ULONG returned_len;
-		HANDLE h_process;
+		HANDLE h_process = nullptr;
 		PEPROCESS e_process;
 		UNICODE_STRING name;
 
@@ -91,6 +91,7 @@ namespace process
 			&returned_len);
 
 		if (STATUS_INFO_LENGTH_MISMATCH != status) {
+			ZwClose(h_process);
 			return String<WCHAR>();
 		}
 
@@ -106,11 +107,13 @@ namespace process
 
 		if (!NT_SUCCESS(status))
 		{
+			ZwClose(h_process);
 			return String<WCHAR>();
 		}
 		
 		String<WCHAR> process_image_name((PUNICODE_STRING)buffer.Data());
 
+		ZwClose(h_process);
 		return process_image_name;
 	}
 }
