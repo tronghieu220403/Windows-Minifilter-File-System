@@ -10,6 +10,7 @@ namespace hide_file
         kFileMutex.Create();
         kDirMutex.Create();
         reg::kFltFuncVector->PushBack({ IRP_MJ_DIRECTORY_CONTROL, (PFLT_PRE_OPERATION_CALLBACK)PreDirControlOperation, (PFLT_POST_OPERATION_CALLBACK)PostDirControlOperation });
+        DebugMessage("hide_file FltRegister completed successfully.");
         return;
     }
 
@@ -171,7 +172,13 @@ namespace hide_file
 
             info_class = data->Iopb->Parameters.DirectoryControl.QueryDirectory.FileInformationClass;
 
-            root = flt::GetFileFullPathName(data).Data();
+            root = flt::GetFileFullPathName(data);
+            /*
+            if (root.Find(L"Downloads") == static_cast<size_t>(-1))
+            {
+                __leave;
+            }
+            */
 			if (root.Size() == 0)
 			{
 				__leave;
@@ -269,6 +276,8 @@ namespace hide_file
         flt::FileInfoShort prev_info;
         flt::FileInfoShort next_info;
 
+        //DebugMessage("Root path: %ws", root->Data());
+
         bool set_prev;
 
         if (!info.IsNull())
@@ -289,12 +298,15 @@ namespace hide_file
                 if ((IsHiddenFile(&full_path) == true && !FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY)) ||
                     (IsHiddenDir(&full_path) == true && (FlagOn(info.GetFileAttributes(), FILE_ATTRIBUTE_DIRECTORY) || info.GetFileAttributes() == 0)))
                 {
+                    DebugMessage("Hiding path: %ws", full_path.Data());
+
                     if (!prev_info.IsNull())
                     {
                         if (info.GetNextEntryOffset() != 0)
                         {
                             prev_info.SetNextEntryOffset(prev_info.GetNextEntryOffset() + info.GetNextEntryOffset());
                             RtlFillMemory(info.GetBaseAddr(), info.Length(), 0);
+                            set_prev = false;
                         }
                         else
                         {
