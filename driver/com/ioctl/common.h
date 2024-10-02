@@ -117,7 +117,8 @@ namespace ioctl
 		::MemCopy((char*)ioctlCmd->data, (char*)cmd->path.Data(), ioctlCmd->data_len);
 		return ioctlCmd;
 	}
-
+	
+	/*
 	// Các hàm Flatten cho chuỗi (file và thư mục)
 	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_HIDE_FILE* cmd) { return FlattenIoctlCmd(cmd, kHideFile); }
 	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_UNHIDE_FILE* cmd) { return FlattenIoctlCmd(cmd, kUnhideFile); }
@@ -139,4 +140,5 @@ namespace ioctl
 	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_DISABLE_FILE_PROTECT* cmd) { return FlattenIoctlCmd(cmd, kDisableFileProtect); }
 	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_ENABLE_PROC_PROTECT* cmd) { return FlattenIoctlCmd(cmd, kEnableProcProtect); }
 	inline IOCTL_CMD* FlattenIoctlCmd(IOCTL_CMD_DISABLE_PROC_PROTECT* cmd) { return FlattenIoctlCmd(cmd, kDisableProcProtect); }
-}
+	*/
+	}

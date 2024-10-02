@@ -79,7 +79,7 @@ namespace protect_file
 			PFILE_OBJECT file_object;
 			IO_STATUS_BLOCK io_status_block;
 			OBJECT_ATTRIBUTES oa;
-			UNICODE_STRING uni_str = {name.Size() * 2, name.Size() * 2, name.Data()};
+			UNICODE_STRING uni_str = {(USHORT)(name.Size() * 2), (USHORT)(name.Size() * 2), name.Data()};
 			
 			InitializeObjectAttributes(&oa,
 				&uni_str,
