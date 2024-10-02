@@ -150,16 +150,6 @@ namespace hide_file
             return FLT_POSTOP_FINISHED_PROCESSING;
         }
 
-        /*
-        * FltGetFileNameInformation cannot get file name information if the TopLevelIrp field of the current thread is not NULL, because the resulting file system recursion could cause deadlocks or stack overflows. (For more information about this issue, see IoGetTopLevelIrp.)
-        * FltGetFileNameInformation cannot get file name information in the paging I/O path.
-        * FltGetFileNameInformation cannot get file name information in the post-close path.
-        * FltGetFileNameInformation cannot get the short name of a file in the pre-create path.
-        */
-        if (FlagOn(data->Iopb->IrpFlags, IRP_PAGING_IO) || FlagOn(data->Iopb->IrpFlags, IRP_SYNCHRONOUS_PAGING_IO) || IoGetTopLevelIrp()) //IRP_NOCACHE
-        {
-            return FLT_POSTOP_FINISHED_PROCESSING;
-        }
 
         if (flt::IsTrustedRequestor(data) == true)
         {
@@ -182,6 +172,10 @@ namespace hide_file
             info_class = data->Iopb->Parameters.DirectoryControl.QueryDirectory.FileInformationClass;
 
             root = flt::GetFileFullPathName(data).Data();
+			if (root.Size() == 0)
+			{
+				__leave;
+			}
 
             if (root[root.Size() - 1] != L'\\')
             {
