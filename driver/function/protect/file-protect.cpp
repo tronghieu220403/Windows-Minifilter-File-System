@@ -22,16 +22,6 @@ namespace protect_file
 		delete kProtectedDirList;
 	}
 
-	void DrvRegister()
-	{
-
-	}
-
-	void DrvUnload()
-	{
-
-	}
-
 	FLT_PREOP_CALLBACK_STATUS PreOperation(_Inout_ PFLT_CALLBACK_DATA data, _In_ PCFLT_RELATED_OBJECTS flt_objects, _Flt_CompletionContext_Outptr_ PVOID* completion_context)
 	{
 		UNREFERENCED_PARAMETER(completion_context);
@@ -57,7 +47,7 @@ namespace protect_file
 			goto return_success_no_callback;
 		}
 
-		if (data->Iopb->MajorFunction != IRP_MJ_CREATE)
+		if (data->Iopb->MajorFunction != IRP_MJ_CREATE && data->Iopb->MajorFunction != IRP_MJ_SET_INFORMATION)
 		{
 			goto return_success_no_callback;
 		}

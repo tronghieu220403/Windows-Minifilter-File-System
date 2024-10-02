@@ -90,7 +90,7 @@ private:
 
     std::wstring GetDosPath(const std::wstring& wstr);
 
-    void SendCommand(IOCTL_CMD_CLASS cmdClass, const std::wstring& path);
+	bool SendCommand(IOCTL_CMD_CLASS cmdClass, const std::wstring& path);
 };
 
 #endif // DRIVERCOMM_H

@@ -2,6 +2,7 @@
 
 ProcessManager::ProcessManager(DriverComm* dc) {
 	driver_comm_ = dc;
+    /*
     // Khởi tạo danh sách bảo vệ tiến trình (ví dụ)
     protected_process_list_ = {
         {hash<wstring>{}(L"C:\\Windows\\System32\\notepad.exe"), {L"C:\\Windows\\System32\\notepad.exe", true}},
@@ -13,6 +14,7 @@ ProcessManager::ProcessManager(DriverComm* dc) {
         {hash<std::wstring>{}(L"C:\\Windows\\System32\\svchost.exe"), {L"C:\\Windows\\System32\\svchost.exe", true}},
         {hash<std::wstring>{}(L"C:\\Program Files\\MyApp\\trustedapp.exe"), {L"C:\\Program Files\\MyApp\\trustedapp.exe", true}}
     };
+    */
 }
 
 ProcessManager::~ProcessManager() {

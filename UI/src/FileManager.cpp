@@ -2,6 +2,7 @@
 
 FileManager::FileManager(DriverComm* dc) {
 	driver_comm_ = dc;
+	/*
 	hidden_list_ = {
 	{hash<std::wstring>{}(L"E:\\Download\\Blitz-2.1.206.exe"),{L"E:\\Download\\Blitz-2.1.206.exe", true, true}},
 	{hash<std::wstring>{}(L"E:\\Download\\debug.txt"),{L"E:\\Download\\debug.txt", true, false}},
@@ -12,6 +13,7 @@ FileManager::FileManager(DriverComm* dc) {
 	{hash<std::wstring>{}(L"E:\\Download\\debug.txt"),{L"E:\\Download\\debug.txt", true, true}},
 	{hash<std::wstring>{}(L"C:\\Users\\hieu_admin\\AppData\\Local"),{L"C:\\Users\\hieu_admin\\AppData\\Local", false, true}}
 	};
+	*/
 }
 
 FileManager::~FileManager() {

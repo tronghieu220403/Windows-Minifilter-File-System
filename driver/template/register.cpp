@@ -16,8 +16,6 @@ namespace reg
 		kDrvFuncVector = new Vector<void*>();
 
 		process::DrvRegister();
-		protect_file::DrvRegister();
-		hide_file::FltRegister();
 		ioctl::DrvRegister(driver_object, registry_path);
 
 		return;
@@ -31,7 +29,6 @@ namespace reg
 
 		hide_file::FltUnload();
 		process::DrvUnload();
-		protect_file::DrvUnload();
 
 		delete kDrvFuncVector;
 
@@ -48,7 +45,6 @@ namespace reg
 		kFltFuncVector = new Vector<IrpMjFunc>();
 		
 		protect_file::FltRegister();
-
 		hide_file::FltRegister();
 
 		return;
@@ -59,7 +55,6 @@ namespace reg
 		delete kFltFuncVector;
 
 		protect_file::FltUnload();
-
 		hide_file::FltUnload();
 
 		return;

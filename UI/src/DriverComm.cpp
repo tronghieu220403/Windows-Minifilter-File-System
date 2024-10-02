@@ -119,11 +119,16 @@ std::wstring DriverComm::GetDosPath(const std::wstring& wstr) {
     return dos_name + wstr.substr(wstr.find_first_of(L'\\'));
 }
 
-void DriverComm::SendCommand(IOCTL_CMD_CLASS cmdClass, const std::wstring& path) {
+bool DriverComm::SendCommand(IOCTL_CMD_CLASS cmdClass, const std::wstring& path) {
     DWORD bytes_returned = 0;
     CHAR out_buffer[128] = { 0 };
-
-    std::wstring dos_path = GetDosPath(path);
+	std::wstring dos_path;
+    if (!path.empty()) {
+        dos_path = GetDosPath(path);
+        if (dos_path.empty()) {
+            return false;
+        }
+    }
     std::vector<char> in_buffer(sizeof(IOCTL_CMD) + dos_path.size() * sizeof(WCHAR));
 
     IOCTL_CMD* cmd = (IOCTL_CMD*)&in_buffer[0];
@@ -132,4 +137,5 @@ void DriverComm::SendCommand(IOCTL_CMD_CLASS cmdClass, const std::wstring& path)
     memcpy(cmd->data, dos_path.data(), dos_path.size() * sizeof(WCHAR));
 
     status = DeviceIoControl(device, IOCTL_HIEU, &in_buffer[0], in_buffer.size() * sizeof(char), out_buffer, sizeof(out_buffer), &bytes_returned, (LPOVERLAPPED)NULL);
+	return status != NULL;
 }

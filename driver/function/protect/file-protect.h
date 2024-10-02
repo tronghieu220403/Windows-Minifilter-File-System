@@ -26,9 +26,6 @@ namespace protect_file
 	void FltRegister();
 	void FltUnload();
 
-	void DrvRegister();
-	void DrvUnload();
-
 	bool IsProtectedFile(const String<WCHAR>* file_name);
 	void AddFileToProtectedList(const String<WCHAR>* file_name);
 	void RemoveFileFromProtectedList(const String<WCHAR>* file_name);
