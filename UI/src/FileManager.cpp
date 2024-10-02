@@ -27,7 +27,14 @@ void FileManager::AddHiddenFile(const FileInfo& file) {
 	{
 		hidden_list_.insert({ hash_val, file });
 	}
-	driver_comm_->HideFile(file.Path);
+	if (file.isFile)
+	{
+		driver_comm_->HideFile(file.Path);
+	}
+	else
+	{
+		driver_comm_->HideDir(file.Path);
+	}
 }
 
 void FileManager::AddProtectedFile(const FileInfo& file) {
@@ -36,25 +43,46 @@ void FileManager::AddProtectedFile(const FileInfo& file) {
 	{
 		protected_list_.insert({ hash_val, file });
 	}
-	driver_comm_->ProtectFile(file.Path);
+	if (file.isFile)
+	{
+		driver_comm_->ProtectFile(file.Path);
+	}
+	else
+	{
+		driver_comm_->ProtectDir(file.Path);
+	}
 }
 
-void FileManager::RemoveHiddenFile(const std::wstring& name) {
+void FileManager::RemoveHiddenFile(const std::wstring& name, bool is_file) {
 	size_t hash_val = hash<std::wstring>{}(name);
 	if (hidden_list_.find(hash_val) != hidden_list_.end())
 	{
 		hidden_list_.erase(hash_val);
 	}
-	driver_comm_->UnhideFile(name);
+	if (is_file)
+	{
+		driver_comm_->UnhideFile(name);
+	}
+	else
+	{
+		driver_comm_->UnhideDir(name);
+	}
 }
 
-void FileManager::RemoveProtectedFile(const std::wstring& name) {
+void FileManager::RemoveProtectedFile(const std::wstring& name, bool is_file) {
 	size_t hash_val = hash<std::wstring>{}(name);
 	if (protected_list_.find(hash_val) != protected_list_.end())
 	{
 		protected_list_.erase(hash_val);
 	}
-	driver_comm_->UnprotectFile(name);
+	if (is_file)
+	{
+		driver_comm_->UnprotectFile(name);
+	}
+	else
+	{
+		driver_comm_->UnprotectDir(name);
+	}
 }
 
 void FileManager::EnableHiddenFile(const std::wstring& name) {

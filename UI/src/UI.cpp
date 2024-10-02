@@ -110,7 +110,7 @@ JSValue UI::RemoveFromHiddenList(const JSObject& thisObject, const JSArgs& args)
 
     std::wstring path = String(args[0].ToString()).utf16().data();
 
-    file_manager_.RemoveHiddenFile(path); // Xóa file ẩn khỏi FileManager
+    file_manager_.RemoveHiddenFile(path, args[1].ToBoolean()); // Xóa file ẩn khỏi FileManager
 
     return JSValue("File removed successfully");
 }
@@ -123,7 +123,7 @@ JSValue UI::RemoveFromProtectedList(const JSObject& thisObject, const JSArgs& ar
 
     std::wstring path = String(args[0].ToString()).utf16().data();
 
-    file_manager_.RemoveProtectedFile(path); // Xóa file bảo vệ khỏi FileManager
+    file_manager_.RemoveProtectedFile(path, args[1].ToBoolean()); // Xóa file bảo vệ khỏi FileManager
 
     return JSValue("File removed successfully");
 }

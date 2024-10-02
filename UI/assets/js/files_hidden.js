@@ -113,7 +113,7 @@ function deleteHiddenRows() {
     selectedRows.forEach(row => {
         const index = row.dataset.index;
         const file = hiddenList[index];
-        RemoveFromHiddenList(file.path); // Gọi hàm C++ để xóa khỏi danh sách ẩn
+        RemoveFromHiddenList(file.path, file.isFile); // Gọi hàm C++ để xóa khỏi danh sách ẩn
     });
     hiddenList = hiddenList.filter((_, index) => !indexesToRemove.includes(index)); // Xóa các mục khỏi mảng
     loadHiddenTable(); // Cập nhật bảng
