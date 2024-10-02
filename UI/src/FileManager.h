@@ -32,8 +32,8 @@ public:
 	void AddHiddenFile(const FileInfo& file);
 	void AddProtectedFile(const FileInfo& file);
 
-	void RemoveHiddenFile(const std::wstring& name);
-	void RemoveProtectedFile(const std::wstring& name);
+	void RemoveHiddenFile(const std::wstring& name, bool is_file);
+	void RemoveProtectedFile(const std::wstring& name, bool is_file);
 
 	void EnableHiddenFile(const std::wstring& name);
 	void EnableProtectedFile(const std::wstring& name);

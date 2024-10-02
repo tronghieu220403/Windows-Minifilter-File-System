@@ -113,7 +113,7 @@ function deleteProtectedRows() {
     selectedRows.forEach(row => {
         const index = row.dataset.index;
         const file = protectedFilesAndFolders[index];
-        RemoveFromProtectedList(file.path); // Gọi hàm C++ để xóa khỏi danh sách bảo vệ
+        RemoveFromProtectedList(file.path, file.isFile); // Gọi hàm C++ để xóa khỏi danh sách bảo vệ
     });
     protectedFilesAndFolders = protectedFilesAndFolders.filter((_, index) => !indexesToRemove.includes(index)); // Xóa các mục khỏi mảng
     loadProtectedTable(); // Cập nhật bảng
