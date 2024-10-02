@@ -27,12 +27,9 @@ namespace reg
 	{
 		DebugMessage("DriverUnloadRegistered");
 
-		hide_file::FltUnload();
 		process::DrvUnload();
-
-		delete kDrvFuncVector;
-
 		ioctl::DrvUnload(driver_object);
+		delete kDrvFuncVector;
 
 		return;
 	}
@@ -52,10 +49,9 @@ namespace reg
 
 	void FltUnload()
 	{
-		delete kFltFuncVector;
-
 		protect_file::FltUnload();
 		hide_file::FltUnload();
+		delete kFltFuncVector;
 
 		return;
 	}
