@@ -121,33 +121,7 @@ namespace protect_file
 		}
 
 		ACCESS_MASK flag;
-		PVOID bufffer;
-		ULONG create_disposition;
 
-		// Test create
-		if (data->Iopb->MajorFunction == IRP_MJ_CREATE)
-		{
-			/*
-			DebugMessage("[+] IRP_MJ_CREATE operation\n");
-			DebugMessage("File name %wS", name.Data());
-			if (is_dir)
-			{
-				DebugMessage("Directory\n");
-			}
-			else
-			{
-				DebugMessage("File\n");
-			}
-			flag = data->Iopb->Parameters.Create.SecurityContext->DesiredAccess;
-			create_disposition = (data->Iopb->Parameters.Create.Options >> 24) & 0x000000FF;
-			DebugMessage("Create Disposition: %d\n", create_disposition);
-			DebugMessage("Desired Access: %x\n", flag);
-			DebugMessage("\n");
-			*/
-		}
-		goto return_success_no_callback;
-
-		/*
 		if ((is_dir && IsProtectedDir(&name)) || (!is_dir && IsProtectedFile(&name)))
 		{
 			switch (data->Iopb->MajorFunction)
@@ -184,7 +158,6 @@ namespace protect_file
 				goto return_success_no_callback;
 			}
 		}
-		*/
 
 		return_success_no_callback:
 			return FLT_PREOP_SUCCESS_NO_CALLBACK;
