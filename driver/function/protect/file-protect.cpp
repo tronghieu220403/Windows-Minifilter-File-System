@@ -97,15 +97,15 @@ namespace protect_file
 				FltClose(file_handle);
 				if (!NT_SUCCESS(status))
 				{
-					DebugMessage("[+] FltIsDirectory failed with status %x for file %wS in line %d, function %s,", status, name.Data(), __LINE__, __FUNCTION__);
-					DebugMessage("\n");
+					//DebugMessage("[+] FltIsDirectory failed with status %x for file %wS in line %d, function %s,", status, name.Data(), __LINE__, __FUNCTION__);
+					//DebugMessage("\n");
 					goto return_success_no_callback;
 				}
 			}
 			else
 			{
-				DebugMessage("[+] FltCreateFileEx failed with statux %x for file %wS in line %d, function %s,", status, name.Data(), __LINE__, __FUNCTION__);
-				DebugMessage("\n");
+				//DebugMessage("[+] FltCreateFileEx failed with statux %x for file %wS in line %d, function %s,", status, name.Data(), __LINE__, __FUNCTION__);
+				//DebugMessage("\n");
 				goto return_success_no_callback;
 			}
 		}

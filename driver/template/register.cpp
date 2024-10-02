@@ -49,9 +49,9 @@ namespace reg
 
 	void FltUnload()
 	{
-		protect_file::FltUnload();
-		hide_file::FltUnload();
 		delete kFltFuncVector;
+		hide_file::FltUnload();
+		protect_file::FltUnload();
 
 		return;
 	}

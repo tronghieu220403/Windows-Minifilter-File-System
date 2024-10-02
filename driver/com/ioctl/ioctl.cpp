@@ -36,9 +36,8 @@ NTSTATUS ioctl::DrvRegister(PDRIVER_OBJECT driver_object, PUNICODE_STRING regist
 NTSTATUS ioctl::DrvUnload(PDRIVER_OBJECT driver_object)
 {
 	DebugMessage("DriverUnload: Unload\n");
-
-	IoDeleteDevice(driver_object->DeviceObject);
 	IoDeleteSymbolicLink(&DEVICE_SYMBOLIC_NAME);
+	IoDeleteDevice(driver_object->DeviceObject);
 
 	return STATUS_SUCCESS;
 }
@@ -170,6 +169,7 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 	case IOCTL_CMD_CLASS::kEnableFileHide:
 		hide_file::kEnableHideFile = true;
 		DebugMessage("Enable hide file");
+		break;
 
 	case IOCTL_CMD_CLASS::kDisableFileHide:
 		hide_file::kEnableHideFile = false;
