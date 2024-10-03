@@ -65,7 +65,7 @@ namespace hide_file
         kDirMutex.Lock();
         for (int i = 0; i < kHideDirList->Size(); i++)
         {
-            if ((*kHideDirList)[i] == *dir_name)
+            if ((*kHideDirList)[i].HasPrefix(*dir_name))
             {
                 ret = true;
                 break;

@@ -207,10 +207,10 @@ NTSTATUS ioctl::MajorFunction(PDEVICE_OBJECT device_object, PIRP irp)
 	switch (stackLocation->MajorFunction)
 	{
 	case IRP_MJ_CREATE:
-		DebugMessage("Handle to symbolink link %wZ opened", DEVICE_SYMBOLIC_NAME);
+		DebugMessage("Handle to symbolic link %wZ opened", DEVICE_SYMBOLIC_NAME);
 		break;
 	case IRP_MJ_CLOSE:
-		DebugMessage("Handle to symbolink link %wZ closed", DEVICE_SYMBOLIC_NAME);
+		DebugMessage("Handle to symbolic link %wZ closed", DEVICE_SYMBOLIC_NAME);
 		break;
 	default:
 		break;
