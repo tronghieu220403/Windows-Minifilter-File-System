@@ -249,6 +249,8 @@
     <ClInclude Include="com\comport\comport.h" />
     <ClInclude Include="com\ioctl\common.h" />
     <ClInclude Include="com\ioctl\ioctl.h" />
+    <ClInclude Include="std\algo\hash.h" />
+    <ClInclude Include="std\algo\kmp.h" />
     <ClInclude Include="std\file\file.h" />
     <ClInclude Include="function\hide\hide-file.h" />
     <ClInclude Include="function\protect\file-protect.h" />

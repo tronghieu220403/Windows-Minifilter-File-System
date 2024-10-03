@@ -1,280 +1,695 @@
 #pragma once
-/*
-Generate a map library like std::map but using red black tree in it implementation and do not use std::map. The new library must have these following function: delete, instert, at. It must be worked on the Windows kernel mode driver. Write full code for me.
-*/
 
-// TODO: write contain() function to check if the key exists
-// TODO: write clear() function to delete all nodes
-// TODO: write a destructor to delete all nodes
-// TODO: write a copy constructor
-// TODO: write an assignment operator
-// TODO: write a move constructor
+#include "../memory/memory.h"
+#include "../memory/pair.h"
 
-template <typename Key, typename Value>
-class RedBlackTreeMap {
+// Custom Less comparator
+template <typename T>
+struct Less {
+public:
+    bool operator()(const T& lhs, const T& rhs) const {
+        return lhs < rhs;
+    }
+};
+
+// ReverseIterator implementation
+template <typename Iterator>
+class ReverseIterator {
+public:
+    using iterator_type = Iterator;
+    using difference_type = typename Iterator::difference_type;
+    using reference = typename Iterator::reference;
+    using pointer = typename Iterator::pointer;
+
+    ReverseIterator() : current_() {}
+    explicit ReverseIterator(iterator_type x) : current_(x) {}
+    ReverseIterator(const ReverseIterator& other) : current_(other.current_) {}
+
+    iterator_type base() const { return current_; }
+
+    reference operator*() const {
+        iterator_type tmp = current_;
+        --tmp;
+        return *tmp;
+    }
+
+    pointer operator->() const { return &(operator*()); }
+
+    ReverseIterator& operator++() {
+        --current_;
+        return *this;
+    }
+
+    ReverseIterator operator++(int) {
+        ReverseIterator tmp = *this;
+        --current_;
+        return tmp;
+    }
+
+    ReverseIterator& operator--() {
+        ++current_;
+        return *this;
+    }
+
+    ReverseIterator operator--(int) {
+        ReverseIterator tmp = *this;
+        ++current_;
+        return tmp;
+    }
+
+    bool operator==(const ReverseIterator& other) const {
+        return current_ == other.current_;
+    }
+
+    bool operator!=(const ReverseIterator& other) const {
+        return current_ != other.current_;
+    }
+
 private:
+    iterator_type current_;
+};
+
+// Set class definition
+template <typename T, typename Compare = Less<T>>
+class Set {
+public:
+    // Member types
+    using key_type = T;
+    using value_type = T;
+    using key_compare = Compare;
+    using value_compare = Compare;
+    using allocator_type = MemoryAllocator<value_type>;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+    using pointer = value_type*;
+    using const_pointer = const value_type*;
+    using difference_type = ptrdiff_t;
+    using size_type = size_t;
+
+    // Iterator class
+    class Iterator;
+    using iterator = Iterator;
+    using const_iterator = const Iterator;
+    using reverse_iterator = ReverseIterator<iterator>;
+    using const_reverse_iterator = ReverseIterator<const_iterator>;
+
+    // Constructors
+    Set();
+    explicit Set(const Compare& comp);
+
+    // Copy constructor
+    Set(const Set& other);
+
+    // Assignment operator
+    Set& operator=(const Set& other);
+
+    // Destructor
+    ~Set();
+
+    // Iterators
+    iterator begin();
+    const_iterator begin() const;
+    iterator end();
+    const_iterator end() const;
+    reverse_iterator rbegin();
+    const_reverse_iterator rbegin() const;
+    reverse_iterator rend();
+    const_reverse_iterator rend() const;
+    const_iterator cbegin() const;
+    const_iterator cend() const;
+    const_reverse_iterator crbegin() const;
+    const_reverse_iterator crend() const;
+
+    // Capacity
+    bool empty() const;
+    size_type size() const;
+    size_type max_size() const;
+
+    // Modifiers
+    Pair<iterator, bool> insert(const value_type& value);
+    iterator erase(iterator pos);
+    size_type erase(const key_type& key);
+    void swap(Set& other);
+    void clear();
+    template <typename... Args>
+    Pair<iterator, bool> emplace(Args&&... args);
+    template <typename... Args>
+    iterator emplace_hint(iterator hint, Args&&... args);
+
+    // Observers
+    key_compare key_comp() const;
+    value_compare value_comp() const;
+
+    // Operations
+    iterator find(const key_type& key);
+    const_iterator find(const key_type& key) const;
+    size_type count(const key_type& key) const;
+    iterator lower_bound(const key_type& key);
+    const_iterator lower_bound(const key_type& key) const;
+    iterator upper_bound(const key_type& key);
+    const_iterator upper_bound(const key_type& key) const;
+    Pair<iterator, iterator> equal_range(const key_type& key);
+
+protected:
+    // Allocator functions
+    struct Node* AllocateNode(const value_type& value)
+    {
+		Node* node = new Node(value);
+		return node;
+    }
+    void DeallocateNode(struct Node* node)
+    {
+		delete node;
+		node = nullptr;
+    }
+
+private:
+    // Node structure
     struct Node {
-        Key key;
-        Value value;
-        bool isRed;
+        value_type data;
         Node* left;
         Node* right;
         Node* parent;
 
-        Node(const Key& k, const Value& v) : key(k), value(v), isRed(true), left(nullptr), right(nullptr), parent(nullptr) {}
+        explicit Node(const value_type& val)
+            : data(val), left(nullptr), right(nullptr), parent(nullptr) {}
     };
 
-    Node* root;
+    Node* root_;
+    size_type size_;
+    key_compare comp_;
+
+    // Helper functions
+    void Destroy(Node* node);
+    Node* CopyTree(Node* other_root, Node* parent);
+    void Transplant(Node* u, Node* v);
+    Node* Minimum(Node* node) const;
+    Node* Maximum(Node* node) const;
 
 public:
-    RedBlackTreeMap() : root(nullptr) {}
+    // Iterator implementation
+    class Iterator {
+    public:
+        using difference_type = ptrdiff_t;
+        using value_type = T;
+        using reference = value_type&;
+        using pointer = value_type*;
 
-    void Insert(const Key& key, const Value& value) {
-        Node* new_node = new Node(key, value);
-        if (root == nullptr) {
-            root = new_node;
-            root->isRed = false;
+        Iterator();
+        Iterator(Node* node, Node* root);
+        Iterator(const Iterator& other);
+
+        Iterator& operator++();
+        Iterator operator++(int);
+        Iterator& operator--();
+        Iterator operator--(int);
+        reference operator*() const;
+        pointer operator->() const;
+        bool operator==(const Iterator& other) const;
+        bool operator!=(const Iterator& other) const;
+
+    private:
+        Node* node_;
+        Node* root_;
+
+        friend class Set;
+    };
+};
+
+// Implementations
+
+// Constructors
+template <typename T, typename Compare>
+Set<T, Compare>::Set() : root_(nullptr), size_(0), comp_(Compare()) {}
+
+template <typename T, typename Compare>
+Set<T, Compare>::Set(const Compare& comp)
+    : root_(nullptr), size_(0), comp_(comp) {}
+
+template <typename T, typename Compare>
+Set<T, Compare>::Set(const Set& other)
+    : root_(nullptr), size_(0), comp_(other.comp_) {
+    root_ = CopyTree(other.root_, nullptr);
+    size_ = other.size_;
+}
+
+template <typename T, typename Compare>
+Set<T, Compare>::~Set() {
+    clear();
+}
+
+template <typename T, typename Compare>
+Set<T, Compare>& Set<T, Compare>::operator=(const Set& other) {
+    if (this != &other) {
+        clear();
+        comp_ = other.comp_;
+        root_ = CopyTree(other.root_, nullptr);
+        size_ = other.size_;
+    }
+    return *this;
+}
+
+// Iterators
+template <typename T, typename Compare>
+typename Set<T, Compare>::iterator Set<T, Compare>::begin() {
+    return iterator(Minimum(root_), root_);
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::const_iterator Set<T, Compare>::begin() const {
+    return const_iterator(Minimum(root_), root_);
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::iterator Set<T, Compare>::end() {
+    return iterator(nullptr, root_);
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::const_iterator Set<T, Compare>::end() const {
+    return const_iterator(nullptr, root_);
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::reverse_iterator Set<T, Compare>::rbegin() {
+    return reverse_iterator(end());
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::const_reverse_iterator Set<T, Compare>::rbegin() const {
+    return const_reverse_iterator(end());
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::reverse_iterator Set<T, Compare>::rend() {
+    return reverse_iterator(begin());
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::const_reverse_iterator Set<T, Compare>::rend() const {
+    return const_reverse_iterator(begin());
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::const_iterator Set<T, Compare>::cbegin() const {
+    return begin();
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::const_iterator Set<T, Compare>::cend() const {
+    return end();
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::const_reverse_iterator Set<T, Compare>::crbegin() const {
+    return rbegin();
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::const_reverse_iterator Set<T, Compare>::crend() const {
+    return rend();
+}
+
+// Capacity
+template <typename T, typename Compare>
+bool Set<T, Compare>::empty() const {
+    return size_ == 0;
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::size_type Set<T, Compare>::size() const {
+    return size_;
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::size_type Set<T, Compare>::max_size() const {
+    return static_cast<size_type>(-1) / sizeof(Node);
+}
+
+// Modifiers
+template <typename T, typename Compare>
+Pair<typename Set<T, Compare>::iterator, bool> Set<T, Compare>::insert(
+    const value_type& value) {
+    Node* y = nullptr;
+    Node* x = root_;
+
+    while (x != nullptr) {
+        y = x;
+        if (comp_(value, x->data)) {
+            x = x->left;
+        }
+        else if (comp_(x->data, value)) {
+            x = x->right;
         }
         else {
-            Node* current = root;
-            Node* parent = nullptr;
-            while (current != nullptr) {
-                parent = current;
-                if (key < current->key) {
-                    current = current->left;
-                }
-                else if (key > current->key) {
-                    current = current->right;
-                }
-                else {
-                    current->value = value;
-                    return;
-                }
-            }
-            new_node->parent = parent;
-            if (key < parent->key) {
-                parent->left = new_node;
-            }
-            else {
-                parent->right = new_node;
-            }
-            FixInsertion(new_node);
+            // Duplicate key, insertion failed
+            return MakePair(iterator(x, root_), false);
         }
     }
 
-    void Erase(const Key& key) {
-        Node* node = FindNode(key);
-        if (node == nullptr) {
-            return;
+    Node* z = AllocateNode(value);
+    z->parent = y;
+
+    if (y == nullptr) {
+        root_ = z;
+    }
+    else if (comp_(z->data, y->data)) {
+        y->left = z;
+    }
+    else {
+        y->right = z;
+    }
+
+    ++size_;
+    return MakePair(iterator(z, root_), true);
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::iterator Set<T, Compare>::erase(iterator pos) {
+    if (pos == end()) {
+        return pos;
+    }
+
+    Node* z = pos.node_;
+    iterator next = pos;
+    ++next;
+
+    if (z->left == nullptr) {
+        Transplant(z, z->right);
+    }
+    else if (z->right == nullptr) {
+        Transplant(z, z->left);
+    }
+    else {
+        Node* y = Minimum(z->right);
+        if (y->parent != z) {
+            Transplant(y, y->right);
+            y->right = z->right;
+            y->right->parent = y;
         }
-        if (node->left != nullptr && node->right != nullptr) {
-            Node* successor = FindSuccessor(node);
-            node->key = successor->key;
-            node->value = successor->value;
-            node = successor;
+        Transplant(z, y);
+        y->left = z->left;
+        y->left->parent = y;
+    }
+
+    DeallocateNode(z);
+    --size_;
+
+    return next;
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::size_type Set<T, Compare>::erase(const key_type& key) {
+    iterator it = find(key);
+    if (it != end()) {
+        erase(it);
+        return 1;
+    }
+    return 0;
+}
+
+template <typename T, typename Compare>
+void Set<T, Compare>::swap(Set& other) {
+    Swap(root_, other.root_);
+    Swap(size_, other.size_);
+    Swap(comp_, other.comp_);
+}
+
+template <typename T, typename Compare>
+void Set<T, Compare>::clear() {
+    Destroy(root_);
+    root_ = nullptr;
+    size_ = 0;
+}
+
+template <typename T, typename Compare>
+template <typename... Args>
+Pair<typename Set<T, Compare>::iterator, bool> Set<T, Compare>::emplace(Args&&... args) {
+    value_type value(args...);
+    return insert(value);
+}
+
+template <typename T, typename Compare>
+template <typename... Args>
+typename Set<T, Compare>::iterator Set<T, Compare>::emplace_hint(iterator, Args&&... args) {
+    value_type value(args...);
+    return insert(value).first;
+}
+
+// Observers
+template <typename T, typename Compare>
+typename Set<T, Compare>::key_compare Set<T, Compare>::key_comp() const {
+    return comp_;
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::value_compare Set<T, Compare>::value_comp() const {
+    return comp_;
+}
+
+// Operations
+template <typename T, typename Compare>
+typename Set<T, Compare>::iterator Set<T, Compare>::find(const key_type& key) {
+    Node* node = root_;
+    while (node != nullptr) {
+        if (comp_(key, node->data)) {
+            node = node->left;
         }
-        Node* child = (node->left != nullptr) ? node->left : node->right;
-        if (node->isRed) {
-            ReplaceNode(node, child);
-            delete node;
-        }
-        else if (child != nullptr && child->isRed) {
-            child->isRed = false;
-            ReplaceNode(node, child);
-            delete node;
+        else if (comp_(node->data, key)) {
+            node = node->right;
         }
         else {
-            FixDeletion(node);
-            ReplaceNode(node, nullptr);
-            delete node;
+            return iterator(node, root_);
         }
     }
+    return end();
+}
 
-    Value& At(const Key& key) {
-        Node* node = FindNode(key);
-        if (node == nullptr) {
-            return Value();
+template <typename T, typename Compare>
+typename Set<T, Compare>::const_iterator Set<T, Compare>::find(const key_type& key) const {
+    Node* node = root_;
+    while (node != nullptr) {
+        if (comp_(key, node->data)) {
+            node = node->left;
         }
-        return node->value;
-    }
-
-private:
-    void FixInsertion(Node* node) {
-        while (node->parent != nullptr && node->parent->isRed) {
-            if (node->parent == node->parent->parent->left) {
-                Node* uncle = node->parent->parent->right;
-                if (uncle != nullptr && uncle->isRed) {
-                    node->parent->isRed = false;
-                    uncle->isRed = false;
-                    node->parent->parent->isRed = true;
-                    node = node->parent->parent;
-                }
-                else {
-                    if (node == node->parent->right) {
-                        node = node->parent;
-                        RotateLeft(node);
-                    }
-                    node->parent->isRed = false;
-                    node->parent->parent->isRed = true;
-                    RotateRight(node->parent->parent);
-                }
-            }
-            else {
-                Node* uncle = node->parent->parent->left;
-                if (uncle != nullptr && uncle->isRed) {
-                    node->parent->isRed = false;
-                    uncle->isRed = false;
-                    node->parent->parent->isRed = true;
-                    node = node->parent->parent;
-                }
-                else {
-                    if (node == node->parent->left) {
-                        node = node->parent;
-                        RotateRight(node);
-                    }
-                    node->parent->isRed = false;
-                    node->parent->parent->isRed = true;
-                    RotateLeft(node->parent->parent);
-                }
-            }
-        }
-        root->isRed = false;
-    }
-
-    void FixDeletion(Node* node) {
-        while (node != root && !node->isRed) {
-            if (node == node->parent->left) {
-                Node* sibling = node->parent->right;
-                if (sibling->isRed) {
-                    sibling->isRed = false;
-                    node->parent->isRed = true;
-                    RotateLeft(node->parent);
-                    sibling = node->parent->right;
-                }
-                if (!sibling->left->isRed && !sibling->right->isRed) {
-                    sibling->isRed = true;
-                    node = node->parent;
-                }
-                else {
-                    if (!sibling->right->isRed) {
-                        sibling->left->isRed = false;
-                        sibling->isRed = true;
-                        RotateRight(sibling);
-                        sibling = node->parent->right;
-                    }
-                    sibling->isRed = node->parent->isRed;
-                    node->parent->isRed = false;
-                    sibling->right->isRed = false;
-                    RotateLeft(node->parent);
-                    node = root;
-                }
-            }
-            else {
-                Node* sibling = node->parent->left;
-                if (sibling->isRed) {
-                    sibling->isRed = false;
-                    node->parent->isRed = true;
-                    RotateRight(node->parent);
-                    sibling = node->parent->left;
-                }
-                if (!sibling->left->isRed && !sibling->right->isRed) {
-                    sibling->isRed = true;
-                    node = node->parent;
-                }
-                else {
-                    if (!sibling->left->isRed) {
-                        sibling->right->isRed = false;
-                        sibling->isRed = true;
-                        RotateLeft(sibling);
-                        sibling = node->parent->left;
-                    }
-                    sibling->isRed = node->parent->isRed;
-                    node->parent->isRed = false;
-                    sibling->left->isRed = false;
-                    RotateRight(node->parent);
-                    node = root;
-                }
-            }
-        }
-        node->isRed = false;
-    }
-
-    void RotateLeft(Node* node) {
-        Node* right_child = node->right;
-        node->right = right_child->left;
-        if (right_child->left != nullptr) {
-            right_child->left->parent = node;
-        }
-        right_child->parent = node->parent;
-        if (node->parent == nullptr) {
-            root = right_child;
-        }
-        else if (node == node->parent->left) {
-            node->parent->left = right_child;
+        else if (comp_(node->data, key)) {
+            node = node->right;
         }
         else {
-            node->parent->right = right_child;
+            return const_iterator(node, root_);
         }
-        right_child->left = node;
-        node->parent = right_child;
     }
+    return end();
+}
 
-    void RotateRight(Node* node) {
-        Node* left_child = node->left;
-        node->left = left_child->right;
-        if (left_child->right != nullptr) {
-            left_child->right->parent = node;
-        }
-        left_child->parent = node->parent;
-        if (node->parent == nullptr) {
-            root = left_child;
-        }
-        else if (node == node->parent->left) {
-            node->parent->left = left_child;
+template <typename T, typename Compare>
+typename Set<T, Compare>::size_type Set<T, Compare>::count(const key_type& key) const {
+    return find(key) != end() ? 1 : 0;
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::iterator Set<T, Compare>::lower_bound(const key_type& key) {
+    Node* node = root_;
+    Node* result = nullptr;
+    while (node != nullptr) {
+        if (!comp_(node->data, key)) {
+            result = node;
+            node = node->left;
         }
         else {
-            node->parent->right = left_child;
+            node = node->right;
         }
-        left_child->right = node;
-        node->parent = left_child;
     }
+    return iterator(result, root_);
+}
 
-    Node* FindNode(const Key& key) {
-        Node* current = root;
-        while (current != nullptr) {
-            if (key < current->key) {
-                current = current->left;
-            }
-            else if (key > current->key) {
-                current = current->right;
-            }
-            else {
-                return current;
-            }
+template <typename T, typename Compare>
+typename Set<T, Compare>::const_iterator Set<T, Compare>::lower_bound(const key_type& key) const {
+    Node* node = root_;
+    Node* result = nullptr;
+    while (node != nullptr) {
+        if (!comp_(node->data, key)) {
+            result = node;
+            node = node->left;
         }
+        else {
+            node = node->right;
+        }
+    }
+    return const_iterator(result, root_);
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::iterator Set<T, Compare>::upper_bound(const key_type& key) {
+    Node* node = root_;
+    Node* result = nullptr;
+    while (node != nullptr) {
+        if (comp_(key, node->data)) {
+            result = node;
+            node = node->left;
+        }
+        else {
+            node = node->right;
+        }
+    }
+    return iterator(result, root_);
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::const_iterator Set<T, Compare>::upper_bound(const key_type& key) const {
+    Node* node = root_;
+    Node* result = nullptr;
+    while (node != nullptr) {
+        if (comp_(key, node->data)) {
+            result = node;
+            node = node->left;
+        }
+        else {
+            node = node->right;
+        }
+    }
+    return const_iterator(result, root_);
+}
+
+template <typename T, typename Compare>
+Pair<typename Set<T, Compare>::iterator, typename Set<T, Compare>::iterator>
+Set<T, Compare>::equal_range(const key_type& key) {
+    return MakePair(lower_bound(key), upper_bound(key));
+}
+
+// Helper functions
+template <typename T, typename Compare>
+void Set<T, Compare>::Destroy(Node* node) {
+    if (node != nullptr) {
+        Destroy(node->left);
+        Destroy(node->right);
+        DeallocateNode(node);
+    }
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::Node* Set<T, Compare>::CopyTree(Node* other_root, Node* parent) {
+    if (other_root == nullptr) {
         return nullptr;
     }
+    Node* node = AllocateNode(other_root->data);
+    node->parent = parent;
+    node->left = CopyTree(other_root->left, node);
+    node->right = CopyTree(other_root->right, node);
+    return node;
+}
 
-    Node* FindSuccessor(Node* node) {
-        Node* current = node->right;
-        while (current->left != nullptr) {
-            current = current->left;
-        }
-        return current;
+template <typename T, typename Compare>
+void Set<T, Compare>::Transplant(Node* u, Node* v) {
+    if (u->parent == nullptr) {
+        root_ = v;
     }
+    else if (u == u->parent->left) {
+        u->parent->left = v;
+    }
+    else {
+        u->parent->right = v;
+    }
+    if (v != nullptr) {
+        v->parent = u->parent;
+    }
+}
 
-    void ReplaceNode(Node* node, Node* child) {
-        if (node->parent == nullptr) {
-            root = child;
-        }
-        else if (node == node->parent->left) {
-            node->parent->left = child;
+template <typename T, typename Compare>
+typename Set<T, Compare>::Node* Set<T, Compare>::Minimum(Node* node) const {
+    while (node && node->left != nullptr) {
+        node = node->left;
+    }
+    return node;
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::Node* Set<T, Compare>::Maximum(Node* node) const {
+    while (node && node->right != nullptr) {
+        node = node->right;
+    }
+    return node;
+}
+
+// Iterator implementation
+template <typename T, typename Compare>
+Set<T, Compare>::Iterator::Iterator() : node_(nullptr), root_(nullptr) {}
+
+template <typename T, typename Compare>
+Set<T, Compare>::Iterator::Iterator(Node* node, Node* root)
+    : node_(node), root_(root) {}
+
+template <typename T, typename Compare>
+Set<T, Compare>::Iterator::Iterator(const Iterator& other)
+    : node_(other.node_), root_(other.root_) {}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::Iterator& Set<T, Compare>::Iterator::operator++() {
+    if (node_ != nullptr) {
+        if (node_->right != nullptr) {
+            node_ = Minimum(node_->right);
         }
         else {
-            node->parent->right = child;
-        }
-        if (child != nullptr) {
-            child->parent = node->parent;
+            Node* parent = node_->parent;
+            while (parent != nullptr && node_ == parent->right) {
+                node_ = parent;
+                parent = parent->parent;
+            }
+            node_ = parent;
         }
     }
-};
+    return *this;
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::Iterator Set<T, Compare>::Iterator::operator++(int) {
+    Iterator temp = *this;
+    ++(*this);
+    return temp;
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::Iterator& Set<T, Compare>::Iterator::operator--() {
+    if (node_ == nullptr) {
+        node_ = Maximum(root_);
+    }
+    else if (node_->left != nullptr) {
+        node_ = Maximum(node_->left);
+    }
+    else {
+        Node* parent = node_->parent;
+        while (parent != nullptr && node_ == parent->left) {
+            node_ = parent;
+            parent = parent->parent;
+        }
+        node_ = parent;
+    }
+    return *this;
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::Iterator Set<T, Compare>::Iterator::operator--(int) {
+    Iterator temp = *this;
+    --(*this);
+    return temp;
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::Iterator::reference Set<T, Compare>::Iterator::operator*() const {
+    return node_->data;
+}
+
+template <typename T, typename Compare>
+typename Set<T, Compare>::Iterator::pointer Set<T, Compare>::Iterator::operator->() const {
+    return &(node_->data);
+}
+
+template <typename T, typename Compare>
+bool Set<T, Compare>::Iterator::operator==(const Iterator& other) const {
+    return node_ == other.node_;
+}
+
+template <typename T, typename Compare>
+bool Set<T, Compare>::Iterator::operator!=(const Iterator& other) const {
+    return node_ != other.node_;
+}

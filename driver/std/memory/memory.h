@@ -28,6 +28,22 @@ void MemCopy(T* dst, T* src, size_t len);
 template <class T>
 void ZeroMemory(T* dst, size_t len);
 
+template <typename T>
+struct Less {
+public:
+    bool operator()(const T& lhs, const T& rhs) const {
+        return lhs < rhs;
+    }
+};
+
+template <typename T>
+struct Greater {
+public:
+    bool operator()(const T& lhs, const T& rhs) const {
+        return lhs > rhs;
+    }
+};
+
 size_t Rand();
 
 namespace krnl_std

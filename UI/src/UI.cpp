@@ -104,7 +104,7 @@ JSValue UI::UpdateProtectedStatus(const JSObject& thisObject, const JSArgs& args
 
 // Xóa một mục khỏi danh sách file ẩn
 JSValue UI::RemoveFromHiddenList(const JSObject& thisObject, const JSArgs& args) {
-    if (args.size() != 1) {
+    if (args.size() != 2) {
         return JSValue("Invalid arguments");
     }
 
@@ -117,7 +117,7 @@ JSValue UI::RemoveFromHiddenList(const JSObject& thisObject, const JSArgs& args)
 
 // Xóa một mục khỏi danh sách file bảo vệ
 JSValue UI::RemoveFromProtectedList(const JSObject& thisObject, const JSArgs& args) {
-    if (args.size() != 1) {
+    if (args.size() != 2) {
         return JSValue("Invalid arguments");
     }
 

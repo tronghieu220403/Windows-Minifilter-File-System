@@ -95,6 +95,12 @@
     <ClInclude Include="template\system_routine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="std\algo\hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="std\algo\kmp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="template\MiniFs.cpp">

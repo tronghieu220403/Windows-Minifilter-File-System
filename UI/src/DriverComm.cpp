@@ -123,6 +123,8 @@ bool DriverComm::SendCommand(IOCTL_CMD_CLASS cmdClass, const std::wstring& path)
     DWORD bytes_returned = 0;
     CHAR out_buffer[128] = { 0 };
 	std::wstring dos_path;
+
+	// if cmdClass is unHideFile or unHideDir, we can not get dos path
     if (!path.empty()) {
         dos_path = GetDosPath(path);
         if (dos_path.empty()) {
