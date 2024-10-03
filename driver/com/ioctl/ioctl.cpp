@@ -36,9 +36,8 @@ NTSTATUS ioctl::DrvRegister(PDRIVER_OBJECT driver_object, PUNICODE_STRING regist
 NTSTATUS ioctl::DrvUnload(PDRIVER_OBJECT driver_object)
 {
 	DebugMessage("DriverUnload: Unload\n");
-
-	IoDeleteDevice(driver_object->DeviceObject);
 	IoDeleteSymbolicLink(&DEVICE_SYMBOLIC_NAME);
+	IoDeleteDevice(driver_object->DeviceObject);
 
 	return STATUS_SUCCESS;
 }
@@ -170,6 +169,7 @@ NTSTATUS ioctl::HandleIoctl(PDEVICE_OBJECT device_object, PIRP irp)
 	case IOCTL_CMD_CLASS::kEnableFileHide:
 		hide_file::kEnableHideFile = true;
 		DebugMessage("Enable hide file");
+		break;
 
 	case IOCTL_CMD_CLASS::kDisableFileHide:
 		hide_file::kEnableHideFile = false;
@@ -207,10 +207,10 @@ NTSTATUS ioctl::MajorFunction(PDEVICE_OBJECT device_object, PIRP irp)
 	switch (stackLocation->MajorFunction)
 	{
 	case IRP_MJ_CREATE:
-		DebugMessage("Handle to symbolink link %wZ opened", DEVICE_SYMBOLIC_NAME);
+		DebugMessage("Handle to symbolic link %wZ opened", DEVICE_SYMBOLIC_NAME);
 		break;
 	case IRP_MJ_CLOSE:
-		DebugMessage("Handle to symbolink link %wZ closed", DEVICE_SYMBOLIC_NAME);
+		DebugMessage("Handle to symbolic link %wZ closed", DEVICE_SYMBOLIC_NAME);
 		break;
 	default:
 		break;
