@@ -1,42 +1,24 @@
-﻿#ifndef SET_H_
-#define SET_H_
+#ifndef MAP_H_
+#define MAP_H_
 
 #include "../memory/memory.h"
 #include "../memory/pair.h"
 #include "../iterator/iterator.h"
 
-// Custom initializer list
-template <typename T>
-class InitializerList {
-private:
-    const T* data_;
-    size_t size_;
-
-public:
-    using iterator = const T*;
-    using const_iterator = const T*;
-
-    InitializerList(const T* data, size_t size) : data_(data), size_(size) {}
-
-    const_iterator Begin() const { return data_; }
-    const_iterator End() const { return data_ + size_; }
-    size_t Size() const { return size_; }
-};
-
-// Set class definition
-template <typename Key, typename Compare = bool (*)(const Key&, const Key&)>
-class Set {
+// Map class definition
+template <typename Key, typename T, typename Compare = Less<Key>>
+class Map {
 private:
     // Node structure for the Red-Black Tree
     struct Node {
-        Key key;
+        Pair<const Key, T> data;
         bool is_red;
         Node* parent;
         Node* left;
         Node* right;
 
-        explicit Node(const Key& k)
-            : key(k), is_red(true), parent(nullptr), left(nullptr), right(nullptr) {}
+        explicit Node(const Key& key, const T& value)
+            : data(key, value), is_red(true), parent(nullptr), left(nullptr), right(nullptr) {}
     };
 
     Node* root_;
@@ -60,9 +42,21 @@ private:
 public:
     // Type definitions
     using key_type = Key;
-    using value_type = Key;
-    using key_compare = Compare;
-    using value_compare = Compare;
+    using mapped_type = T;
+    using value_type = Pair<const Key, T>;
+    using KeyCompare = Compare;
+
+    class ValueCompare {
+    protected:
+        Compare comp;
+        explicit ValueCompare(Compare c) : comp(c) {}
+
+    public:
+        bool operator()(const value_type& lhs, const value_type& rhs) const {
+            return comp(lhs.first, rhs.first);
+        }
+    };
+
     using size_type = size_t;
     using difference_type = ptrdiff_t;
     using reference = value_type&;
@@ -74,20 +68,20 @@ public:
     class Iterator : public IteratorBase<value_type, BidirectionalIteratorTag> {
     private:
         Node* node_;
-        const Set* set_;
+        const Map* map_;
 
     public:
         using value_type = value_type;
         using difference_type = ptrdiff_t;
-        using pointer = const value_type*;
-        using reference = const value_type&;
+        using pointer = value_type*;
+        using reference = value_type&;
         using iterator_category = BidirectionalIteratorTag;
 
-        Iterator() : node_(nullptr), set_(nullptr) {}
-        Iterator(Node* node, const Set* set) : node_(node), set_(set) {}
+        Iterator() : node_(nullptr), map_(nullptr) {}
+        Iterator(Node* node, const Map* map) : node_(node), map_(map) {}
 
-        reference operator*() const { return node_->key; }
-        pointer operator->() const { return &(node_->key); }
+        reference operator*() const { return node_->data; }
+        pointer operator->() const { return &(node_->data); }
 
         Iterator& operator++();
         Iterator operator++(int);
@@ -97,7 +91,7 @@ public:
         bool operator==(const Iterator& other) const { return node_ == other.node_; }
         bool operator!=(const Iterator& other) const { return node_ != other.node_; }
 
-        friend class Set;
+        friend class Map;
     };
 
     using iterator = Iterator;
@@ -106,27 +100,17 @@ public:
     using const_reverse_iterator = ReverseIterator<const_iterator>;
 
     // Constructors
-    Set();
-    explicit Set(const key_compare& comp);
-    explicit Set(Compare comp, void* /*alloc placeholder*/);
+    Map();
+    explicit Map(const KeyCompare& comp);
     template <class InputIterator>
-    Set(InputIterator first, InputIterator last, const key_compare& comp = key_compare());
-    template <class InputIterator>
-    Set(InputIterator first, InputIterator last, void* /*alloc placeholder*/);
-    Set(const Set& other);
-    Set(const Set& other, void* /*alloc placeholder*/);
-    Set(Set&& other);
-    Set(Set&& other, void* /*alloc placeholder*/);
-    Set(InitializerList<value_type> il, const key_compare& comp = key_compare());
-    Set(InitializerList<value_type> il, void* /*alloc placeholder*/);
+    Map(InputIterator first, InputIterator last, const KeyCompare& comp = KeyCompare());
+    Map(const Map& other);
+    Map(Map&& other);
+    Map& operator=(const Map& other);
+    Map& operator=(Map&& other);
 
     // Destructor
-    ~Set();
-
-    // Assignment operators
-    Set& operator=(const Set& other);
-    Set& operator=(Set&& other);
-    Set& operator=(InitializerList<value_type> il);
+    ~Map();
 
     // Iterators
     iterator Begin() const;
@@ -143,126 +127,87 @@ public:
     size_type Size() const;
     size_type MaxSize() const;
 
+    // Element access
+    T& operator[](const Key& key);
+
     // Modifiers
+    Pair<iterator, bool> Insert(const Key& key, const T& val);
     Pair<iterator, bool> Insert(const value_type& val);
-    Pair<iterator, bool> Insert(value_type&& val);
-    iterator Insert(const_iterator position, const value_type& val);
-    iterator Insert(const_iterator position, value_type&& val);
-    template <class InputIterator>
-    void Insert(InputIterator first, InputIterator last);
-    void Insert(InitializerList<value_type> il);
     iterator Erase(const_iterator position);
-    size_type Erase(const value_type& val);
+    size_type Erase(const key_type& key);
     iterator Erase(const_iterator first, const_iterator last);
-    void Swap(Set& other);
+    void Swap(Map& other);
     void Clear();
 
     // Observers
-    key_compare KeyComp() const;
-    value_compare ValueComp() const;
+    KeyCompare KeyComp() const;
+    ValueCompare ValueComp() const;
 
     // Operations
-    iterator Find(const value_type& val) const;
-    size_type Count(const value_type& val) const;
-    iterator LowerBound(const value_type& val) const;
-    iterator UpperBound(const value_type& val) const;
-    Pair<iterator, iterator> EqualRange(const value_type& val) const;
+    iterator Find(const key_type& key) const;
+    size_type Count(const key_type& key) const;
+    iterator LowerBound(const key_type& key) const;
+    iterator UpperBound(const key_type& key) const;
+    Pair<iterator, iterator> EqualRange(const key_type& key) const;
 };
 
 // Implementation details
 
-// Helper compare function if none is provided
-template <typename Key>
-bool DefaultCompare(const Key& a, const Key& b) {
-    return a < b;
-}
-
 // Constructors
 
-template <typename Key, typename Compare>
-Set<Key, Compare>::Set() : size_(0) {
-    compare_ = DefaultCompare;
-    nil_ = new Node(Key());
+template <typename Key, typename T, typename Compare>
+Map<Key, T, Compare>::Map() : size_(0), compare_() {
+    nil_ = new Node(Key(), T());
     nil_->is_red = false;
     nil_->left = nil_->right = nil_->parent = nil_;
     root_ = nil_;
 }
 
-template <typename Key, typename Compare>
-Set<Key, Compare>::Set(const key_compare& comp) : size_(0), compare_(comp) {
-    nil_ = new Node(Key());
+template <typename Key, typename T, typename Compare>
+Map<Key, T, Compare>::Map(const KeyCompare& comp) : size_(0), compare_(comp) {
+    nil_ = new Node(Key(), T());
     nil_->is_red = false;
     nil_->left = nil_->right = nil_->parent = nil_;
     root_ = nil_;
 }
 
-template <typename Key, typename Compare>
-Set<Key, Compare>::Set(Compare comp, void* /*alloc placeholder*/) : size_(0), compare_(comp) {
-    nil_ = new Node(Key());
-    nil_->is_red = false;
-    nil_->left = nil_->right = nil_->parent = nil_;
-    root_ = nil_;
-}
-
-template <typename Key, typename Compare>
+template <typename Key, typename T, typename Compare>
 template <class InputIterator>
-Set<Key, Compare>::Set(InputIterator first, InputIterator last, const key_compare& comp)
-    : Set(comp) {
-    Insert(first, last);
+Map<Key, T, Compare>::Map(InputIterator first, InputIterator last, const KeyCompare& comp)
+    : Map(comp) {
+    for (; first != last; ++first) {
+        Insert(*first);
+    }
 }
 
-template <typename Key, typename Compare>
-template <class InputIterator>
-Set<Key, Compare>::Set(InputIterator first, InputIterator last, void* /*alloc placeholder*/)
-    : Set() {
-    Insert(first, last);
-}
-
-template <typename Key, typename Compare>
-Set<Key, Compare>::Set(const Set& other) : Set(other.compare_) {
+template <typename Key, typename T, typename Compare>
+Map<Key, T, Compare>::Map(const Map& other) : Map(other.compare_) {
     if (other.root_ != other.nil_) {
         root_ = Copy(other.root_, nil_);
         size_ = other.size_;
     }
 }
 
-template <typename Key, typename Compare>
-Set<Key, Compare>::Set(const Set& other, void* /*alloc placeholder*/) : Set(other) {}
-
-template <typename Key, typename Compare>
-Set<Key, Compare>::Set(Set&& other)
+template <typename Key, typename T, typename Compare>
+Map<Key, T, Compare>::Map(Map&& other)
     : root_(other.root_), nil_(other.nil_), size_(other.size_), compare_(other.compare_) {
     other.root_ = nullptr;
     other.nil_ = nullptr;
     other.size_ = 0;
 }
 
-template <typename Key, typename Compare>
-Set<Key, Compare>::Set(Set&& other, void* /*alloc placeholder*/) : Set(static_cast<Set&&>(other)) {}
-
-template <typename Key, typename Compare>
-Set<Key, Compare>::Set(InitializerList<value_type> il, const key_compare& comp)
-    : Set(comp) {
-    Insert(il.Begin(), il.End());
-}
-
-template <typename Key, typename Compare>
-Set<Key, Compare>::Set(InitializerList<value_type> il, void* /*alloc placeholder*/) : Set() {
-    Insert(il.Begin(), il.End());
-}
-
 // Destructor
 
-template <typename Key, typename Compare>
-Set<Key, Compare>::~Set() {
+template <typename Key, typename T, typename Compare>
+Map<Key, T, Compare>::~Map() {
     Clear();
     delete nil_;
 }
 
 // Assignment operators
 
-template <typename Key, typename Compare>
-Set<Key, Compare>& Set<Key, Compare>::operator=(const Set& other) {
+template <typename Key, typename T, typename Compare>
+Map<Key, T, Compare>& Map<Key, T, Compare>::operator=(const Map& other) {
     if (this != &other) {
         Clear();
         compare_ = other.compare_;
@@ -278,8 +223,8 @@ Set<Key, Compare>& Set<Key, Compare>::operator=(const Set& other) {
     return *this;
 }
 
-template <typename Key, typename Compare>
-Set<Key, Compare>& Set<Key, Compare>::operator=(Set&& other) {
+template <typename Key, typename T, typename Compare>
+Map<Key, T, Compare>& Map<Key, T, Compare>::operator=(Map&& other) {
     if (this != &other) {
         Clear();
         delete nil_;
@@ -295,87 +240,124 @@ Set<Key, Compare>& Set<Key, Compare>::operator=(Set&& other) {
     return *this;
 }
 
-template <typename Key, typename Compare>
-Set<Key, Compare>& Set<Key, Compare>::operator=(InitializerList<value_type> il) {
-    Clear();
-    Insert(il.Begin(), il.End());
-    return *this;
-}
-
 // Iterators
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::iterator Set<Key, Compare>::Begin() const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::iterator Map<Key, T, Compare>::Begin() const {
     return iterator(Minimum(root_), this);
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::iterator Set<Key, Compare>::End() const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::iterator Map<Key, T, Compare>::End() const {
     return iterator(nil_, this);
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::reverse_iterator Set<Key, Compare>::RBegin() const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::reverse_iterator Map<Key, T, Compare>::RBegin() const {
     return reverse_iterator(End());
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::reverse_iterator Set<Key, Compare>::REnd() const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::reverse_iterator Map<Key, T, Compare>::REnd() const {
     return reverse_iterator(Begin());
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::const_iterator Set<Key, Compare>::CBegin() const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::const_iterator Map<Key, T, Compare>::CBegin() const {
     return Begin();
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::const_iterator Set<Key, Compare>::CEnd() const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::const_iterator Map<Key, T, Compare>::CEnd() const {
     return End();
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::const_reverse_iterator Set<Key, Compare>::CRBegin() const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::const_reverse_iterator Map<Key, T, Compare>::CRBegin() const {
     return RBegin();
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::const_reverse_iterator Set<Key, Compare>::CREnd() const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::const_reverse_iterator Map<Key, T, Compare>::CREnd() const {
     return REnd();
 }
 
 // Capacity
 
-template <typename Key, typename Compare>
-bool Set<Key, Compare>::Empty() const {
+template <typename Key, typename T, typename Compare>
+bool Map<Key, T, Compare>::Empty() const {
     return size_ == 0;
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::size_type Set<Key, Compare>::Size() const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::size_type Map<Key, T, Compare>::Size() const {
     return size_;
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::size_type Set<Key, Compare>::MaxSize() const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::size_type Map<Key, T, Compare>::MaxSize() const {
     return static_cast<size_type>(-1) / sizeof(Node);
+}
+
+// Element access
+
+template <typename Key, typename T, typename Compare>
+T& Map<Key, T, Compare>::operator[](const Key& key) {
+    Node* x = root_;
+    Node* y = nil_;
+    while (x != nil_) {
+        y = x;
+        if (compare_(key, x->data.first)) {
+            x = x->left;
+        }
+        else if (compare_(x->data.first, key)) {
+            x = x->right;
+        }
+        else {
+            return x->data.second;
+        }
+    }
+    Node* z = new Node(key, T());
+    z->parent = y;
+    if (y == nil_) {
+        root_ = z;
+    }
+    else if (compare_(z->data.first, y->data.first)) {
+        y->left = z;
+    }
+    else {
+        y->right = z;
+    }
+    z->left = nil_;
+    z->right = nil_;
+    z->is_red = true;
+
+    InsertFixup(z);
+    ++size_;
+    return z->data.second;
 }
 
 // Modifiers
 
-template <typename Key, typename Compare>
-Pair<typename Set<Key, Compare>::iterator, bool> Set<Key, Compare>::Insert(
+template <typename Key, typename T, typename Compare>
+Pair<typename Map<Key, T, Compare>::iterator, bool> Map<Key, T, Compare>::Insert(
     const value_type& val) {
-    Node* z = new Node(val);
+    return Insert(val.first, val.second);
+}
+
+template <typename Key, typename T, typename Compare>
+Pair<typename Map<Key, T, Compare>::iterator, bool> Map<Key, T, Compare>::Insert(
+    const Key& key, const T& val) {
+    Node* z = new Node(key, val);
     Node* y = nil_;
     Node* x = root_;
 
     while (x != nil_) {
         y = x;
-        if (compare_(z->key, x->key)) {
+        if (compare_(z->data.first, x->data.first)) {
             x = x->left;
         }
-        else if (compare_(x->key, z->key)) {
+        else if (compare_(x->data.first, z->data.first)) {
             x = x->right;
         }
         else {
@@ -388,7 +370,7 @@ Pair<typename Set<Key, Compare>::iterator, bool> Set<Key, Compare>::Insert(
     if (y == nil_) {
         root_ = z;
     }
-    else if (compare_(z->key, y->key)) {
+    else if (compare_(z->data.first, y->data.first)) {
         y->left = z;
     }
     else {
@@ -404,39 +386,8 @@ Pair<typename Set<Key, Compare>::iterator, bool> Set<Key, Compare>::Insert(
     return Pair<iterator, bool>(iterator(z, this), true);
 }
 
-template <typename Key, typename Compare>
-Pair<typename Set<Key, Compare>::iterator, bool> Set<Key, Compare>::Insert(value_type&& val) {
-    return Insert(val);  // For simplicity, treating rvalue same as lvalue
-}
-
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::iterator Set<Key, Compare>::Insert(const_iterator /*position*/,
-    const value_type& val) {
-    // Hint is ignored for simplicity
-    return Insert(val).first;
-}
-
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::iterator Set<Key, Compare>::Insert(const_iterator /*position*/,
-    value_type&& val) {
-    return Insert(val);  // For simplicity, treating rvalue same as lvalue
-}
-
-template <typename Key, typename Compare>
-template <class InputIterator>
-void Set<Key, Compare>::Insert(InputIterator first, InputIterator last) {
-    for (; first != last; ++first) {
-        Insert(*first);
-    }
-}
-
-template <typename Key, typename Compare>
-void Set<Key, Compare>::Insert(InitializerList<value_type> il) {
-    Insert(il.Begin(), il.End());
-}
-
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::iterator Set<Key, Compare>::Erase(const_iterator position) {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::iterator Map<Key, T, Compare>::Erase(const_iterator position) {
     if (position == End()) {
         return iterator();
     }
@@ -481,9 +432,9 @@ typename Set<Key, Compare>::iterator Set<Key, Compare>::Erase(const_iterator pos
     return iterator(x, this);
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::size_type Set<Key, Compare>::Erase(const value_type& val) {
-    iterator it = Find(val);
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::size_type Map<Key, T, Compare>::Erase(const key_type& key) {
+    iterator it = Find(key);
     if (it != End()) {
         Erase(it);
         return 1;
@@ -491,8 +442,8 @@ typename Set<Key, Compare>::size_type Set<Key, Compare>::Erase(const value_type&
     return 0;
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::iterator Set<Key, Compare>::Erase(const_iterator first,
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::iterator Map<Key, T, Compare>::Erase(const_iterator first,
     const_iterator last) {
     while (first != last) {
         first = Erase(first);
@@ -500,8 +451,8 @@ typename Set<Key, Compare>::iterator Set<Key, Compare>::Erase(const_iterator fir
     return iterator(last.node_, this);
 }
 
-template <typename Key, typename Compare>
-void Set<Key, Compare>::Swap(Set& other) {
+template <typename Key, typename T, typename Compare>
+void Map<Key, T, Compare>::Swap(Map& other) {
     Node* temp_root = root_;
     Node* temp_nil = nil_;
     size_t temp_size = size_;
@@ -518,8 +469,8 @@ void Set<Key, Compare>::Swap(Set& other) {
     other.compare_ = temp_compare;
 }
 
-template <typename Key, typename Compare>
-void Set<Key, Compare>::Clear() {
+template <typename Key, typename T, typename Compare>
+void Map<Key, T, Compare>::Clear() {
     Clear(root_);
     root_ = nil_;
     size_ = 0;
@@ -527,26 +478,26 @@ void Set<Key, Compare>::Clear() {
 
 // Observers
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::key_compare Set<Key, Compare>::KeyComp() const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::KeyCompare Map<Key, T, Compare>::KeyComp() const {
     return compare_;
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::value_compare Set<Key, Compare>::ValueComp() const {
-    return compare_;
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::ValueCompare Map<Key, T, Compare>::ValueComp() const {
+    return ValueCompare(compare_);
 }
 
 // Operations
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::iterator Set<Key, Compare>::Find(const value_type& val) const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::iterator Map<Key, T, Compare>::Find(const key_type& key) const {
     Node* current = root_;
     while (current != nil_) {
-        if (compare_(val, current->key)) {
+        if (compare_(key, current->data.first)) {
             current = current->left;
         }
-        else if (compare_(current->key, val)) {
+        else if (compare_(current->data.first, key)) {
             current = current->right;
         }
         else {
@@ -556,17 +507,17 @@ typename Set<Key, Compare>::iterator Set<Key, Compare>::Find(const value_type& v
     return End();
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::size_type Set<Key, Compare>::Count(const value_type& val) const {
-    return Find(val) != End() ? 1 : 0;
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::size_type Map<Key, T, Compare>::Count(const key_type& key) const {
+    return Find(key) != End() ? 1 : 0;
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::iterator Set<Key, Compare>::LowerBound(const value_type& val) const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::iterator Map<Key, T, Compare>::LowerBound(const key_type& key) const {
     Node* current = root_;
     Node* result = nil_;
     while (current != nil_) {
-        if (!compare_(current->key, val)) {
+        if (!compare_(current->data.first, key)) {
             result = current;
             current = current->left;
         }
@@ -577,12 +528,12 @@ typename Set<Key, Compare>::iterator Set<Key, Compare>::LowerBound(const value_t
     return iterator(result, this);
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::iterator Set<Key, Compare>::UpperBound(const value_type& val) const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::iterator Map<Key, T, Compare>::UpperBound(const key_type& key) const {
     Node* current = root_;
     Node* result = nil_;
     while (current != nil_) {
-        if (compare_(val, current->key)) {
+        if (compare_(key, current->data.first)) {
             result = current;
             current = current->left;
         }
@@ -593,16 +544,16 @@ typename Set<Key, Compare>::iterator Set<Key, Compare>::UpperBound(const value_t
     return iterator(result, this);
 }
 
-template <typename Key, typename Compare>
-Pair<typename Set<Key, Compare>::iterator, typename Set<Key, Compare>::iterator>
-Set<Key, Compare>::EqualRange(const value_type& val) const {
-    return Pair<iterator, iterator>(LowerBound(val), UpperBound(val));
+template <typename Key, typename T, typename Compare>
+Pair<typename Map<Key, T, Compare>::iterator, typename Map<Key, T, Compare>::iterator>
+Map<Key, T, Compare>::EqualRange(const key_type& key) const {
+    return Pair<iterator, iterator>(LowerBound(key), UpperBound(key));
 }
 
 // Helper Functions
 
-template <typename Key, typename Compare>
-void Set<Key, Compare>::LeftRotate(Node* x) {
+template <typename Key, typename T, typename Compare>
+void Map<Key, T, Compare>::LeftRotate(Node* x) {
     Node* y = x->right;
     x->right = y->left;
     if (y->left != nil_) {
@@ -622,8 +573,8 @@ void Set<Key, Compare>::LeftRotate(Node* x) {
     x->parent = y;
 }
 
-template <typename Key, typename Compare>
-void Set<Key, Compare>::RightRotate(Node* y) {
+template <typename Key, typename T, typename Compare>
+void Map<Key, T, Compare>::RightRotate(Node* y) {
     Node* x = y->left;
     y->left = x->right;
     if (x->right != nil_) {
@@ -643,8 +594,8 @@ void Set<Key, Compare>::RightRotate(Node* y) {
     y->parent = x;
 }
 
-template <typename Key, typename Compare>
-void Set<Key, Compare>::InsertFixup(Node* z) {
+template <typename Key, typename T, typename Compare>
+void Map<Key, T, Compare>::InsertFixup(Node* z) {
     while (z->parent->is_red) {
         if (z->parent == z->parent->parent->left) {
             Node* y = z->parent->parent->right;
@@ -686,8 +637,8 @@ void Set<Key, Compare>::InsertFixup(Node* z) {
     root_->is_red = false;
 }
 
-template <typename Key, typename Compare>
-void Set<Key, Compare>::DeleteFixup(Node* x) {
+template <typename Key, typename T, typename Compare>
+void Map<Key, T, Compare>::DeleteFixup(Node* x) {
     while (x != root_ && !x->is_red) {
         if (x == x->parent->left) {
             Node* w = x->parent->right;
@@ -745,8 +696,8 @@ void Set<Key, Compare>::DeleteFixup(Node* x) {
     x->is_red = false;
 }
 
-template <typename Key, typename Compare>
-void Set<Key, Compare>::Transplant(Node* u, Node* v) {
+template <typename Key, typename T, typename Compare>
+void Map<Key, T, Compare>::Transplant(Node* u, Node* v) {
     if (u->parent == nil_) {
         root_ = v;
     }
@@ -759,24 +710,24 @@ void Set<Key, Compare>::Transplant(Node* u, Node* v) {
     v->parent = u->parent;
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::Node* Set<Key, Compare>::Minimum(Node* node) const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::Node* Map<Key, T, Compare>::Minimum(Node* node) const {
     while (node->left != nil_) {
         node = node->left;
     }
     return node;
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::Node* Set<Key, Compare>::Maximum(Node* node) const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::Node* Map<Key, T, Compare>::Maximum(Node* node) const {
     while (node->right != nil_) {
         node = node->right;
     }
     return node;
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::Node* Set<Key, Compare>::Successor(Node* node) const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::Node* Map<Key, T, Compare>::Successor(Node* node) const {
     if (node->right != nil_) {
         return Minimum(node->right);
     }
@@ -788,8 +739,8 @@ typename Set<Key, Compare>::Node* Set<Key, Compare>::Successor(Node* node) const
     return y;
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::Node* Set<Key, Compare>::Predecessor(Node* node) const {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::Node* Map<Key, T, Compare>::Predecessor(Node* node) const {
     if (node->left != nil_) {
         return Maximum(node->left);
     }
@@ -801,8 +752,8 @@ typename Set<Key, Compare>::Node* Set<Key, Compare>::Predecessor(Node* node) con
     return y;
 }
 
-template <typename Key, typename Compare>
-void Set<Key, Compare>::Clear(Node* node) {
+template <typename Key, typename T, typename Compare>
+void Map<Key, T, Compare>::Clear(Node* node) {
     if (node != nil_) {
         Clear(node->left);
         Clear(node->right);
@@ -810,12 +761,12 @@ void Set<Key, Compare>::Clear(Node* node) {
     }
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::Node* Set<Key, Compare>::Copy(Node* node, Node* parent) {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::Node* Map<Key, T, Compare>::Copy(Node* node, Node* parent) {
     if (node == nil_) {
         return nil_;
     }
-    Node* new_node = new Node(node->key);
+    Node* new_node = new Node(node->data.first, node->data.second);
     new_node->is_red = node->is_red;
     new_node->parent = parent;
     new_node->left = Copy(node->left, new_node);
@@ -825,37 +776,37 @@ typename Set<Key, Compare>::Node* Set<Key, Compare>::Copy(Node* node, Node* pare
 
 // Iterator implementation
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::Iterator& Set<Key, Compare>::Iterator::operator++() {
-    if (node_ == set_->nil_) {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::Iterator& Map<Key, T, Compare>::Iterator::operator++() {
+    if (node_ == map_->nil_) {
         return *this;
     }
-    node_ = set_->Successor(node_);
+    node_ = map_->Successor(node_);
     return *this;
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::Iterator Set<Key, Compare>::Iterator::operator++(int) {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::Iterator Map<Key, T, Compare>::Iterator::operator++(int) {
     Iterator temp = *this;
     ++(*this);
     return temp;
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::Iterator& Set<Key, Compare>::Iterator::operator--() {
-    if (node_ == set_->nil_) {
-        node_ = set_->Maximum(set_->root_);
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::Iterator& Map<Key, T, Compare>::Iterator::operator--() {
+    if (node_ == map_->nil_) {
+        node_ = map_->Maximum(map_->root_);
         return *this;
     }
-    node_ = set_->Predecessor(node_);
+    node_ = map_->Predecessor(node_);
     return *this;
 }
 
-template <typename Key, typename Compare>
-typename Set<Key, Compare>::Iterator Set<Key, Compare>::Iterator::operator--(int) {
+template <typename Key, typename T, typename Compare>
+typename Map<Key, T, Compare>::Iterator Map<Key, T, Compare>::Iterator::operator--(int) {
     Iterator temp = *this;
     --(*this);
     return temp;
 }
 
-#endif  // SET_H_
+#endif  // MAP_H_
