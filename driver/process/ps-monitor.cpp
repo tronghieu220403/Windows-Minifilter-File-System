@@ -80,6 +80,14 @@ namespace process
 
 		ULONG returned_length = 0;
 		HANDLE h_process = NULL;
+		Vector<UCHAR> buffer;
+
+		if (ZwQueryInformationProcess == NULL)
+		{
+			DebugMessage("Cannot resolve ZwQueryInformationProcess\n");
+			status = STATUS_UNSUCCESSFUL;
+			goto cleanUp;
+		}
 
 		status = ObOpenObjectByPointer(eproc,
 			0, NULL, 0, 0, KernelMode, &h_process);
@@ -108,9 +116,9 @@ namespace process
 			goto cleanUp;
 		}
 
-		process_image_name.Resize(returned_length);
+		buffer.Resize(returned_length);
 
-		if (process_image_name.Data() == NULL)
+		if (buffer.Data() == NULL)
 		{
 			goto cleanUp;
 		}
@@ -118,10 +126,10 @@ namespace process
 		// Retrieve the process path from the handle to the process
 		status = ZwQueryInformationProcess(h_process,
 			ProcessImageFileName,
-			(PVOID)process_image_name.Data(),
+			buffer.Data(),
 			returned_length,
 			&returned_length);
-
+		process_image_name = (PUNICODE_STRING)buffer.Data();
 
 	cleanUp:
 		ZwClose(h_process);
