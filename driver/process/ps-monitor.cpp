@@ -59,16 +59,30 @@ namespace process
 	{
 		String<WCHAR> process_image_name;
 		NTSTATUS status = STATUS_UNSUCCESSFUL;
-		ULONG returned_length;
-		HANDLE h_process = NULL;
-
 		PEPROCESS eproc;
 		status = PsLookupProcessByProcessId((HANDLE)pid, &eproc);
-
 		if (!NT_SUCCESS(status))
 		{
 			return String<WCHAR>();
 		}
+
+		PUNICODE_STRING process_name = NULL;
+		status = SeLocateProcessImageName(eproc, &process_name);
+		if (status == STATUS_SUCCESS)
+		{
+			process_image_name = process_name;
+			delete process_name->Buffer;
+			ObDereferenceObject(eproc);
+			return process_image_name;
+		}
+		if (status == STATUS_NOT_FOUND)
+		{
+			ObDereferenceObject(eproc);
+			return String<WCHAR>();
+		}
+
+		ULONG returned_length = 0;
+		HANDLE h_process = NULL;
 
 		status = ObOpenObjectByPointer(eproc,
 			0, NULL, 0, 0, KernelMode, &h_process);
@@ -78,8 +92,6 @@ namespace process
 			return String<WCHAR>();
 		}
 
-		ObDereferenceObject(eproc);
-
 		if (ZwQueryInformationProcess == NULL)
 		{
 			DebugMessage("Cannot resolve ZwQueryInformationProcess\n");
@@ -87,7 +99,7 @@ namespace process
 			goto cleanUp;
 		}
 
-		/* Query the actual size of the process path */
+		// Query the actual size of the process path 
 		status = ZwQueryInformationProcess(h_process,
 			ProcessImageFileName,
 			NULL, // buffer
@@ -106,7 +118,7 @@ namespace process
 			goto cleanUp;
 		}
 
-		/* Retrieve the process path from the handle to the process */
+		// Retrieve the process path from the handle to the process
 		status = ZwQueryInformationProcess(h_process,
 			ProcessImageFileName,
 			(PVOID)process_image_name.Data(),
@@ -115,6 +127,7 @@ namespace process
 
 
 	cleanUp:
+		ObDereferenceObject(eproc);
 
 		ZwClose(h_process);
 
