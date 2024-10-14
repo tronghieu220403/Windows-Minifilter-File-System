@@ -71,15 +71,12 @@ namespace process
 		if (status == STATUS_SUCCESS)
 		{
 			process_image_name = process_name;
-			delete process_name->Buffer;
+			delete process_name;
 			ObDereferenceObject(eproc);
 			return process_image_name;
 		}
-		if (status == STATUS_NOT_FOUND)
-		{
-			ObDereferenceObject(eproc);
-			return String<WCHAR>();
-		}
+
+		ObDereferenceObject(eproc);
 
 		ULONG returned_length = 0;
 		HANDLE h_process = NULL;
@@ -127,8 +124,6 @@ namespace process
 
 
 	cleanUp:
-		ObDereferenceObject(eproc);
-
 		ZwClose(h_process);
 
 		return process_image_name;
